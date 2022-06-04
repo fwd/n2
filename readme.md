@@ -24,15 +24,21 @@ sudo chmod +x /usr/local/bin/n2
 
 ```
 Nano.to
+  $ n2 price ✅
+  $ n2 docs ✅
   $ n2 login ✅
   $ n2 register ✅
   $ n2 account ✅
+  $ n2 2factor ✅
   $ n2 logout ✅
 
-Blockchain (Nano.to)
-  $ n2 price ✅
+Blockchain
+  $ n2 stats
+  $ n2 ledger
+  $ n2 reps
+  $ n2 node
 
-Wallet (Local Node!)
+Wallet
   $ n2 wallet
   $ n2 wallet ls
   $ n2 wallet create 
@@ -47,13 +53,11 @@ Wallet (Local Node!)
   $ n2 wallet remove ADDRESS
   $ n2 wallet recycle ADDRESS
 
-Node (Local Node!)
-  $ n2 node
-
 Options
   --help, -h  Print Documentation.
-  --version, -v  Print CLI Version.
-  --update, -u  Update CLI Script.
+  --update, -u  Get latest CLI Script.
+  --version, -v  Print current CLI Version.
+  --uninstall, -v  Remove CLI from system.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

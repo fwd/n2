@@ -21,6 +21,7 @@ RPC="[::1]:7076"
 
 VERSION=0.1
 BANNER=$(cat <<'END_HEREDOC'
+	
 ███╗   ██╗ █████╗ ███╗   ██╗ ██████╗ ████████╗ ██████╗ 
 ████╗  ██║██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██╔═══██╗
 ██╔██╗ ██║███████║██╔██╗ ██║██║   ██║   ██║   ██║   ██║
@@ -80,6 +81,17 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 	--request GET | jq
 	exit 1
 
+fi
+
+########
+# DOCS #
+########
+
+if [ "$1" = "docs" ] || [ "$1" = "--docs" ] || [ "$1" = "-docs" ] || [ "$1" = "d" ] || [ "$1" = "-d" ]; then
+	URL="https://docs.nano.to/n2"
+	echo "Visit Docs: $URL"
+	open $URL
+	exit 1
 fi
 
 ############
@@ -195,11 +207,11 @@ if [[ $1 == "login" ]]; then
 		read -p 'Email: ' USERNAME
 	fi
 
-	if [[ $USERNAME == "" ]]; then
+	if [[ $PASSWORD == "" ]]; then
 		read -sp 'Password: ' PASSWORD
 	fi
 
-	SESSION=$(curl -s "https://nano.to/login" \
+	LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
@@ -208,14 +220,32 @@ if [[ $1 == "login" ]]; then
 EOF
 	))
 
-	if [[ $(jq '.session' <<< "$SESSION") == null ]]; then
-		echo "Error:" $(jq '.message' <<< "$SESSION")
+	if [[ $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT") == "true" ]]; then
+
+		echo
+
+		read -sp 'Enter OTP Code: ' OTP_CODE
+
+	LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "username": "$USERNAME", "password": "$PASSWORD", "code": "$OTP_CODE" }
+EOF
+	))
+
+	fi
+
+	if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
+		echo
+		echo "Error:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
 		exit 1
 	fi
 
-	rm $DIR/.n2-session
+	rm $DIR/.n2-session 2>/dev/null
 
-	echo $(jq -r '.session' <<< "$SESSION") >> $DIR/.n2-session
+	echo $(jq -r '.session' <<< "$LOGIN_ATTEMPT") >> $DIR/.n2-session
 
 	echo
 
@@ -225,6 +255,95 @@ EOF
 
 fi
 
+
+#################
+# CLOUD 2FACTOR #
+#################
+
+if [[ "$1" = "2fa" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/__account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET | jq '.two_factor')
+
+	if [[ $HAS_TWO_FACTOR == "true" ]]; then
+		echo "Error: You already have 2f enabled. Use 'n2 2f-remove' to change 2-factor."
+		exit 1
+	fi
+
+	NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET)
+
+	OTP_ID=$(jq -r '.id' <<< "$NEW_SETUP")
+	QR=$(jq -r '.qr' <<< "$NEW_SETUP")
+	KEY=$(jq -r '.key' <<< "$NEW_SETUP")
+
+	echo
+	echo "Copy and paste the 'KEY' to your OTP app, or scan the QR IMAGE."
+	echo
+	echo "===NANO.TO OTP SECRET===="
+	echo "NAME: Nano.to"
+	echo "KEY:" $KEY
+	echo "QR IMAGE:" $QR
+	echo "========================="
+	echo
+
+	read -p 'Enter OTP Code: ' FIRST_OTP
+
+	if [[ $FIRST_OTP == "" ]]; then
+		echo "Error: No code. Try again, but from scratch."
+		exit 1
+	fi
+
+	OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "id": "$OTP_ID", "code": "$FIRST_OTP" }
+EOF
+	))
+
+	echo $(jq <<< "$OTP_ATTEMPT")
+
+	# SETUP=$(curl -s "https://nano.to/$2?cli=$3" \
+	# 	-H "Accept: application/json" \
+	# 	-H "Content-Type:application/json" \
+	# --request GET | jq -r '.qrcode')
+
+	# /user/two-factor/disable
+
+	# this.$http.post('/user/two-factor', { id: this.setActive.metadata.id, code: this.setActive.twoFactorConfirmCode }, this.headers).then((res) => {
+	#     if (res.data.error) {
+	#         alert(res.data.message)
+	#         return
+	#     }
+	#     if (res.data.response === "Ok") {
+	#         alert("2-Factor is now setup. You will be asked next time you login.")
+	#         window.location.reload()
+	#         // alert("Success")
+	#     }
+	# })
+
+	# return this.$http.get('/user/two-factor').then((res) => {
+ #      item.metadata = res.data.response
+ #      this.$parent.active = item
+ #  })
+
+	exit 1
+
+fi
 
 ##################
 # CLOUD REGISTER #
@@ -299,7 +418,7 @@ if [[ "$1" = "--uninstall" ]]; then
 	sudo rm /usr/local/bin/n2
 	rm $DIR/.n2-session
 	rm $DIR/.n2-rpc
-	echo "Uninstalled. Sorry to see you go, take care."
+	echo "CLI removed. Thank you for using n2. Come back soon!"
 	exit 1
 fi
 

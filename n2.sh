@@ -128,7 +128,7 @@ fi
 # VERSION #
 ###########
 
-if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || ["$1" = "version"]; then
+if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" = "version" ]]; then
 	echo "Version: $VERSION"
 	exit 1
 fi

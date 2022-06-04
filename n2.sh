@@ -1,13 +1,14 @@
+#!/bin/bash
+
 ###############################
 ## n2 Command Line Tool      ##
 ## (c) 2018-2022 @nano2dev   ##
-## Usage under MIT License   ##
+## Released for MIT License  ##
+## https://github.com/fwd/n2 ##
 ###############################
-#!/bin/bash
 
 if ! command -v jq &> /dev/null
-then
-  sudo apt install jq -y
+then sudo apt install jq curl -y
 fi
 
 # GET HOME DIR

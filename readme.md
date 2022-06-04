@@ -4,8 +4,6 @@
 
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>
 
-<br />
-
 * **Login**: prompt uses layout and colors to create beautiful cli interfaces.
 * **Register**: prompt uses layout and colors to create beautiful cli interfaces.
 * **Account**: prompt uses layout and colors to create beautiful cli interfaces.
@@ -26,7 +24,40 @@ sudo chmod +x /usr/local/bin/n2
 ## ❯ Usage
 
 ```
-n2 price
+Blockchain
+  $ n2 price
+  $ n2 stats
+  $ n2 ledger
+  $ n2 reps
+
+Wallet
+  $ n2 wallet
+  $ n2 wallet ls
+  $ n2 wallet create 
+  $ n2 wallet pow @username
+  $ n2 wallet pending @username
+  $ n2 wallet balance @username
+  $ n2 wallet history @username
+  $ n2 wallet send @username 10 
+  $ n2 wallet change_rep @username
+  $ n2 wallet receive HASH
+  $ n2 wallet receive HASH
+  $ n2 wallet remove ADDRESS
+  $ n2 wallet recycle ADDRESS
+
+Node
+  $ n2 node
+
+Nano.to
+  $ n2 login
+  $ n2 register
+  $ n2 account
+  $ n2 logout
+
+Options
+  --help, -h  Print Documentation.
+  --version, -v  Print CLI Version.
+  --update, -u  Update CLI Script.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
@@ -35,13 +66,13 @@ n2 price
 
 Give a ⭐️ if this project helped you!
 
-Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/n2/issues).
+Contributions, issues and feature requests are welcome at [issues page](https://github.com/fwd/n2/issues).
 
 ## ❯ License
 
 MIT License
 
-Copyright © 2022 [Fresh Web Designs](https://fwd.dev).
+Copyright © 2022 [@nano2dev](https://twitter.com/nano2dev).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

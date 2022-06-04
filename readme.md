@@ -24,7 +24,7 @@
 ## ❯ Install
 
 ```
-curl -L "https://raw.githubusercontent.com/fwd/nano-cli/master/cli.sh" -o /usr/local/bin/wallet
+curl -L "https://raw.githubusercontent.com/fwd/nano.to-cli/master/cli.sh" -o /usr/local/bin/wallet
 ```
 
 ```
@@ -50,7 +50,7 @@ Coming soon.
 
 Give a ⭐️ if this project helped you!
 
-Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano-cli/issues).
+Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano.to-cli/issues).
 
 
 ## 📝 License
@@ -79,4 +79,4 @@ SOFTWARE.
 
 ## Stargazers
 
-[![Stargazers over time](https://starchart.cc/fwd/nano-cli.svg)](https://starchart.cc/fwd/nano-cli)
+[![Stargazers over time](https://starchart.cc/fwd/nano.to-cli.svg)](https://starchart.cc/fwd/nano.to-cli)

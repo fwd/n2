@@ -27,11 +27,17 @@ sudo chmod +x /usr/local/bin/wallet
 
 Coming soon.
 
+![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
+
+
 ## ❯ Contributing
 
 Give a ⭐️ if this project helped you!
 
 Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano.to-cli/issues).
+
+![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
+
 
 ## ❯ License
 

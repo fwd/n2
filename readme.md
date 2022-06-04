@@ -23,22 +23,9 @@ curl -L "https://raw.githubusercontent.com/fwd/nano.to-cli/master/cli.sh" -o /us
 sudo chmod +x /usr/local/bin/wallet
 ```
 
-![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
-
 ## ❯ Usage
 
 Coming soon.
-
-![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
-
-## ❯ Author
-
-**Fresh Web Designs**
-
-📍 Miami, Florida (Crypto Capital of the World)
-
-* Github: [@fwd](https://github.com/fwd)
-* Website: [https://fwd.dev](https://fwd.dev)
 
 ## ❯ Contributing
 

@@ -123,7 +123,7 @@ fi
 # VERSION #
 ###########
 
-if [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "version" ]; then
+if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || ["$1" = "version"]; then
 	echo "Version: $VERSION"
 	exit 1
 fi
@@ -132,7 +132,7 @@ fi
 # UPDATE #
 ##########
 
-if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+if [ "$1" = "u" ] || [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Updated to latest CLI."
@@ -143,16 +143,27 @@ fi
 # 4. NODE RPC #
 ###############
 
-if [[ "$1" = "node" ]]; then
+rpc() {
 	SESSION=$(curl -s "https://nano.to/login" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "action": "telemetry" }
+{ "action": "$1" }
 EOF
 	) | jq)
-	echo "$SESSION"
+	return $SESSION
+}
+
+if [[ "$1" = "node" ]]; then
+
+	if [[ $1 == "" ]]; then
+		rpc "telemetry"
+		exit 1
+	fi
+
+	rpc $1
+	
 	exit 1
 fi
 

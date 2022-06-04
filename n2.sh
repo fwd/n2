@@ -21,7 +21,7 @@ RPC="[::1]:7076"
 
 VERSION=0.1
 BANNER=$(cat <<'END_HEREDOC'
-	
+
 ███╗   ██╗ █████╗ ███╗   ██╗ ██████╗ ████████╗ ██████╗ 
 ████╗  ██║██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██╔═══██╗
 ██╔██╗ ██║███████║██╔██╗ ██║██║   ██║   ██║   ██║   ██║
@@ -45,21 +45,6 @@ Blockchain
   $ n2 ledger
   $ n2 reps
   $ n2 node
-
-Wallet (Local Node)
-  $ n2 wallet
-  $ n2 wallet ls
-  $ n2 wallet create 
-  $ n2 wallet pow @username
-  $ n2 wallet pending @username
-  $ n2 wallet balance @username
-  $ n2 wallet history @username
-  $ n2 wallet send @username 10 
-  $ n2 wallet change_rep @username
-  $ n2 wallet receive HASH
-  $ n2 wallet receive HASH
-  $ n2 wallet remove ADDRESS
-  $ n2 wallet recycle ADDRESS
 
 Options
   --help, -h  Print Documentation.
@@ -194,11 +179,9 @@ if [[ $1 == "login" ]]; then
 
 	echo "$BANNER"
 
-	echo 
+	echo "Welcome back"
 
-	echo 'Welcome back'
-
-	echo 
+	echo
 
 	USERNAME=$2
 	PASSWORD=$3
@@ -222,6 +205,11 @@ EOF
 
 	if [[ $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT") == "true" ]]; then
 
+		echo 
+		echo 
+		echo "========================"
+		echo "    2-FACTOR ENABLED    "
+		echo "========================"
 		echo
 
 		read -sp 'Enter OTP Code: ' OTP_CODE
@@ -249,7 +237,56 @@ EOF
 
 	echo
 
-	echo "You are now logged in."
+	echo "Logged in successfully."
+	
+	exit 1
+
+fi
+
+#########################
+# CLOUD 2FACTOR DISABLE #
+#########################
+
+if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
+
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/__account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET | jq '.two_factor')
+
+	if [[ $HAS_TWO_FACTOR == "false" ]]; then
+		echo "Error: You don't have 2f enabled. Use 'n2 2f' to enable it."
+		exit 1
+	fi
+
+	echo "========================"
+	echo "    REMOVE 2-FACTOR     "
+	echo "========================"
+	echo
+	echo "Please provide an existing OTP code."
+	echo
+
+	read -p 'Enter OTP Code: ' REMOVE_OTP
+
+	if [[ $REMOVE_OTP == "" ]]; then
+		echo "Error: No code. Try again, but from scratch."
+		exit 1
+	fi
+
+	REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "code": "$REMOVE_OTP" }
+EOF
+	))
+
+	echo 
+
+	echo "$REMOVE_OTP_ATTEMPT"
 
 	exit 1
 
@@ -260,7 +297,7 @@ fi
 # CLOUD 2FACTOR #
 #################
 
-if [[ "$1" = "2fa" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]]; then
+if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2fa" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]] || [[ "$1" = "--2factor" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -288,17 +325,16 @@ if [[ "$1" = "2fa" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2f" ]] || [[ "$1" 
 	QR=$(jq -r '.qr' <<< "$NEW_SETUP")
 	KEY=$(jq -r '.key' <<< "$NEW_SETUP")
 
-	echo
-	echo "Copy and paste the 'KEY' to your OTP app, or scan the QR IMAGE."
-	echo
-	echo "===NANO.TO OTP SECRET===="
+	echo "==============================="
+	echo "        ENABLE 2-FACTOR        "
+	echo "==============================="
+	echo "Copy the 'KEY' or scan the provided QR."
+	echo "==============================="
 	echo "NAME: Nano.to"
 	echo "KEY:" $KEY
-	echo "QR IMAGE:" $QR
-	echo "========================="
-	echo
-
-	read -p 'Enter OTP Code: ' FIRST_OTP
+	echo "QR:" $QR
+	echo "==============================="
+	read -p 'First OTP Code: ' FIRST_OTP
 
 	if [[ $FIRST_OTP == "" ]]; then
 		echo "Error: No code. Try again, but from scratch."
@@ -315,31 +351,9 @@ if [[ "$1" = "2fa" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2f" ]] || [[ "$1" 
 EOF
 	))
 
-	echo $(jq <<< "$OTP_ATTEMPT")
+	echo 
 
-	# SETUP=$(curl -s "https://nano.to/$2?cli=$3" \
-	# 	-H "Accept: application/json" \
-	# 	-H "Content-Type:application/json" \
-	# --request GET | jq -r '.qrcode')
-
-	# /user/two-factor/disable
-
-	# this.$http.post('/user/two-factor', { id: this.setActive.metadata.id, code: this.setActive.twoFactorConfirmCode }, this.headers).then((res) => {
-	#     if (res.data.error) {
-	#         alert(res.data.message)
-	#         return
-	#     }
-	#     if (res.data.response === "Ok") {
-	#         alert("2-Factor is now setup. You will be asked next time you login.")
-	#         window.location.reload()
-	#         // alert("Success")
-	#     }
-	# })
-
-	# return this.$http.get('/user/two-factor').then((res) => {
- #      item.metadata = res.data.response
- #      this.$parent.active = item
- #  })
+	echo "$OTP_ATTEMPT"
 
 	exit 1
 

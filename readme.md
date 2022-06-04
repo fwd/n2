@@ -38,21 +38,6 @@ Blockchain
   $ n2 reps
   $ n2 node
 
-Wallet
-  $ n2 wallet
-  $ n2 wallet ls
-  $ n2 wallet create 
-  $ n2 wallet pow @username
-  $ n2 wallet pending @username
-  $ n2 wallet balance @username
-  $ n2 wallet history @username
-  $ n2 wallet send @username 10 
-  $ n2 wallet change_rep @username
-  $ n2 wallet receive HASH
-  $ n2 wallet receive HASH
-  $ n2 wallet remove ADDRESS
-  $ n2 wallet recycle ADDRESS
-
 Options
   --help, -h  Print Documentation.
   --update, -u  Get latest CLI Script.

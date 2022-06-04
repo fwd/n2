@@ -24,58 +24,18 @@
 ## ❯ Install
 
 ```
-$ curl -L "https://github.com/fwd/nano-cli/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+curl -L "https://raw.githubusercontent.com/fwd/nano-cli/master/cli.sh" -o /usr/local/bin/wallet
 ```
 
-> This package supports Node 6 and above
+```
+sudo chmod +x /usr/local/bin/wallet
+```
 
 ![split](https://github.com/terkelg/prompts/raw/master/media/split.png)
 
 ## ❯ Usage
 
-<img src="https://github.com/terkelg/prompts/raw/master/media/example.gif" alt="example prompt" width="499" height="103" />
-
-```js
-const prompts = require('prompts');
-
-(async () => {
-  const response = await prompts({
-    type: 'number',
-    name: 'value',
-    message: 'How old are you?',
-    validate: value => value < 18 ? `Nightclub is 18+ only` : true
-  });
-
-  console.log(response); // => { value: 24 }
-})();
-```
-
-> See [`example.js`](https://github.com/terkelg/prompts/blob/master/example.js) for more options.
-
-
-![split](https://github.com/terkelg/prompts/raw/master/media/split.png)
-
-
-## ❯ Examples
-
-### Single Prompt
-
-Prompt with a single prompt object. Returns an object with the response.
-
-```js
-const prompts = require('prompts');
-
-(async () => {
-  const response = await prompts({
-    type: 'text',
-    name: 'meaning',
-    message: 'What is the meaning of life?'
-  });
-
-  console.log(response.meaning);
-})();
-```
+Coming soon.
 
 ## 👤 Author
 

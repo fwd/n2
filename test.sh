@@ -56,9 +56,9 @@ EOF
 		exit 1
 	fi
 
-	rm $DIR/.nano_to_session
+	rm $DIR/.xno
 
-	echo $(jq -r '.session' <<< "$SESSION") >> $DIR/.nano_to_session
+	echo $(jq -r '.session' <<< "$SESSION") >> $DIR/.xno
 
 	echo
 
@@ -99,14 +99,14 @@ fi
 
 if [[ "$1" = "account" ]]; then
 
-	if [[ $(cat $DIR/.nano_to_session 2>/dev/null) == "" ]]; then
+	if [[ $(cat $DIR/.xno 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in."
 		exit 1
 	fi
 
 	curl -s "https://nano.to/__account" \
 	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.nano_to_session)" \
+	-H "session: $(cat $DIR/.xno)" \
 	-H "Content-Type:application/json" \
 	--request GET | jq
 	exit 1
@@ -114,7 +114,7 @@ if [[ "$1" = "account" ]]; then
 fi
 
 if [[ "$1" = "logout" ]]; then
-	rm $DIR/.nano_to_session
+	rm $DIR/.xno
 	echo "Done: You've logged out."
 	exit 1
 fi

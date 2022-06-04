@@ -15,10 +15,10 @@ END_HEREDOC
 
 DOCS=$(cat <<'END_HEREDOC'
 Usage
-  $ ./cli.sh login
-  $ ./cli.sh register
-  $ ./cli.sh account
-  $ ./cli.sh logout
+  $ ./n2.sh login
+  $ ./n2.sh register
+  $ ./n2.sh account
+  $ ./n2.sh logout
 
 Options
   --help, -h  Print documentation.
@@ -97,6 +97,46 @@ EOF
 
 fi
 
+if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
+
+	curl -s "https://nano.to/price" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET | jq
+	exit 1
+
+fi
+
+if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
+
+	if [[ $2 == "" ]]; then
+		echo "Error: Username, or Address missing."
+		exit 1
+	fi
+
+	if [[ $3 == "" ]]; then
+		echo "Error: Amount missing."
+		exit 1
+	fi
+
+	CHECKOUT=$(curl -s "https://nano.to/$2?cli=$3" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET | jq -r '.qrcode')
+
+	# CHECKOUT=$( echo "cmd" | at "$when" 2>&1 )
+	echo 
+
+cat <<EOF
+$CHECKOUT
+EOF
+
+	echo 
+
+	exit 1
+
+fi
+
 if [[ "$1" = "account" ]]; then
 
 	if [[ $(cat $DIR/.nano_to_session 2>/dev/null) == "" ]]; then
@@ -126,6 +166,12 @@ fi
 
 if [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "version" ]; then
 	echo "$VERSION"
+	exit 1
+fi
+
+if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+	curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
+	sudo chmod +x /usr/local/bin/n2
 	exit 1
 fi
 

@@ -16,16 +16,18 @@
 ## ❯ Install
 
 ```
-curl -L "https://github.com/fwd/n2/raw/master/wallet.sh" -o /usr/local/bin/wallet
+curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 ```
 
 ```
-sudo chmod +x /usr/local/bin/wallet
+sudo chmod +x /usr/local/bin/n2
 ```
 
 ## ❯ Usage
 
-Coming soon.
+```
+n2 price
+```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

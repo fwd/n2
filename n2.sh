@@ -1,5 +1,12 @@
+###############################
+## n2 Command Line Tool      ##
+## (c) 2018-2022 @nano2dev   ##
+## Usage under MIT License   ##
+###############################
+
 #!/bin/bash
 
+# GET HOME DIR
 DIR=$(eval echo "~$different_user")
 
 VERSION=0.1
@@ -14,18 +21,127 @@ END_HEREDOC
 )
 
 DOCS=$(cat <<'END_HEREDOC'
-Usage
-  $ ./n2.sh login
-  $ ./n2.sh register
-  $ ./n2.sh account
-  $ ./n2.sh logout
+Blockchain
+  $ n2 price
+  $ n2 stats
+  $ n2 ledger
+  $ n2 reps
+
+Wallet
+  $ n2 wallet
+  $ n2 wallet ls
+  $ n2 wallet create 
+  $ n2 wallet pow @username
+  $ n2 wallet pending @username
+  $ n2 wallet balance @username
+  $ n2 wallet history @username
+  $ n2 wallet send @username 10 
+  $ n2 wallet change_rep @username
+  $ n2 wallet receive HASH
+  $ n2 wallet receive HASH
+  $ n2 wallet remove ADDRESS
+  $ n2 wallet recycle ADDRESS
+
+Node
+  $ n2 node
+  $ n2 node config
+  $ n2 node restart
+  $ n2 node launch
+  $ n2 node telemetry
+
+Nano.to
+  $ n2 login
+  $ n2 register
+  $ n2 account
+  $ n2 logout
 
 Options
-  --help, -h  Print documentation.
-  --version, -v  Print CLI version.
+  --help, -h  Print Documentation.
+  --version, -v  Print CLI Version.
+  --update, -u  Update CLI Script.
 END_HEREDOC
 )
 
+#########
+# PRICE #
+#########
+
+if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
+
+	curl -s "https://nano.to/price?currency=$2" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET | jq
+	exit 1
+
+fi
+
+############
+# CHECKOUT #
+############
+
+if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
+
+	if [[ $2 == "" ]]; then
+		echo "Error: Username, or Address missing."
+		exit 1
+	fi
+
+	if [[ $3 == "" ]]; then
+		echo "Error: Amount missing."
+		exit 1
+	fi
+
+	CHECKOUT=$(curl -s "https://nano.to/$2?cli=$3" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET | jq -r '.qrcode')
+
+	# CHECKOUT=$( echo "cmd" | at "$when" 2>&1 )
+	echo 
+
+cat <<EOF
+$CHECKOUT
+EOF
+
+	echo 
+
+	exit 1
+
+fi
+
+########
+# HELP #
+########
+
+if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ]; then
+	echo "$DOCS"
+	exit 1
+fi
+
+###########
+# VERSION #
+###########
+
+if [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "version" ]; then
+	echo "Version: $VERSION"
+	exit 1
+fi
+
+##########
+# UPDATE #
+##########
+
+if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
+	sudo chmod +x /usr/local/bin/n2
+	echo "Updated to latest CLI."
+	exit 1
+fi
+
+#################
+# 5 CLOUD LOGIN #
+#################
 
 if [[ $1 == "login" ]]; then
 
@@ -68,6 +184,11 @@ EOF
 
 fi
 
+
+##################
+# CLOUD REGISTER #
+##################
+
 if [[ $1 == "register" ]]; then
 
 	echo "$BANNER"
@@ -97,45 +218,10 @@ EOF
 
 fi
 
-if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-	curl -s "https://nano.to/price" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET | jq
-	exit 1
-
-fi
-
-if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
-
-	if [[ $2 == "" ]]; then
-		echo "Error: Username, or Address missing."
-		exit 1
-	fi
-
-	if [[ $3 == "" ]]; then
-		echo "Error: Amount missing."
-		exit 1
-	fi
-
-	CHECKOUT=$(curl -s "https://nano.to/$2?cli=$3" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET | jq -r '.qrcode')
-
-	# CHECKOUT=$( echo "cmd" | at "$when" 2>&1 )
-	echo 
-
-cat <<EOF
-$CHECKOUT
-EOF
-
-	echo 
-
-	exit 1
-
-fi
+#################
+# CLOUD ACCOUNT #
+#################
 
 if [[ "$1" = "account" ]]; then
 
@@ -153,27 +239,18 @@ if [[ "$1" = "account" ]]; then
 
 fi
 
+################
+# CLOUD LOGOUT #
+################
+
 if [[ "$1" = "logout" ]]; then
 	rm $DIR/.nano_to_session
 	echo "Done: You've logged out."
 	exit 1
 fi
 
-if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ]; then
-	echo "$DOCS"
-	exit 1
-fi
-
-if [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "version" ]; then
-	echo "$VERSION"
-	exit 1
-fi
-
-if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
-	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
-	sudo chmod +x /usr/local/bin/n2
-	echo "Updated to latest version: $VERSION"
-	exit 1
-fi
+###############
+# 20. DEFAULT #
+###############
 
 echo "$DOCS"

@@ -3,7 +3,6 @@
 ## (c) 2018-2022 @nano2dev   ##
 ## Usage under MIT License   ##
 ###############################
-
 #!/bin/bash
 
 if ! command -v jq &> /dev/null

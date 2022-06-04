@@ -4,11 +4,6 @@
 
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>
 
-* **Login**: prompt uses layout and colors to create beautiful cli interfaces.
-* **Register**: prompt uses layout and colors to create beautiful cli interfaces.
-* **Account**: prompt uses layout and colors to create beautiful cli interfaces.
-* **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
-
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
  
 > ### This software is in development. Not ready for general use. You're welcome to test it.

@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/fwd/nano.to-cli/raw/master/.github/banner.png" alt="Prompts" width="500" />
+  <img src="https://github.com/fwd/nano.to-cli/raw/master/.github/logo.png" alt="Prompts" width="500" />
 </p>
 
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>

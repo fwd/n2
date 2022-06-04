@@ -6,6 +6,11 @@
 
 #!/bin/bash
 
+if ! command -v <jq> &> /dev/null
+then
+  sudo apt install jq -y
+fi
+
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
 
@@ -44,10 +49,6 @@ Wallet
 
 Node
   $ n2 node
-  $ n2 node config
-  $ n2 node restart
-  $ n2 node launch
-  $ n2 node telemetry
 
 Nano.to
   $ n2 login
@@ -136,6 +137,23 @@ if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Updated to latest CLI."
+	exit 1
+fi
+
+###############
+# 4. NODE RPC #
+###############
+
+if [[ "$1" = "node" ]]; then
+	SESSION=$(curl -s "https://nano.to/login" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "action": "telemetry" }
+EOF
+	) | jq)
+	echo "$SESSION"
 	exit 1
 fi
 

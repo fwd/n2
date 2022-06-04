@@ -10,7 +10,9 @@
 * **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
-> This software is in development. Not ready for general use.
+ 
+> This software is in development. Not ready for general use. You're welcome to test it.
+
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install

@@ -22,7 +22,7 @@ sudo chmod +x /usr/local/bin/n2
 
 ## ❯ Usage
 
-```bash
+```
 General
   $ n2 price
   $ n2 stats

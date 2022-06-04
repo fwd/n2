@@ -12,17 +12,17 @@
 
 ## ❯ Install
 
-```
+```bash
 curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 ```
 
-```
+```bash
 sudo chmod +x /usr/local/bin/n2
 ```
 
 ## ❯ Usage
 
-```
+```bash
 General
   $ n2 price
   $ n2 stats

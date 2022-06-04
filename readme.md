@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/terkelg/prompts/raw/master/prompts.png" alt="Prompts" width="500" />
+  <img src="https://github.com/fwd/nano.to-cli/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
 <h1 align="center">❯ Nano.to CLI</h1>
@@ -19,7 +19,7 @@
 * **Unified**: consistent experience across all [prompts](#-types).
 
 
-![split](https://github.com/terkelg/prompts/raw/master/media/split.png)
+![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
 
 ## ❯ Install
 
@@ -31,11 +31,13 @@ curl -L "https://raw.githubusercontent.com/fwd/nano.to-cli/master/cli.sh" -o /us
 sudo chmod +x /usr/local/bin/wallet
 ```
 
-![split](https://github.com/terkelg/prompts/raw/master/media/split.png)
+![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
 
 ## ❯ Usage
 
 Coming soon.
+
+![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
 
 ## ❯ Author
 
@@ -51,7 +53,6 @@ Coming soon.
 Give a ⭐️ if this project helped you!
 
 Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano.to-cli/issues).
-
 
 ## ❯ License
 

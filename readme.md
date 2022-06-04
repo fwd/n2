@@ -37,7 +37,7 @@ sudo chmod +x /usr/local/bin/wallet
 
 Coming soon.
 
-## 👤 Author
+## ❯ Author
 
 **Fresh Web Designs**
 
@@ -46,14 +46,14 @@ Coming soon.
 * Github: [@fwd](https://github.com/fwd)
 * Website: [https://fwd.dev](https://fwd.dev)
 
-## 🤝 Contributing
+## ❯ Contributing
 
 Give a ⭐️ if this project helped you!
 
 Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano.to-cli/issues).
 
 
-## 📝 License
+## ❯ License
 
 MIT License
 
@@ -77,6 +77,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-## Stargazers
+## ❯ Stargazers
 
 [![Stargazers over time](https://starchart.cc/fwd/nano.to-cli.svg)](https://starchart.cc/fwd/nano.to-cli)

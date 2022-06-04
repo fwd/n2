@@ -11,9 +11,6 @@
 * **Account**: prompt uses layout and colors to create beautiful cli interfaces.
 * **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
 
-
-![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
-
 ## ❯ Install
 
 ```

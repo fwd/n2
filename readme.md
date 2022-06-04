@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/fwd/nano.to-cli/raw/master/.github/logo.png" alt="Prompts" width="500" />
+  <img src="https://github.com/fwd/n2/raw/master/.github/logo.png" alt="Prompts" width="500" />
 </p>
 
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>
@@ -11,12 +11,12 @@
 * **Account**: prompt uses layout and colors to create beautiful cli interfaces.
 * **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
 
-![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
+![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
 
 ```
-curl -L "https://github.com/fwd/nano.to-cli/raw/master/wallet.sh" -o /usr/local/bin/wallet
+curl -L "https://github.com/fwd/n2/raw/master/wallet.sh" -o /usr/local/bin/wallet
 ```
 
 ```
@@ -27,13 +27,13 @@ sudo chmod +x /usr/local/bin/wallet
 
 Coming soon.
 
-![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)
+![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Contributing
 
 Give a ⭐️ if this project helped you!
 
-Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/nano.to-cli/issues).
+Contributions, issues and feature requests are welcome! Feel free to check [issues page](https://github.com/fwd/n2/issues).
 
 ## ❯ License
 
@@ -61,4 +61,4 @@ SOFTWARE.
 
 ## ❯ Stargazers
 
-[![Stargazers over time](https://starchart.cc/fwd/nano.to-cli.svg)](https://starchart.cc/fwd/nano.to-cli)
+[![Stargazers over time](https://starchart.cc/fwd/n2.svg)](https://starchart.cc/fwd/n2)

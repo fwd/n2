@@ -16,7 +16,7 @@
 ## ❯ Install
 
 ```
-curl -L "https://raw.githubusercontent.com/fwd/nano.to-cli/master/cli.sh" -o /usr/local/bin/wallet
+curl -L "https://github.com/fwd/nano.to-cli/raw/master/wallet.sh" -o /usr/local/bin/wallet
 ```
 
 ```

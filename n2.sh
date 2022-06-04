@@ -4,15 +4,19 @@
 ## n2 Command Line Tool      ##
 ## (c) 2018-2022 @nano2dev   ##
 ## Released for MIT License  ##
-## https://github.com/fwd/n2 ##
 ###############################
 
+if ! command -v curl &> /dev/null
+then sudo apt install curl -y
+fi
+
 if ! command -v jq &> /dev/null
-then sudo apt install jq curl -y
+then sudo apt install jq -y
 fi
 
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
+RPC="https://mynano.ninja/api"
 
 VERSION=0.1
 BANNER=$(cat <<'END_HEREDOC'
@@ -145,7 +149,7 @@ fi
 ###############
 
 rpc() {
-	SESSION=$(curl -s "https://nano.to/login" \
+	SESSION=$(curl -s "$RPC" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
@@ -201,9 +205,9 @@ EOF
 		exit 1
 	fi
 
-	rm $DIR/.nano_to_session
+	rm $DIR/.n2-session
 
-	echo $(jq -r '.session' <<< "$SESSION") >> $DIR/.nano_to_session
+	echo $(jq -r '.session' <<< "$SESSION") >> $DIR/.n2-session
 
 	echo
 
@@ -254,14 +258,14 @@ fi
 
 if [[ "$1" = "account" ]]; then
 
-	if [[ $(cat $DIR/.nano_to_session 2>/dev/null) == "" ]]; then
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in."
 		exit 1
 	fi
 
 	curl -s "https://nano.to/__account" \
 	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.nano_to_session)" \
+	-H "session: $(cat $DIR/.n2-session)" \
 	-H "Content-Type:application/json" \
 	--request GET | jq
 	exit 1
@@ -273,7 +277,7 @@ fi
 ################
 
 if [[ "$1" = "logout" ]]; then
-	rm $DIR/.nano_to_session
+	rm $DIR/.n2-session
 	echo "Done: You've logged out."
 	exit 1
 fi

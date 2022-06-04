@@ -23,13 +23,16 @@ sudo chmod +x /usr/local/bin/n2
 ## ❯ Usage
 
 ```
-General
-  $ n2 price
-  $ n2 stats
-  $ n2 ledger
-  $ n2 reps
+Nano.to
+  $ n2 login ✅
+  $ n2 register ✅
+  $ n2 account ✅
+  $ n2 logout ✅
 
-Wallet
+Blockchain (Nano.to)
+  $ n2 price ✅
+
+Wallet (Local Node!)
   $ n2 wallet
   $ n2 wallet ls
   $ n2 wallet create 
@@ -44,14 +47,8 @@ Wallet
   $ n2 wallet remove ADDRESS
   $ n2 wallet recycle ADDRESS
 
-Node
+Node (Local Node!)
   $ n2 node
-
-Nano.to
-  $ n2 login
-  $ n2 register
-  $ n2 account
-  $ n2 logout
 
 Options
   --help, -h  Print Documentation.

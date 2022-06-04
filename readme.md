@@ -2,21 +2,14 @@
   <img src="https://github.com/fwd/nano.to-cli/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-<h1 align="center">❯ Nano.to CLI</h1>
-
-<p align="center">
-  <b>Nano.to Command Line Interface (CLI)</b><br />
-  <!-- <sub>>_ Easy to use CLI prompts to enquire users for information▌</sub> -->
-</p>
+<h2 align="center">Nano.to Command Line Interface (CLI)</h2>
 
 <br />
 
-* **Simple**: prompts has [no big dependencies](http://npm.anvaka.com/#/view/2d/prompts) nor is it broken into a [dozen](http://npm.anvaka.com/#/view/2d/inquirer) tiny modules that only work well together.
-* **User friendly**: prompt uses layout and colors to create beautiful cli interfaces.
-* **Promised**: uses promises and `async`/`await`. No callback hell.
-* **Flexible**: all prompts are independent and can be used on their own.
-* **Testable**: provides a way to submit answers programmatically.
-* **Unified**: consistent experience across all [prompts](#-types).
+* **Login**: prompt uses layout and colors to create beautiful cli interfaces.
+* **Register**: prompt uses layout and colors to create beautiful cli interfaces.
+* **Account**: prompt uses layout and colors to create beautiful cli interfaces.
+* **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
 
 
 ![line](https://github.com/fwd/nano.to-cli/raw/master/.github/line.png)

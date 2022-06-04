@@ -6,7 +6,7 @@
 
 #!/bin/bash
 
-if ! command -v <jq> &> /dev/null
+if ! command -v jq &> /dev/null
 then
   sudo apt install jq -y
 fi

@@ -172,6 +172,7 @@ fi
 if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
+	echo "Updated to latest version: $VERSION"
 	exit 1
 fi
 

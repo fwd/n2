@@ -170,7 +170,7 @@ if [ "$1" = "-v" ] || [ "$1" = "--version" ] || [ "$1" = "version" ]; then
 fi
 
 if [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
-	curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
+	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	exit 1
 fi

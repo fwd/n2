@@ -10,6 +10,8 @@
 * **Logout**: prompt uses layout and colors to create beautiful cli interfaces.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
+> This software is in development. Not ready for general use.
+![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
 
@@ -24,7 +26,7 @@ sudo chmod +x /usr/local/bin/n2
 ## ❯ Usage
 
 ```
-Blockchain
+General
   $ n2 price
   $ n2 stats
   $ n2 ledger

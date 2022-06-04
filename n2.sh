@@ -16,7 +16,8 @@ fi
 
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
-RPC="https://mynano.ninja/api"
+RPC="[::1]:7076"
+# RPC="https://mynano.ninja/api"
 
 VERSION=0.1
 BANNER=$(cat <<'END_HEREDOC'
@@ -30,13 +31,21 @@ END_HEREDOC
 )
 
 DOCS=$(cat <<'END_HEREDOC'
-Blockchain
+Nano.to
   $ n2 price
+  $ n2 docs
+  $ n2 login
+  $ n2 register
+  $ n2 account
+  $ n2 logout
+
+Blockchain
   $ n2 stats
   $ n2 ledger
   $ n2 reps
+  $ n2 node
 
-Wallet
+Wallet (Local Node)
   $ n2 wallet
   $ n2 wallet ls
   $ n2 wallet create 
@@ -51,19 +60,11 @@ Wallet
   $ n2 wallet remove ADDRESS
   $ n2 wallet recycle ADDRESS
 
-Node
-  $ n2 node
-
-Nano.to
-  $ n2 login
-  $ n2 register
-  $ n2 account
-  $ n2 logout
-
 Options
   --help, -h  Print Documentation.
-  --version, -v  Print CLI Version.
-  --update, -u  Update CLI Script.
+  --update, -u  Get latest CLI Script.
+  --version, -v  Print current CLI Version.
+  --uninstall, -v  Remove CLI from system.
 END_HEREDOC
 )
 
@@ -156,18 +157,19 @@ rpc() {
 	--data @<(cat <<EOF
 { "action": "$1" }
 EOF
-	) | jq)
-	return $SESSION
+	))
+	echo $SESSION
 }
 
 if [[ "$1" = "node" ]]; then
 
-	if [[ $1 == "" ]]; then
-		rpc "telemetry"
-		exit 1
-	fi
+	# if [[ $1 == "" ]]; then
+	# 	# rpc "telemetry"
+	# 	exit 1
+	# fi
 
-	rpc $1
+	# rpc $1
+	curl -g -d '{ "action": "telemetry" }' "$RPC"
 	
 	exit 1
 fi
@@ -179,6 +181,12 @@ fi
 if [[ $1 == "login" ]]; then
 
 	echo "$BANNER"
+
+	echo 
+
+	echo 'Welcome back'
+
+	echo 
 
 	USERNAME=$2
 	PASSWORD=$3
@@ -228,7 +236,7 @@ if [[ $1 == "register" ]]; then
 
 	echo 
 
-	echo 'Welcome aboard'
+	echo 'Welcome to the Cloud'
 
 	echo 
 	 
@@ -259,7 +267,7 @@ fi
 if [[ "$1" = "account" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in."
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -278,7 +286,20 @@ fi
 
 if [[ "$1" = "logout" ]]; then
 	rm $DIR/.n2-session
-	echo "Done: You've logged out."
+	echo "Done: You logged out of Nano.to."
+	exit 1
+fi
+
+
+################
+# CLOUD LOGOUT #
+################
+
+if [[ "$1" = "--uninstall" ]]; then
+	sudo rm /usr/local/bin/n2
+	rm $DIR/.n2-session
+	rm $DIR/.n2-rpc
+	echo "Uninstalled. Sorry to see you go, take care."
 	exit 1
 fi
 

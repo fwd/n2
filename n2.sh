@@ -75,10 +75,29 @@ END_HEREDOC
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-	curl -s "https://nano.to/price?currency=$2" \
+	PRICE=$(curl -s "https://nano.to/price?currency=$2" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
-	--request GET | jq
+	--request GET)
+
+	_PRICE=$(jq -r '.price' <<< "$PRICE")
+	SYMBOL=$(jq -r '.symbol' <<< "$PRICE")
+	USERNAME=$(jq -r '.username' <<< "$PRICE")
+	CURRENCY=$(jq -r '.currency' <<< "$PRICE")
+	TIMESTAMP=$(jq -r '.timestamp' <<< "$PRICE")
+
+	if [[ $3 == "--json" ]] || [[ $4 == "--json" ]]; then
+		echo $(jq <<< "$ACCOUNT")
+		exit 1
+	else
+		echo "==============================="
+		echo "        NANO FIAT PRICE        "
+		echo "==============================="
+		echo "PRICE: " $_PRICE 
+		echo "SYMBOL: " $SYMBOL 
+		echo "CURRENCY: " $CURRENCY 
+		echo "==============================="
+	fi
 	exit 1
 
 fi
@@ -264,7 +283,7 @@ fi
 
 if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
 
-	HAS_TWO_FACTOR=$(curl -s "https://nano.to/__account" \
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
@@ -319,7 +338,7 @@ if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[
 		exit 1
 	fi
 
-	HAS_TWO_FACTOR=$(curl -s "https://nano.to/__account" \
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
@@ -419,13 +438,52 @@ if [[ "$1" = "account" ]]; then
 		exit 1
 	fi
 
-	curl -s "https://nano.to/__account" \
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
 	-H "Accept: application/json" \
 	-H "session: $(cat $DIR/.n2-session)" \
 	-H "Content-Type:application/json" \
-	--request GET | jq
-	exit 1
+	--request GET)
 
+	USERNAME=$(jq -r '.username' <<< "$ACCOUNT")
+	ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
+	BALANCE=$(jq -r '.balance' <<< "$ACCOUNT")
+	PENDING=$(jq -r '.pending' <<< "$ACCOUNT")
+	API_KEY=$(jq -r '.api_key' <<< "$ACCOUNT")
+	POW_USAGE=$(jq -r '.api_usage' <<< "$ACCOUNT")
+	POW_LIMIT=$(jq -r '.api_limit' <<< "$ACCOUNT")
+	TWO_FACTOR=$(jq -r '.two_factor' <<< "$ACCOUNT")
+	CREATED=$(jq -r '.created_at' <<< "$ACCOUNT")
+
+	if [[ $3 == "--json" ]] || [[ $4 == "--json" ]]; then
+		echo $(jq <<< "$ACCOUNT")
+		exit 1
+	else
+		echo "==============================="
+		echo "        NANO.TO ACCOUNT        "
+		echo "==============================="
+		echo "USERNAME: " $USERNAME 
+		echo "BALANCE: " $BALANCE 
+		echo "PENDING: " $PENDING 
+		if [[ $3 == "--show" ]] || [[ $4 == "--show" ]]; then
+			# echo "API KEY: ********************" 
+		  # echo $ADDRESS | egrep -o '[[:digit:]]{14}' | head -n1
+		  echo "ADDRESS: " $ADDRESS
+		else
+		  echo "ADDRESS: ${ADDRESS:0:18}"
+			# echo "API KEY: " $API_KEY 
+		fi
+		echo "2-FACTOR: " $TWO_FACTOR 
+		echo "PoW USAGE: " $POW_USAGE 
+		echo "PoW LIMIT: " $POW_LIMIT 
+		if [[ $2 == "" ]]; then
+			echo "API KEY: ********************" 
+		else
+			echo "API KEY: " $API_KEY 
+		fi
+		echo "JOINED: " $CREATED 
+		echo "==============================="
+	fi
+	exit 1
 fi
 
 ################

@@ -24,13 +24,13 @@ sudo chmod +x /usr/local/bin/n2
 
 ```
 Nano.to
-  $ n2 price ✅
-  $ n2 docs ✅
-  $ n2 login ✅
-  $ n2 register ✅
-  $ n2 account ✅
-  $ n2 2factor ✅
-  $ n2 logout ✅
+  $ n2 price
+  $ n2 docs
+  $ n2 login
+  $ n2 register
+  $ n2 account
+  $ n2 2factor
+  $ n2 logout
 
 Blockchain
   $ n2 stats

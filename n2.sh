@@ -326,7 +326,7 @@ if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[
 	--request GET | jq '.two_factor')
 
 	if [[ $HAS_TWO_FACTOR == "true" ]]; then
-		echo "Error: You already have 2f enabled. Use 'n2 2f-remove' to change 2-factor."
+		echo "You have 2f enabled. Use 'n2 2f-remove' to change 2-factor."
 		exit 1
 	fi
 
@@ -466,17 +466,17 @@ EOF
 	exit 1
 	fi
 
-	echo
 	echo "==============================="
 	echo "            RECEIPT            "
 	echo "==============================="
-	echo "to " $2
-	echo "from " $ADDRESS
-	echo "amount " $amount
-	echo "duration " $duration
-	echo "hash " $hash
-	echo "nanolooker " $nanolooker
-	echo
+	echo "AMOUNT: " $amount
+	echo "TO: " $2
+	echo "FROM: " $ADDRESS
+	echo "-------------------------------"
+	echo "HASH: " $hash
+	echo "URL: " $nanolooker
+	echo "DURATION: " $duration
+	# echo "NOTE: Thanks for using Nano.to"
 
 	exit 1
 
@@ -520,7 +520,7 @@ fi
 # CLOUD ACCOUNT #
 #################
 
-if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]]; then
+if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || [[ "$1" = "a" ]] || [[ "$1" = "w" ]] || [[ "$1" = "--wallet" ]] || [[ "$1" = "--balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -543,7 +543,7 @@ if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]]; th
 	pow_usage=$(jq -r '.pow_usage' <<< "$ACCOUNT")
 	pow_limit=$(jq -r '.pow_limit' <<< "$ACCOUNT")
 
-	echo
+	# echo
 	echo "==============================="
 	echo "        NANO.TO ACCOUNT        "
 	echo "==============================="
@@ -557,8 +557,7 @@ if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]]; th
 	# echo "FRONTIER " $frontier
 	echo "TWO_FACTOR: " $two_factor
 	echo "==============================="
-	echo
-
+	# echo
 
 	exit 1
 
@@ -569,7 +568,7 @@ fi
 # Receive #
 ###########
 
-if [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
+if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -590,15 +589,15 @@ if [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
 	# frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
 	# two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
 
-	echo
+	# echo
 	echo "==============================="
-	echo "         RECEIVE NANO          "
+	echo "         DEPOSIT NANO          "
 	echo "==============================="
 	echo "YOUR ADDRESS: " $address
 	echo "-------------------------------"
 	echo "QR IMAGE: https://chart.googleapis.com/chart?chs=166x166&chld=L%7C0&cht=qr&chl=nano:$address"
 	echo "==============================="
-	echo
+	# echo
 
 	exit 1
 

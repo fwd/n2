@@ -483,21 +483,35 @@ if [[ $1 == "register" ]]; then
 
 	echo 
 	 
-	read -p 'Email: ' username
-	read -sp 'Password: ' password
+	read -p 'Email: ' USERNAME
+	read -sp 'Password: ' PASSWORD
 	 
 	echo 
 	# echo "Thank you $username for showing interest in learning with www.tutorialkart.com"
 
-	curl -s "https://nano.to/register" \
+	REGISTER_ATTEMPT=$(curl -s "https://nano.to/register" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "username": "$username", "password": "$password" }
+{ "username": "$USERNAME", "password": "$PASSWORD" }
 EOF
-	) 
+	))
 
+	if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
+		echo
+		echo "Error:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
+		exit 1
+	fi
+
+	rm $DIR/.n2-session 2>/dev/null
+
+	echo $(jq -r '.session' <<< "$REGISTER_ATTEMPT") >> $DIR/.n2-session
+
+	echo
+
+	echo "Logged in successfully."
+	
 	exit 1
 
 fi

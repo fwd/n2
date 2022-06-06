@@ -609,7 +609,7 @@ if [[ "$1" = "--uninstall" ]]; then
 	sudo rm /usr/local/bin/n2
 	rm $DIR/.n2-session
 	rm $DIR/.n2-rpc
-	echo "CLI removed. Thank you for using n2. Come back soon!"
+	echo "CLI removed. Thanks for using N2. Hope to see you again, soon."
 	exit 1
 fi
 

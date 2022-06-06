@@ -30,7 +30,7 @@ Nano.to
   $ n2 2factor
   $ n2 logout
 
-Wallet (Nano.to)
+Wallet (Nano.to Cloud Wallet)
   $ n2 balance
   $ n2 send @esteban 0.1
   $ n2 qrcode

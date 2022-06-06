@@ -551,7 +551,7 @@ if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || 
 	echo "PENDING " $pending
 	echo "ADDRESS: " $address
 	echo "--------------------------------"
-	echo "USERNAME: " $username
+	echo "ACCOUNT: " $username
 	echo "POW CREDITS: " "$pow_usage" "/" "$pow_limit"
 	# echo "API_KEY: " $api_key
 	# echo "FRONTIER " $frontier

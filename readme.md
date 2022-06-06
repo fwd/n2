@@ -30,14 +30,14 @@ Nano.to
   $ n2 2factor
   $ n2 logout
 
-Wallet
+Wallet (Nano.to)
   $ n2 balance
   $ n2 send @esteban 0.1
   $ n2 qrcode
   $ n2 receive
   $ n2 renew
 
-Blockchain
+Blockchain 
   $ n2 price
 
 Options

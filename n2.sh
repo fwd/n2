@@ -555,16 +555,15 @@ if [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] ||
 	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
 
 	# echo
-	echo "==============================="
-	echo "         RECEIVE NANO          "
-	echo "==============================="
+	echo "==========================================="
+	echo "               RECEIVE NANO                "
+	echo "==========================================="
 	echo "ACCOUNT: " $USERNAME
 	echo "ADDRESS: " $ADDRESS
-	echo "--------------------------------"
+	echo "-------------------------------------------"
 	cat <<EOF
 $QRCODE
 EOF
-	echo "==============================="
 	# echo
 
 	exit 1
@@ -668,7 +667,7 @@ EOF
 
 fi
 
-if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]]; then
+if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]] || [[ "$1" = "-a" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."

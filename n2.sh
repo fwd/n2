@@ -33,35 +33,22 @@ END_HEREDOC
 
 DOCS=$(cat <<'END_HEREDOC'
 Nano.to
-  $ n2 price
-  $ n2 docs
   $ n2 login
   $ n2 register
-  $ n2 account
+  $ n2 2factor
   $ n2 logout
 
-Blockchain
-  $ n2 stats
-  $ n2 ledger
-  $ n2 reps
-  $ n2 node
-
-Wallet (Local Node)
+Wallet
+  $ n2 account
   $ n2 wallet
-  $ n2 wallet ls
-  $ n2 wallet create 
-  $ n2 wallet pow @username
-  $ n2 wallet pending @username
-  $ n2 wallet balance @username
-  $ n2 wallet history @username
-  $ n2 wallet send @username 10 
-  $ n2 wallet change_rep @username
-  $ n2 wallet receive HASH
-  $ n2 wallet receive HASH
-  $ n2 wallet remove ADDRESS
-  $ n2 wallet recycle ADDRESS
+  $ n2 receive
+  $ n2 send @esteban 0.1
+
+Blockchain
+  $ n2 price
 
 Options
+  --docs, -h  Open Nano.to Documentation.
   --help, -h  Print Documentation.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.

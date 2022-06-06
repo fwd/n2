@@ -24,20 +24,22 @@ sudo chmod +x /usr/local/bin/n2
 
 ```
 Nano.to
-  $ n2 price
-  $ n2 docs
   $ n2 login
   $ n2 register
-  $ n2 account
   $ n2 2factor
   $ n2 logout
 
 Wallet
+  $ n2 account
   $ n2 wallet
   $ n2 receive
   $ n2 send @esteban 0.1
 
+Blockchain
+  $ n2 price
+
 Options
+  --docs, -h  Open Nano.to Documentation.
   --help, -h  Print Documentation.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.

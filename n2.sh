@@ -372,11 +372,15 @@ if [[ $1 == "send" ]]; then
 	NOTE=$4
 
 	if [[ $2 == "" ]]; then
-		read -p 'To (@Username or Address): ' USERNAME
+		echo "Error: Missing @Username or Nano Address"
+		exit 1
+		# read -p 'To (@Username or Address): ' USERNAME
 	fi
 	
 	if [[ $3 == "" ]]; then
-		read -p 'Amount: ' AMOUNT
+		echo "Error: Missing amount. Use 'all' to send balance."
+		exit 1
+		# read -p 'Amount: ' AMOUNT
 	fi
 
 	# if [[ $4 == "" ]]; then

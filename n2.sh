@@ -22,7 +22,7 @@ DIR=$(eval echo "~$different_user")
 # ITS GOING TO BE AN UP-HILL BATTLE
 RPC="[::1]:7076"
 
-VERSION=0.1
+VERSION=0.2
 BANNER=$(cat <<'END_HEREDOC'
 
 ███╗   ██╗ █████╗ ███╗   ██╗ ██████╗ ████████╗ ██████╗ 
@@ -730,7 +730,7 @@ fi
 
 if [[ $1 == "recycle" ]] || [[ $1 == "renew" ]]; then
 
-	read -p 'Want to change your Nano address for a new one? All funds are moved over. (yes/no): ' YES
+	read -p 'Want to change your Nano address for a new one? All funds are moved over. This service is NOT free. It costs 0.01 NANO. (yes/no): ' YES
 
 	if [[ $YES == "Yes" ]] || [[ $YES == "yes" ]]; then
 		RECYCLE_ATTEMPT=$(curl -s "https://nano.to/cli/recycle" \

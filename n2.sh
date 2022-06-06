@@ -507,7 +507,7 @@ fi
 # CLOUD ACCOUNT #
 #################
 
-if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || [[ "$1" = "a" ]] || [[ "$1" = "w" ]] || [[ "$1" = "--wallet" ]] || [[ "$1" = "--balance" ]]; then
+if [[ "$1" = "--account" ]] || [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || [[ "$1" = "a" ]] || [[ "$1" = "w" ]] || [[ "$1" = "--wallet" ]] || [[ "$1" = "--balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -555,7 +555,7 @@ fi
 # Receive #
 ###########
 
-if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
+if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "qr" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -585,6 +585,25 @@ if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] ||
 	echo "QR IMAGE: https://chart.googleapis.com/chart?chs=166x166&chld=L%7C0&cht=qr&chl=nano:$address"
 	echo "==============================="
 	# echo
+
+	exit 1
+
+fi
+
+if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	echo $(jq -r '.address' <<< "$ACCOUNT")
 
 	exit 1
 

@@ -441,35 +441,30 @@ EOF
 	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
 	duration=$(jq -r '.duration' <<< "$SEND")
 
-	MESSAGE=$(jq -r '.error' <<< "$SEND")
-
-	if [[ $MESSAGE == "true" ]]; then
-	echo
-	echo "===================================="
-	echo "                ERROR               "
-	echo "===================================="
-	echo $(jq -r '.message' <<< "$SEND")
-	echo "===================================="
-	echo
-	exit 1
-	fi
-
 	ERROR=$(jq -r '.error' <<< "$SEND")
 
-	if [[ ! -z $ERROR ]]; then
+	if [[ $ERROR = "429" ]]; then
 	echo
 	echo "===================================="
 	echo "                ERROR               "
 	echo "===================================="
-	echo $(jq -r '.error' <<< "$SEND")
+	echo "You used up all your PoW credits.   "
+	echo "Buy more with 'n2 add pow' or wait. "
 	echo "===================================="
 	echo
 	exit 1
 	fi
 
-	echo $SEND 
-
+	if [[ $ERROR == "Bad link number" ]]; then
+	echo
+	echo "================================"
+	echo "           ERROR #100           "
+	echo "================================"
+	echo "Bad Address. Fix and try again. "
+	echo "================================"
+	echo
 	exit 1
+	fi
 
 	echo
 	echo "==============================="
@@ -545,18 +540,22 @@ if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]]; th
 	pending=$(jq -r '.pending' <<< "$ACCOUNT")
 	frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
 	two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
+	pow_usage=$(jq -r '.pow_usage' <<< "$ACCOUNT")
+	pow_limit=$(jq -r '.pow_limit' <<< "$ACCOUNT")
 
 	echo
 	echo "==============================="
 	echo "        NANO.TO ACCOUNT        "
 	echo "==============================="
-	echo "username " $username
-	echo "address " $address
-	echo "api_key " $api_key
-	echo "balance " $balance
-	echo "pending " $pending
-	echo "frontier " $frontier
-	echo "two_factor " $two_factor
+	echo "BALANCE " $balance
+	echo "PENDING " $pending
+	echo "ADDRESS: " $address
+	echo "--------------------------------"
+	echo "USERNAME: " $username
+	echo "POW CREDITS: " "$pow_usage" "/" "$pow_limit"
+	# echo "API_KEY: " $api_key
+	# echo "FRONTIER " $frontier
+	echo "TWO_FACTOR: " $two_factor
 	echo "==============================="
 	echo
 
@@ -583,13 +582,13 @@ if [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
 	-H "Content-Type:application/json" \
 	--request GET)
 
-	username=$(jq -r '.username' <<< "$ACCOUNT")
+	# username=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
-	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
-	balance=$(jq -r '.balance' <<< "$ACCOUNT")
-	pending=$(jq -r '.pending' <<< "$ACCOUNT")
-	frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
-	two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
+	# api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
+	# balance=$(jq -r '.balance' <<< "$ACCOUNT")
+	# pending=$(jq -r '.pending' <<< "$ACCOUNT")
+	# frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
+	# two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
 
 	echo
 	echo "==============================="

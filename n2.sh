@@ -587,6 +587,18 @@ if [[ "$1" = "--account" ]] || [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] |
 	-H "Content-Type:application/json" \
 	--request GET)
 
+	if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
+	rm $DIR/.n2-session
+	echo
+	echo "==============================="
+	echo "    LOGGED OUT FOR SECURITY    "
+	echo "==============================="
+	echo "Use 'n2 login' to log back in. "
+	echo "==============================="
+	echo
+	exit 1
+	fi
+
 	username=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
 	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
@@ -707,6 +719,34 @@ if [[ "$1" = "--uninstall" ]]; then
 	rm $DIR/.n2-rpc
 	echo "CLI removed. Thanks for using N2. Hope to see you again, soon."
 	exit 1
+fi
+
+
+
+################
+# Recycle #
+################
+
+if [[ $1 == "recycle" ]]; then
+
+	read -p 'Want to change your Nano address for a new one? All funds are moved over. (yes/no): ' YES
+
+	if [[ $YES == "Yes" ]] || [[ $YES == "yes" ]]; then
+		RECYCLE_ATTEMPT=$(curl -s "https://nano.to/cli/recycle" \
+			-H "Accept: application/json" \
+		  -H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+			--request POST)
+		echo $RECYCLE_ATTEMPT
+		exit 1
+		# echo "Success. Use 'n2 account' to see new address."
+		# $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT")
+	fi
+
+	echo "Canceled."
+
+	exit 1
+
 fi
 
 ###############

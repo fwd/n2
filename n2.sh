@@ -790,9 +790,9 @@ if [[ $1 == "recycle" ]] || [[ $1 == "renew" ]]; then
 		  -H "session: $(cat $DIR/.n2-session)" \
 			-H "Content-Type:application/json" \
 			--request POST)
-		echo $RECYCLE_ATTEMPT
+		# echo $RECYCLE_ATTEMPT
+		echo "Success. Use 'n2 account' to see new address."
 		exit 1
-		# echo "Success. Use 'n2 account' to see new address."
 		# $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT")
 	fi
 

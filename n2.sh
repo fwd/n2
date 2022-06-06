@@ -16,8 +16,9 @@ fi
 
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
+
+# I'M EXPLORING LOCAL WALLETS TOO!!!
 RPC="[::1]:7076"
-# RPC="https://mynano.ninja/api"
 
 VERSION=0.1
 BANNER=$(cat <<'END_HEREDOC'

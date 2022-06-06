@@ -26,11 +26,11 @@ sudo chmod +x /usr/local/bin/n2
 Nano.to
   $ n2 login
   $ n2 register
+  $ n2 account
   $ n2 2factor
   $ n2 logout
 
 Wallet
-  $ n2 account
   $ n2 wallet
   $ n2 receive
   $ n2 send @esteban 0.1

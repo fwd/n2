@@ -17,8 +17,9 @@ fi
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
 
-# I'M CONSIDERING LOCAL WALLETS TOO!!!
-# NO FLOATING POINTS IN BASH 🥲
+# NON-CUSTODIAL LOCAL WALLETS TOO!!!
+# NO FLOATING POINTS IN BASH, TO START 🥲
+# ITS GOING TO BE AN UP-HILL BATTLE
 RPC="[::1]:7076"
 
 VERSION=0.1
@@ -50,6 +51,7 @@ Blockchain
   $ n2 price
 
 Options
+  --adrress, -h  Print you Nano address.
   --help, -h  Print Documentation.
   --docs, -d  Open Nano.to Documentation.
   --update, -u  Get latest CLI Script.
@@ -524,6 +526,51 @@ fi
 
 
 #################
+# TERMINAL QR CODE #
+#################
+
+if [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] || [[ "$1" = "-qr" ]] || [[ "$1" = "-q" ]] || [[ "$1" = "q" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
+	USERNAME=$(jq -r '.username' <<< "$ACCOUNT")
+
+	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$ADDRESS&amount=$2" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+
+	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
+
+	# echo
+	echo "==============================="
+	echo "        NANO.TO ACCOUNT        "
+	echo "==============================="
+	echo "USERNAME: " $USERNAME
+	echo "ADDRESS: " $ADDRESS
+	echo "--------------------------------"
+	cat <<EOF
+$QRCODE
+EOF
+	echo "==============================="
+	# echo
+
+	exit 1
+
+fi
+
+#################
 # CLOUD ACCOUNT #
 #################
 
@@ -596,14 +643,24 @@ if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "qr" ]]; then
 	# frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
 	# two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
 
+	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$2" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+
+	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
+
 	# echo
-	echo "==============================="
-	echo "         DEPOSIT NANO          "
-	echo "==============================="
-	echo "YOUR ADDRESS: " $address
-	echo "-------------------------------"
-	echo "QR IMAGE: https://chart.googleapis.com/chart?chs=166x166&chld=L%7C0&cht=qr&chl=nano:$address"
-	echo "==============================="
+	echo "==========================================="
+	echo "         DEPOSIT NANO INTO NANO.TO         "
+	echo "==========================================="
+	echo $address
+	# echo "NANOLOOKER: https://nanolooker.com/account/$address"
+	echo "-------------------------------------------"
+	cat <<EOF
+$QRCODE
+EOF
 	# echo
 
 	exit 1

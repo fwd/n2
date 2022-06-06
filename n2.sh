@@ -534,8 +534,8 @@ if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || 
 	echo "==============================="
 	echo "        NANO.TO ACCOUNT        "
 	echo "==============================="
-	echo "BALANCE " $balance
-	echo "PENDING " $pending
+	echo "BALANCE: " $balance
+	echo "PENDING: " $pending
 	echo "ADDRESS: " $address
 	echo "--------------------------------"
 	echo "ACCOUNT: " $username

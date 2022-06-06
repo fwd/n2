@@ -35,11 +35,11 @@ DOCS=$(cat <<'END_HEREDOC'
 Nano.to
   $ n2 login
   $ n2 register
+  $ n2 account
   $ n2 2factor
   $ n2 logout
 
 Wallet
-  $ n2 account
   $ n2 wallet
   $ n2 receive
   $ n2 send @esteban 0.1
@@ -48,11 +48,11 @@ Blockchain
   $ n2 price
 
 Options
-  --docs, -h  Open Nano.to Documentation.
   --help, -h  Print Documentation.
+  --docs, -d  Open Nano.to Documentation.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
-  --uninstall, -v  Remove CLI from system.
+  --uninstall, -u  Remove CLI from system.
 END_HEREDOC
 )
 

@@ -75,29 +75,10 @@ END_HEREDOC
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-	PRICE=$(curl -s "https://nano.to/price?currency=$2" \
+	curl -s "https://nano.to/price?currency=$2" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
-	--request GET)
-
-	_PRICE=$(jq -r '.price' <<< "$PRICE")
-	SYMBOL=$(jq -r '.symbol' <<< "$PRICE")
-	USERNAME=$(jq -r '.username' <<< "$PRICE")
-	CURRENCY=$(jq -r '.currency' <<< "$PRICE")
-	TIMESTAMP=$(jq -r '.timestamp' <<< "$PRICE")
-
-	if [[ $3 == "--json" ]] || [[ $4 == "--json" ]]; then
-		echo $(jq <<< "$ACCOUNT")
-		exit 1
-	else
-		echo "==============================="
-		echo "        NANO FIAT PRICE        "
-		echo "==============================="
-		echo "PRICE: " $_PRICE 
-		echo "SYMBOL: " $SYMBOL 
-		echo "CURRENCY: " $CURRENCY 
-		echo "==============================="
-	fi
+	--request GET | jq
 	exit 1
 
 fi
@@ -393,6 +374,89 @@ EOF
 
 fi
 
+##############
+# CLOUD SEND #
+##############
+
+if [[ $1 == "send" ]]; then
+
+	USERNAME=$2
+	AMOUNT=$3
+	NOTE=$4
+
+	if [[ $2 == "" ]]; then
+		read -p 'To (@Username or Address): ' USERNAME
+	fi
+	
+	if [[ $3 == "" ]]; then
+		read -p 'Amount: ' AMOUNT
+	fi
+
+	# if [[ $4 == "" ]]; then
+	# 	read -p 'Note (Optional): ' NOTE
+	# fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+	
+  ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
+  FRONTIER=$(jq -r '.frontier' <<< "$ACCOUNT")
+
+	POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+	echo
+	echo "==============================="
+	echo "       USED ALL CREDITS        "
+	echo "==============================="
+	echo "  Use 'n2 add pow' or wait.    "
+	echo "==============================="
+	echo
+	exit 1
+	fi
+
+	# echo $POW
+	# exit 1
+	WORK=$(jq -r '.work' <<< "$POW")
+
+	SEND=$(curl -s "https://nano.to/cli/wallet" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "to": "$2", "amount": "$3", "note": "$4", "work": "$WORK" }
+EOF
+	))
+
+	hash=$(jq -r '.hash' <<< "$SEND")
+	amount=$(jq -r '.amount' <<< "$SEND")
+	hash_url=$(jq -r '.hash_url' <<< "$SEND")
+	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
+	duration=$(jq -r '.duration' <<< "$SEND")
+
+	echo
+	echo "==============================="
+	echo "            RECEIPT            "
+	echo "==============================="
+	echo "to " $2
+	echo "from " $ADDRESS
+	echo "amount " $amount
+	echo "duration " $duration
+	echo "hash " $hash
+	echo "nanolooker " $nanolooker
+	echo
+
+	exit 1
+
+fi
+
 ##################
 # CLOUD REGISTER #
 ##################
@@ -431,7 +495,7 @@ fi
 # CLOUD ACCOUNT #
 #################
 
-if [[ "$1" = "account" ]]; then
+if [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -444,46 +508,71 @@ if [[ "$1" = "account" ]]; then
 	-H "Content-Type:application/json" \
 	--request GET)
 
-	USERNAME=$(jq -r '.username' <<< "$ACCOUNT")
-	ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
-	BALANCE=$(jq -r '.balance' <<< "$ACCOUNT")
-	PENDING=$(jq -r '.pending' <<< "$ACCOUNT")
-	API_KEY=$(jq -r '.api_key' <<< "$ACCOUNT")
-	POW_USAGE=$(jq -r '.api_usage' <<< "$ACCOUNT")
-	POW_LIMIT=$(jq -r '.api_limit' <<< "$ACCOUNT")
-	TWO_FACTOR=$(jq -r '.two_factor' <<< "$ACCOUNT")
-	CREATED=$(jq -r '.created_at' <<< "$ACCOUNT")
+	username=$(jq -r '.username' <<< "$ACCOUNT")
+	address=$(jq -r '.address' <<< "$ACCOUNT")
+	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
+	balance=$(jq -r '.balance' <<< "$ACCOUNT")
+	pending=$(jq -r '.pending' <<< "$ACCOUNT")
+	frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
+	two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
 
-	if [[ $3 == "--json" ]] || [[ $4 == "--json" ]]; then
-		echo $(jq <<< "$ACCOUNT")
-		exit 1
-	else
-		echo "==============================="
-		echo "        NANO.TO ACCOUNT        "
-		echo "==============================="
-		echo "USERNAME: " $USERNAME 
-		echo "BALANCE: " $BALANCE 
-		echo "PENDING: " $PENDING 
-		if [[ $3 == "--show" ]] || [[ $4 == "--show" ]]; then
-			# echo "API KEY: ********************" 
-		  # echo $ADDRESS | egrep -o '[[:digit:]]{14}' | head -n1
-		  echo "ADDRESS: " $ADDRESS
-		else
-		  echo "ADDRESS: ${ADDRESS:0:18}"
-			# echo "API KEY: " $API_KEY 
-		fi
-		echo "2-FACTOR: " $TWO_FACTOR 
-		echo "PoW USAGE: " $POW_USAGE 
-		echo "PoW LIMIT: " $POW_LIMIT 
-		if [[ $2 == "" ]]; then
-			echo "API KEY: ********************" 
-		else
-			echo "API KEY: " $API_KEY 
-		fi
-		echo "JOINED: " $CREATED 
-		echo "==============================="
-	fi
+	echo
+	echo "==============================="
+	echo "        NANO.TO ACCOUNT        "
+	echo "==============================="
+	echo "username " $username
+	echo "address " $address
+	echo "api_key " $api_key
+	echo "balance " $balance
+	echo "pending " $pending
+	echo "frontier " $frontier
+	echo "two_factor " $two_factor
+	echo "==============================="
+	echo
+
+
 	exit 1
+
+fi
+
+
+###########
+# Receive #
+###########
+
+if [[ "$1" = "receive" ]] || [[ "$1" = "address" ]] || [[ "$1" = "qr" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	username=$(jq -r '.username' <<< "$ACCOUNT")
+	address=$(jq -r '.address' <<< "$ACCOUNT")
+	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
+	balance=$(jq -r '.balance' <<< "$ACCOUNT")
+	pending=$(jq -r '.pending' <<< "$ACCOUNT")
+	frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
+	two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
+
+	echo
+	echo "==============================="
+	echo "         RECEIVE NANO          "
+	echo "==============================="
+	echo "YOUR ADDRESS: " $address
+	echo "-------------------------------"
+	echo "QR IMAGE: https://chart.googleapis.com/chart?chs=166x166&chld=L%7C0&cht=qr&chl=nano:$address"
+	echo "==============================="
+	echo
+
+	exit 1
+
 fi
 
 ################
@@ -513,4 +602,4 @@ fi
 # 20. DEFAULT #
 ###############
 
-echo "Command not found. Use 'n2 help' for list of commands."
+echo "$DOCS"

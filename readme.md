@@ -32,11 +32,10 @@ Nano.to
   $ n2 2factor
   $ n2 logout
 
-Blockchain
-  $ n2 stats
-  $ n2 ledger
-  $ n2 reps
-  $ n2 node
+Wallet
+  $ n2 wallet
+  $ n2 receive
+  $ n2 send @esteban 0.1 "Thanks!"
 
 Options
   --help, -h  Print Documentation.

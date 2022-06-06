@@ -441,6 +441,36 @@ EOF
 	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
 	duration=$(jq -r '.duration' <<< "$SEND")
 
+	MESSAGE=$(jq -r '.error' <<< "$SEND")
+
+	if [[ $MESSAGE == "true" ]]; then
+	echo
+	echo "===================================="
+	echo "                ERROR               "
+	echo "===================================="
+	echo $(jq -r '.message' <<< "$SEND")
+	echo "===================================="
+	echo
+	exit 1
+	fi
+
+	ERROR=$(jq -r '.error' <<< "$SEND")
+
+	if [[ ! -z $ERROR ]]; then
+	echo
+	echo "===================================="
+	echo "                ERROR               "
+	echo "===================================="
+	echo $(jq -r '.error' <<< "$SEND")
+	echo "===================================="
+	echo
+	exit 1
+	fi
+
+	echo $SEND 
+
+	exit 1
+
 	echo
 	echo "==============================="
 	echo "            RECEIPT            "

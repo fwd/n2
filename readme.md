@@ -39,11 +39,11 @@ Blockchain
   $ n2 price
 
 Options
-  --docs, -h  Open Nano.to Documentation.
   --help, -h  Print Documentation.
+  --docs, -d  Open Nano.to Documentation.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
-  --uninstall, -v  Remove CLI from system.
+  --uninstall, -u  Remove CLI from system.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

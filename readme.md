@@ -31,15 +31,17 @@ Nano.to
   $ n2 logout
 
 Wallet
-  $ n2 wallet
+  $ n2 balance
+  $ n2 send @esteban 0.1
   $ n2 qrcode
   $ n2 receive
-  $ n2 send @esteban 0.1
+  $ n2 renew
 
 Blockchain
   $ n2 price
 
 Options
+  --address, -h  Print you Nano address.
   --help, -h  Print Documentation.
   --docs, -d  Open Nano.to Documentation.
   --update, -u  Get latest CLI Script.

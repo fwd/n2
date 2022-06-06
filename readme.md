@@ -32,6 +32,7 @@ Nano.to
 
 Wallet
   $ n2 wallet
+  $ n2 qrcode
   $ n2 receive
   $ n2 send @esteban 0.1
 

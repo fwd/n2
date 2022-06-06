@@ -44,6 +44,7 @@ Nano.to
 
 Wallet
   $ n2 wallet
+  $ n2 qrcode
   $ n2 receive
   $ n2 send @esteban 0.1
 
@@ -555,9 +556,9 @@ if [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] ||
 
 	# echo
 	echo "==============================="
-	echo "        NANO.TO ACCOUNT        "
+	echo "         RECEIVE NANO          "
 	echo "==============================="
-	echo "USERNAME: " $USERNAME
+	echo "ACCOUNT: " $USERNAME
 	echo "ADDRESS: " $ADDRESS
 	echo "--------------------------------"
 	cat <<EOF

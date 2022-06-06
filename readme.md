@@ -35,7 +35,7 @@ Nano.to
 Wallet
   $ n2 wallet
   $ n2 receive
-  $ n2 send @esteban 0.1 "Thanks!"
+  $ n2 send @esteban 0.1
 
 Options
   --help, -h  Print Documentation.

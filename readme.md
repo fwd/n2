@@ -41,9 +41,11 @@ Blockchain
   $ n2 price
 
 Options
-  --address, -h  Print you Nano address.
-  --help, -h  Print Documentation.
+  --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
+  --email, -h  Print your account email.
+  --api, -h  Print API KEY email.
+  --address, -h  Print you Nano address.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.

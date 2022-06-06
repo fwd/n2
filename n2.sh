@@ -53,9 +53,11 @@ Blockchain
   $ n2 price
 
 Options
-  --address, -h  Print you Nano address.
-  --help, -h  Print Documentation.
+  --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
+  --email, -h  Print your account email.
+  --api, -h  Print API KEY email.
+  --address, -h  Print you Nano address.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.
@@ -679,6 +681,56 @@ EOF
 	exit 1
 
 fi
+
+###########
+# API KEY #
+###########
+
+if [[ "$1" = "email" ]] || [[ "$1" = "-email" ]] || [[ "$1" = "--email" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	echo $(jq -r '.username' <<< "$ACCOUNT")
+
+	exit 1
+
+fi
+
+###########
+# API KEY #
+###########
+
+if [[ "$1" = "api" ]] || [[ "$1" = "-api" ]] || [[ "$1" = "--api" ]]; then
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	echo $(jq -r '.api_key' <<< "$ACCOUNT")
+
+	exit 1
+
+fi
+
+###########
+# Address #
+###########
 
 if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]] || [[ "$1" = "-a" ]]; then
 

@@ -66,14 +66,15 @@ Toolkit
   $ n2 pow @esteban
 
 Options
-  --help, -h  Print CLI Documentation.
-  --docs, -d  Open Nano.to Documentation.
-  --address, -a  Print you Nano address.
-  --email, -e  Print your account email.
+  --json, Respond in JSON.
   --api, -k  Print CLI API KEY email.
   --update, -u  Get latest CLI Script.
-  --version, -v  Print current CLI Version.
+  --help, -h  Print CLI Documentation.
+  --email, -e  Print your account email.
+  --address, -a  Print you Nano address.
+  --docs, -d  Open Nano.to Documentation.
   --uninstall, -u  Remove CLI from system.
+  --version, -v  Print current CLI Version.
 END_HEREDOC
 )
 
@@ -213,7 +214,7 @@ EOF
 
 	echo
 
-	echo "Logged in successfully."
+	echo "Ok. Logged in successfully."
 	
 	exit 1
 
@@ -266,7 +267,7 @@ EOF
 
 	echo
 
-	echo "Logged in successfully."
+	echo "Ok. Logged in successfully."
 	
 	exit 1
 
@@ -296,7 +297,7 @@ if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[
 	--request GET | jq '.two_factor')
 
 	if [[ $HAS_TWO_FACTOR == "true" ]]; then
-		echo "You have 2f enabled. Use 'n2 2f-remove' to change 2-factor."
+		echo "Ok. 2-factor enabled. Use 'n2 2f-remove' to change 2-factor."
 		exit 1
 	fi
 
@@ -392,8 +393,6 @@ EOF
 fi
 
 
-
-
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
 # ██████╔╝██████╔╝██║██║     █████╗  
@@ -411,8 +410,6 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 	exit 1
 
 fi
-
-
 
 
 #  ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗ ██████╗ ██╗   ██╗████████╗
@@ -546,9 +543,6 @@ if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
 	-H "session: $(cat $DIR/.n2-session)" \
 	-H "Content-Type:application/json" \
 	--request GET)
-	
-  API_KEY=$(jq -r '.api_key' <<< "$ACCOUNT")
-  # FRONTIER=$(jq -r '.frontier' <<< "$ACCOUNT")
 
 	POW=$(curl -s "https://nano.to/$2/pow?key=$API_KEY" \
 	-H "Accept: application/json" \
@@ -556,14 +550,19 @@ if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
 	--request GET)
 
 	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-	echo
-	echo "==============================="
-	echo "       USED ALL CREDITS        "
-	echo "==============================="
-	echo "  Use 'n2 add pow' or wait.    "
-	echo "==============================="
-	echo
-	exit 1
+		if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+			echo $SEND
+			exit 1
+		else
+			echo
+			echo "==============================="
+			echo "       USED ALL CREDITS        "
+			echo "==============================="
+			echo "  Use 'n2 add pow' or wait.    "
+			echo "==============================="
+			echo
+			exit 1
+		fi
 	fi
 
 	echo $(jq -r '.work' <<< "$POW")
@@ -643,11 +642,10 @@ if [[ $1 == "send" ]]; then
 EOF
 	))
 
-	hash=$(jq -r '.hash' <<< "$SEND")
-	amount=$(jq -r '.amount' <<< "$SEND")
-	hash_url=$(jq -r '.hash_url' <<< "$SEND")
-	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
-	duration=$(jq -r '.duration' <<< "$SEND")
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		echo $SEND
+		exit 1
+	fi
 
 	ERROR=$(jq -r '.error' <<< "$SEND")
 
@@ -662,6 +660,12 @@ EOF
 	echo
 	exit 1
 	fi
+
+	hash=$(jq -r '.hash' <<< "$SEND")
+	amount=$(jq -r '.amount' <<< "$SEND")
+	hash_url=$(jq -r '.hash_url' <<< "$SEND")
+	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
+	duration=$(jq -r '.duration' <<< "$SEND")
 
 	if [[ $ERROR == "Bad link number" ]]; then
 	echo
@@ -725,6 +729,11 @@ if [[ "$1" = "ls" ]] || [[ "$1" = "--account" ]] || [[ "$1" = "account" ]] || [[
 	exit 1
 	fi
 
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
+		echo $ACCOUNT
+		exit 1
+	fi
+
 	username=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
 	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
@@ -778,13 +787,17 @@ if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "qr" ]]; then
 	-H "Content-Type:application/json" \
 	--request GET)
 
-	# username=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
-	# api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
-	# balance=$(jq -r '.balance' <<< "$ACCOUNT")
-	# pending=$(jq -r '.pending' <<< "$ACCOUNT")
-	# frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
-	# two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		echo $QR_JSON
+		exit 1
+	fi
 
 	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$2" \
 		-H "Accept: application/json" \
@@ -868,8 +881,6 @@ if [[ "$1" = "api" ]] || [[ "$1" = "-api" ]] || [[ "$1" = "--api" ]] || [[ "$1" 
 fi
 
 
-
-
 #  █████╗ ██████╗ ██████╗ ██████╗ ███████╗███████╗███████╗
 # ██╔══██╗██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔════╝██╔════╝
 # ███████║██║  ██║██║  ██║██████╔╝█████╗  ███████╗███████╗
@@ -897,8 +908,6 @@ if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]]
 fi
 
 
-
-
 # ██╗      ██████╗  ██████╗  ██████╗ ██╗   ██╗████████╗
 # ██║     ██╔═══██╗██╔════╝ ██╔═══██╗██║   ██║╚══██╔══╝
 # ██║     ██║   ██║██║  ███╗██║   ██║██║   ██║   ██║   
@@ -909,11 +918,9 @@ fi
 
 if [[ "$1" = "logout" ]]; then
 	rm $DIR/.n2-session
-	echo "Done: You logged out of Nano.to."
+	echo "Ok: You logged out of Nano.to."
 	exit 1
 fi
-
-
 
 
 #  ██████╗ ██████╗ ██████╗ ███████╗
@@ -938,6 +945,17 @@ if [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] ||
 	--request GET)
 
 	ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		QR_JSON=$(curl -s "https://nano.to/$ADDRESS?request=$2" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		echo $QR_JSON
+		exit 1
+	fi
+
 	USERNAME=$(jq -r '.username' <<< "$ACCOUNT")
 
 	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$ADDRESS&amount=$2" \

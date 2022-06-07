@@ -105,9 +105,14 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 	# BE A HERO, SEND A PULL REQUEST
 
 	TIMELINE='year'
-	echo 
-	echo "'n2 node' is under development. Update N2 in a $TIMELINE or so. Tweet me @nano2dev to remind me to get it done."
-	echo 
+	
+	echo "================================="
+	echo "       UNDER CONSTRUCTION        "
+	echo "================================="
+	echo "'n2 node' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind him to get it done."
+	echo "================================="
+	echo "https://twitter.com/nano2dev"
+	echo "================================="
 
 	# rpc $2
 	# curl -g -d '{ "$2": "$3" }' "$RPC"
@@ -458,11 +463,47 @@ fi
 # ███████║   ██║   ╚██████╔╝██║  ██║███████╗
 # ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
-if [[ $1 == "purchase" ]] || [[ $1 == "store" ]] || [[ $1 == "add" ]] || [[ $1 == "shop" ]] || [[ $1 == "--store" ]] || [[ $1 == "--shop" ]] || [[ $1 == "-s" ]]; then
+if [[ $1 == "purchase" ]] || [[ $1 == "store" ]] || [[ $1 == "buy" ]] || [[ $1 == "add" ]] || [[ $1 == "shop" ]] || [[ $1 == "--store" ]] || [[ $1 == "--shop" ]] || [[ $1 == "-s" ]]; then
+
+	if [[ $2 == "" ]]; then
+cat <<EOF
+
+███████╗██╗  ██╗ ██████╗ ██████╗ 
+██╔════╝██║  ██║██╔═══██╗██╔══██╗
+███████╗███████║██║   ██║██████╔╝
+╚════██║██╔══██║██║   ██║██╔═══╝ 
+███████║██║  ██║╚██████╔╝██║     
+╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝                                                  
+EOF
+
+		echo "================================="
+		echo "          NANO.TO SHOP           "
+		echo "================================="
+		echo "Address ------------------- Ӿ 0.1"
+		echo "PoW ---------------------- Ӿ 0.01"
+		echo "---------------------------------"
+		echo "Usage: 'n2 shop pow 10'"
+		echo "================================="
+
+		echo 
+
+		exit 1
+	fi
+
+	if [[ $2 == "address" ]]; then
+		echo "================================="
+		echo "       UNDER CONSTRUCTION        "
+		echo "================================="
+		echo "Yeah, I bet you want multiple addresses with a single account. Imagine all the things you can build. Tweet @nano2dev and remind him to get it done."
+		echo "================================="
+		echo "https://twitter.com/nano2dev"
+		echo "================================="
+		exit 1
+	fi
 
 	if [[ $2 == "pow" ]]; then
 		if [[ $3 == "" ]]; then
-			echo "Missing amount. Usage 'n2 add pow 10'"
+			echo "Missing amount to purchase. Usage: 'n2 add address 5'"
 			exit 1
 		fi
 curl -s "https://nano.to/cli/pow" \
@@ -474,30 +515,11 @@ curl -s "https://nano.to/cli/pow" \
 { "amount": "$3" }
 EOF
 	)
-	echo
-	exit 1
-fi
+		echo
+		exit 1
+	fi
 
-cat <<EOF
-███████╗██╗  ██╗ ██████╗ ██████╗ 
-██╔════╝██║  ██║██╔═══██╗██╔══██╗
-███████╗███████║██║   ██║██████╔╝
-╚════██║██╔══██║██║   ██║██╔═══╝ 
-███████║██║  ██║╚██████╔╝██║     
-╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═╝                                                  
-EOF
-
-	echo "========================"
-	echo "    AVAILABLE ITEMS     "
-	echo "========================"
-	echo "PoW ------------ Ӿ 0.01 "
-	echo "========================"
-
-	echo 
-	
-	echo "Usage: 'n2 add pow 10'"
-
-	echo 
+	echo "We don't sell that. Use 'n2 shop' to see list."
 
 	exit 1
 
@@ -983,10 +1005,14 @@ fi
                                                              
 
 if [ "$1" = "convert" ] || [ "$1" = "--convert" ] || [ "$1" = "-c" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
-	TIMELINE="week"
-	echo 
-	echo "'n2 convert' is not done yet. Update N2 in a $TIMELINE or so. Tweet me @nano2dev to remind me to get it done."
-	echo 
+	TIMELINE='week'
+	echo "================================="
+	echo "       UNDER CONSTRUCTION        "
+	echo "================================="
+	echo "'n2 convert' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind him to get it done."
+	echo "================================="
+	echo "https://twitter.com/nano2dev"
+	echo "================================="
 	exit 1
 fi
 

@@ -266,52 +266,6 @@ fi
 # ███████╗      ██║     ██║  ██║
 # ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
 
-if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
-
-	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
-		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
-		-H "Content-Type:application/json" \
-	--request GET | jq '.two_factor')
-
-	if [[ $HAS_TWO_FACTOR == "false" ]]; then
-		echo "Error: You don't have 2f enabled. Use 'n2 2f' to enable it."
-		exit 1
-	fi
-
-	echo "========================"
-	echo "    REMOVE 2-FACTOR     "
-	echo "========================"
-	echo
-	echo "Please provide an existing OTP code."
-	echo
-
-	read -p 'Enter OTP Code: ' REMOVE_OTP
-
-	if [[ $REMOVE_OTP == "" ]]; then
-		echo "Error: No code. Try again, but from scratch."
-		exit 1
-	fi
-
-	REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "code": "$REMOVE_OTP" }
-EOF
-	))
-
-	echo 
-
-	echo "$REMOVE_OTP_ATTEMPT"
-
-	exit 1
-
-fi
-
-
 if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2fa" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]] || [[ "$1" = "--2factor" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -374,6 +328,53 @@ EOF
 
 fi
 
+# STILL 2-FACTOR
+
+if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
+
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET | jq '.two_factor')
+
+	if [[ $HAS_TWO_FACTOR == "false" ]]; then
+		echo "Error: You don't have 2f enabled. Use 'n2 2f' to enable it."
+		exit 1
+	fi
+
+	echo "========================"
+	echo "    REMOVE 2-FACTOR     "
+	echo "========================"
+	echo
+	echo "Please provide an existing OTP code."
+	echo
+
+	read -p 'Enter OTP Code: ' REMOVE_OTP
+
+	if [[ $REMOVE_OTP == "" ]]; then
+		echo "Error: No code. Try again, but from scratch."
+		exit 1
+	fi
+
+	REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "code": "$REMOVE_OTP" }
+EOF
+	))
+
+	echo 
+
+	echo "$REMOVE_OTP_ATTEMPT"
+
+	exit 1
+
+fi
+
 
 
 
@@ -386,6 +387,7 @@ fi
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
+	# AWARD FOR CLEANEST METHOD
 	curl -s "https://nano.to/price?currency=$2" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \

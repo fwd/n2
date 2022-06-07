@@ -7,13 +7,24 @@
 ###############################
 
 # Install 'jq' if needed.
-if ! command -v jq &> /dev/null
-then sudo apt install jq -y
+if ! command -v jq &> /dev/null; then
+	if [  -n "$(uname -a | grep Ubuntu)" ]; then
+		sudo apt install jq -y
+	else
+		echo "Error: We could not auto install 'jq'. Please install it manually, before continuing."
+		exit 1
+	fi
 fi
 
-# Install 'curl' if needed. Really?
-if ! command -v curl &> /dev/null
-then sudo apt install curl -y
+# Install 'curl' if needed.
+if ! command -v curl &> /dev/null; then
+	# Really? What kind of rinky-dink machine is this.
+	if [  -n "$(uname -a | grep Ubuntu)" ]; then
+		sudo apt install jq -y
+	else
+		echo "Error: We could not auto install 'curl'. Please install it manually, before continuing."
+		exit 1
+	fi
 fi
 
 # VERSION: 0.2
@@ -408,11 +419,13 @@ fi
 if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
 
 	if [[ $2 == "" ]]; then
+		# read -p 'To (@Username or Address): ' $2
 		echo "Error: Username, or Address missing."
 		exit 1
 	fi
 
 	if [[ $3 == "" ]]; then
+		# read -p 'Amount: ' $3
 		echo "Error: Amount missing."
 		exit 1
 	fi
@@ -422,7 +435,6 @@ if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] ||
 	-H "Content-Type:application/json" \
 	--request GET | jq -r '.qrcode')
 
-	# CHECKOUT=$( echo "cmd" | at "$when" 2>&1 )
 	echo 
 
 cat <<EOF

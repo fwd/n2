@@ -65,6 +65,7 @@ Options
   --uninstall, -u  Remove CLI from system.
 END_HEREDOC
 )
+
 # Nice
 
 

@@ -20,7 +20,7 @@ fi
 if ! command -v curl &> /dev/null; then
 	# Really? What kind of rinky-dink machine is this.
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
-		sudo apt install jq -y
+		sudo apt install curl -y
 	else
 		echo "Error: We could not auto install 'curl'. Please install it manually, before continuing."
 		exit 1

@@ -6,14 +6,14 @@
 ## Released for MIT License  ##
 ###############################
 
-# Install 'curl' if needed.
-if ! command -v curl &> /dev/null
-then sudo apt install curl -y
-fi
-
 # Install 'jq' if needed.
 if ! command -v jq &> /dev/null
 then sudo apt install jq -y
+fi
+
+# Install 'curl' if needed. Really?
+if ! command -v curl &> /dev/null
+then sudo apt install curl -y
 fi
 
 # VERSION: 0.2

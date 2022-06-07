@@ -90,9 +90,8 @@ EOF
 
 if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 
-	# NO MUCH ACTION HERE
-	# LOCAL NODE WALLET IS A WORK IN PROGRESS
-	# I WANT NON-CUSTODIAL TOO!
+	# LOCAL "NON-CUSTODIAL" WALLET, IS A WORK IN PROGRESS
+
 	TIMELINE='year'
 	echo 
 	echo "'n2 node' is under development. Update N2 in a $TIMELINE or so. Tweet me @nano2dev to remind me to get it done."

@@ -87,29 +87,30 @@ END_HEREDOC
 # ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
 # ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
                                                                                                                   
-rpc() {
-	SESSION=$(curl -s "$RPC" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "action": "$1" }
-EOF
-	))
-	echo $SESSION
-}
-
 if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 
+	# rpc() {
+	# 	SESSION=$(curl -s "$RPC" \
+	# 	-H "Accept: application/json" \
+	# 	-H "Content-Type:application/json" \
+	# 	--request POST \
+	# 	--data @<(cat <<EOF
+	# { "action": "$1" }
+	# EOF
+	# 	))
+	# 	echo $SESSION
+	# }
+
 	# LOCAL "NON-CUSTODIAL" WALLET, IS A WORK IN PROGRESS
+	# BE A HERO, SEND A PULL REQUEST
 
 	TIMELINE='year'
 	echo 
 	echo "'n2 node' is under development. Update N2 in a $TIMELINE or so. Tweet me @nano2dev to remind me to get it done."
 	echo 
 
-	# rpc $1
-	# curl -g -d '{ "action": "telemetry" }' "$RPC"
+	# rpc $2
+	# curl -g -d '{ "$2": "$3" }' "$RPC"
 	
 	exit 1
 fi

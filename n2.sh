@@ -50,6 +50,8 @@ Nano.to
   $ n2 register
   $ n2 account
   $ n2 2factor
+  $ n2 whois
+  $ n2 username
   $ n2 logout
 
 Wallet
@@ -58,7 +60,9 @@ Wallet
   $ n2 pow @esteban
   $ n2 qrcode
   $ n2 receive
-  $ n2 renew
+  $ n2 nickname
+  $ n2 metadata
+  $ n2 renewal
   $ n2 shop
 
 Blockchain
@@ -392,6 +396,44 @@ EOF
 fi
 
 
+# ██╗    ██╗██╗  ██╗ ██████╗ ██╗███████╗
+# ██║    ██║██║  ██║██╔═══██╗██║██╔════╝
+# ██║ █╗ ██║███████║██║   ██║██║███████╗
+# ██║███╗██║██╔══██║██║   ██║██║╚════██║
+# ╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
+#  ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝                                                                  
+
+if [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "username" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
+
+	# AWARD FOR CLEANEST METHOD
+	WHOIS=$(curl -s "https://nano.to/$2/account" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		echo $POW
+		exit 1
+	fi
+
+	WALLETS=$(jq -r '.accounts' <<< "$WHOIS")
+
+	# echo
+	echo "==============================="
+	echo "         WHOIS LOOKUP          "
+	echo "==============================="
+	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
+	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
+	echo "USERNAME: " $(jq -r '.username' <<< $WHOIS) 
+	echo "BLOCKS: " $(jq -r '.height' <<< $WHOIS)
+	echo "NANOLOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
+	echo "-------------------------------"
+
+	exit 1
+
+fi
+
+
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
 # ██████╔╝██████╔╝██║██║     █████╗  
@@ -486,33 +528,33 @@ EOF
 		exit 1
 	fi
 
-	# if [[ $2 == "address" ]]; then
-	# 	echo "================================="
-	# 	echo "       UNDER CONSTRUCTION        "
-	# 	echo "================================="
-	# 	echo "Yeah, I bet you want multiple addresses with a single account. Imagine all the things you can build. Tweet @nano2dev and remind me to get it done."
-	# 	echo "================================="
-	# 	echo "https://twitter.com/nano2dev"
-	# 	echo "================================="
-	# 	exit 1
-	# fi
-	if [[ $2 == "address" ]]; then
-		if [[ $3 == "" ]]; then
-			echo "Missing amount to purchase. Usage: 'n2 add address 2'"
-			exit 1
-		fi
-curl -s "https://nano.to/cli/shop/address" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "amount": "$3" }
-EOF
-	)
-		echo
+	if [[ $2 == "address" ]] || [[ $2 == "addresses" ]] || [[ $2 == "wallets" ]] || [[ $2 == "accounts" ]]; then
+		echo "================================="
+		echo "       UNDER CONSTRUCTION        "
+		echo "================================="
+		echo "Yeah, I bet you want multiple addresses with a single account. Imagine all the things you can build. Tweet @nano2dev and remind me to get it done."
+		echo "================================="
+		echo "https://twitter.com/nano2dev"
+		echo "================================="
 		exit 1
 	fi
+# 	if [[ $2 == "address" ]]; then
+# 		if [[ $3 == "" ]]; then
+# 			echo "Missing amount to purchase. Usage: 'n2 add address 2'"
+# 			exit 1
+# 		fi
+# curl -s "https://nano.to/cli/shop/address" \
+# 	-H "Accept: application/json" \
+# 	-H "session: $(cat $DIR/.n2-session)" \
+# 	-H "Content-Type:application/json" \
+# 	--request POST \
+# 	--data @<(cat <<EOF
+# { "amount": "$3" }
+# EOF
+# 	)
+# 		echo
+# 		exit 1
+# 	fi
 
 	if [[ $2 == "pow" ]]; then
 		if [[ $3 == "" ]]; then
@@ -560,25 +602,38 @@ if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
 	-H "Content-Type:application/json" \
 	--request GET)
 
-	POW=$(curl -s "https://nano.to/$2/pow?key=$API_KEY" \
+	if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
+	rm $DIR/.n2-session
+	echo
+	echo "==============================="
+	echo "    LOGGED OUT FOR SECURITY    "
+	echo "==============================="
+	echo "Use 'n2 login' to log back in. "
+	echo "==============================="
+	echo
+	exit 1
+	fi
+
+	POW=$(curl -s "https://nano.to/$2/pow" \
 	-H "Accept: application/json" \
+	-H "Authorization: $API_KEY" \
 	-H "Content-Type:application/json" \
 	--request GET)
 
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		echo $POW
+		exit 1
+	fi
+
 	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-		if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-			echo $SEND
-			exit 1
-		else
-			echo
-			echo "==============================="
-			echo "       USED ALL CREDITS        "
-			echo "==============================="
-			echo "  Use 'n2 add pow' or wait.    "
-			echo "==============================="
-			echo
-			exit 1
-		fi
+		echo "==============================="
+		echo "         PLEASE WAIT           "
+		echo "==============================="
+		echo "  Use 'n2 add pow' or wait.    "
+		echo "==============================="
+		echo "Docs: https://docs.nano.to/pow "
+		echo "==============================="
+		exit 1
 	fi
 
 	echo $(jq -r '.work' <<< "$POW")
@@ -586,7 +641,6 @@ if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
 	exit 1
 
 fi
-
 
 
 
@@ -599,9 +653,10 @@ fi
 
 if [[ $1 == "send" ]]; then
 
-	USERNAME=$2
-	AMOUNT=$3
-	NOTE=$4
+	# USERNAME=$2
+	# AMOUNT=$3
+	# FROM=$4
+	# NOTE=$5
 
 	if [[ $2 == "" ]]; then
 		echo "Error: Missing @Username or Nano Address"
@@ -614,6 +669,13 @@ if [[ $1 == "send" ]]; then
 		exit 1
 		# read -p 'Amount: ' AMOUNT
 	fi
+
+	# if [[ $4 == "" ]]; then
+		# echo "Default: Sending from Master wallet."
+		# echo "Error: Missing from. Use 'default' to use master wallet."
+		# exit 1
+		# read -p 'Amount: ' AMOUNT
+	# fi
 
 	# if [[ $4 == "" ]]; then
 	# 	read -p 'Note (Optional): ' NOTE
@@ -654,7 +716,7 @@ if [[ $1 == "send" ]]; then
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "to": "$2", "amount": "$3", "from": "$4" "note": "$5", "work": "$WORK" }
+{ "to": "$2", "amount": "$3", "from": "$4", "note": "$5", "work": "$WORK" }
 EOF
 	))
 
@@ -702,8 +764,8 @@ EOF
 	echo "FROM: " $ADDRESS
 	echo "-------------------------------"
 	echo "HASH: " $hash
-	echo "URL: " $nanolooker
-	echo "DURATION: " $duration
+	echo "BLOCK: " $nanolooker
+	echo "TIME: " $duration
 	# echo "NOTE: Thanks for using Nano.to"
 
 	exit 1

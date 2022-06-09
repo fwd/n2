@@ -61,16 +61,17 @@ Local Wallet (Non-Custodial)
   $ n2 local secret
   $ n2 local install
   $ n2 local upgrade
-  $ n2 local plugin
+  $ n2 local plugins
 
 Cloud Wallet (Custodial)
   $ n2 cloud balance
   $ n2 cloud send @esteban 0.1
+  $ n2 cloud pow @esteban
   $ n2 cloud qrcode
   $ n2 cloud receive
-  $ n2 cloud renew
+  $ n2 cloud recycle
 
-Blockchain
+Cloud Services
   $ n2 price
   $ n2 stats
 

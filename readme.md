@@ -19,6 +19,7 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ## ❯ Usage
 
 ✅ = Operational 
+
 ⏺ = In-Development
 
 ```

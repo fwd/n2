@@ -1365,8 +1365,19 @@ fi
 # ╚██████╔╝██║     ██████╔╝██║  ██║   ██║   ███████╗
 #  ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
                                                   
-
-if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--install" ]  || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+	if [ "$2" = "--dev" ]; then
+		curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o /usr/local/bin/n2
+		sudo chmod +x /usr/local/bin/n2
+		echo "Installed latest 'development' version."
+		exit 1
+	fi
+	if [ "$2" = "--prod" ]; then
+		curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
+		sudo chmod +x /usr/local/bin/n2
+		echo "Installed latest 'stable' version."
+		exit 1
+	fi
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Installed latest version."

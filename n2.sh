@@ -100,6 +100,9 @@ END_HEREDOC
                                                                                                                   
 if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 
+	# if [[ "$2" = "" ]]; then
+	# fi
+
 	# rpc() {
 	# 	SESSION=$(curl -s "$RPC" \
 	# 	-H "Accept: application/json" \
@@ -115,29 +118,41 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 	# LOCAL "NON-CUSTODIAL" WALLET, IS A WORK IN PROGRESS
 	# BE A HERO, SEND A PULL REQUEST
 
-	TIMELINE='year'
-	
-	echo "================================="
-	echo "       UNDER CONSTRUCTION        "
-	echo "================================="
-	echo "'n2 local' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind me to get it done."
-	echo "================================="
-	echo "https://twitter.com/nano2dev"
-	echo "================================="
+	TIMELINE='month'
 
 	# rpc $2
 	# curl -g -d '{ "$2": "$3" }' "$RPC"
 
+echo "========================"
+echo "      LOCAL WALLET      "
+echo "========================"
+
 cat <<EOF
 Usage:
   $ n2 local balance
-  $ n2 local send @esteban 0.1
-  $ n2 local qrcode
   $ n2 local receive
-  $ n2 local install
+  $ n2 local account @kraken
+  $ n2 local send @esteban 0.1
+  $ n2 local qrcode @fosse
+  $ n2 local install 23.1
+  $ n2 local plugins ls
 EOF
-	
-	exit 1
+
+	# echo "================================="
+	# echo "       UNDER CONSTRUCTION        "
+	# echo "================================="
+	# echo "'n2 local' is under development. "
+	# echo "Tweet me @nano2dev to remind me. "
+	# echo "================================="
+	# echo "https://twitter.com/nano2dev"
+	# echo "================================="
+	                     
+# cat <<EOF
+# Commant not found. Use 'n2 list' to see new commands.
+# EOF
+
+exit 1
+
 fi
 
 
@@ -170,12 +185,14 @@ fi
                                       
 
 
-if [[ $1 == "cloud" ]]; then
+if [[ $1 == "login" ]]; then
 
-
-if [[ $2 == "login" ]]; then
-
-	echo "$BANNER"
+	# echo "$BANNER"
+	echo
+	echo "========================"
+	echo "   NANO.TO CLOUD LOGIN  "
+	echo "========================"
+	echo
 
 	echo "Welcome back"
 
@@ -248,11 +265,13 @@ fi
 # ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                              
-if [[ $2 == "register" ]]; then
+if [[ $1 == "register" ]]; then
 
-	echo "$BANNER"
-
-	echo 
+	echo
+	echo "========================"
+	echo " NANO.TO CLOUD REGISTER "
+	echo "========================"
+	echo
 
 	echo 'Welcome to the Cloud'
 
@@ -291,6 +310,8 @@ EOF
 
 fi
 
+
+if [[ $1 == "cloud" ]]; then
 
 # ██████╗       ███████╗ █████╗ 
 # ╚════██╗      ██╔════╝██╔══██╗
@@ -605,6 +626,7 @@ EOF
 	# 	echo "================================="
 	# 	exit 1
 	# fi
+
 	if [[ $2 == "address" ]] || [[ $2 == "addresses" ]] || [[ $2 == "wallets" ]] || [[ $2 == "accounts" ]]; then
 		if [[ $3 == "" ]]; then
 			echo "Missing amount to purchase. Usage: 'n2 add address 2'"
@@ -850,7 +872,7 @@ fi
 # ╚███╔███╔╝██║  ██║███████╗███████╗███████╗   ██║   ███████║
 #  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
                                                            
-if [[ "$2" = "ls" ]] || [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "accounts" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
+if [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "accounts" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -867,9 +889,9 @@ if [[ "$2" = "ls" ]] || [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[
 	echo "==============================="
 	echo "         CLOUD WALLETS        "
 	echo "==============================="
-	echo "No additional wallets on file. "
+	echo "No additional wallets. "
 	echo "==============================="
-	echo "Use 'n2 shop' to add more. "
+	echo "Use 'n2 cloud shop' to add.    "
 	echo "==============================="
 	exit 1
 	fi
@@ -918,7 +940,7 @@ fi
 # ██║  ██║╚██████╗╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║   ██║   
 # ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝                                                       
 
-if [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
+if [[ "$2" = "ls" ]] || [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -966,15 +988,15 @@ if [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] |
 	echo "ACCOUNT: " $username
 	echo "POW CREDITS: " "$pow_usage" "/" "$pow_limit"
 	echo "TWO_FACTOR: " $two_factor
+	echo "WALLETS: " $wallets
 	echo "==============================="
-	echo "         MASTER WALLET         "
-	echo "==============================="
-	echo "BALANCE: " $balance
 	echo "PENDING: " $pending
+	echo "BALANCE: " $balance
 	echo "ADDRESS: " $address
+	echo "BROWSER: https://nanolooker.com/account/$address"
 	echo "==============================="
-	echo "Use 'n2 ls' to list wallets."
-	echo "==============================="
+	# echo "See all with 'n2 cloud wallets'"
+	# echo "==============================="
 
 	exit 1
 
@@ -1300,11 +1322,12 @@ fi
 
 cat <<EOF
 Usage:
+  $ n2 cloud account
   $ n2 cloud balance
   $ n2 cloud send @esteban 0.1
   $ n2 cloud qrcode
   $ n2 cloud receive
-  $ n2 cloud renew
+  $ n2 cloud recycle
 EOF
 
 exit 1
@@ -1343,6 +1366,22 @@ if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-
 	exit 1
 fi
 
+if [ "$1" = "list" ] || [ "$1" = "ls" ] || [ "$1" = "--ls" ] || [ "$1" = "-ls" ] || [ "$1" = "-l" ]; then
+cat <<EOF
+Nano.to
+  $ n2 [ stats • price • login • register • account • username • 2fa • logout ]
+
+Local Node (Non-Custodial)
+  $ n2 local [ ls • send • qrcode • receive • install • upgrade • plugins ]
+
+Cloud Node (Custodial)
+  $ n2 cloud [ ls • send • qrcode • receive • recycle ]
+
+Options
+  $ n2 --update --version --dev --json
+EOF
+	exit 1
+fi
 
 # ██╗   ██╗███████╗██████╗ ███████╗██╗ ██████╗ ███╗   ██╗
 # ██║   ██║██╔════╝██╔══██╗██╔════╝██║██╔═══██╗████╗  ██║
@@ -1406,5 +1445,12 @@ fi
 # ██╔══██║██║   ██║██╔══██║
 # ██║  ██║╚██████╔╝██║  ██║
 # ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
+
+if [[ "$1" = "--json" ]]; then
+	echo "Tip: Use the '--json' flag to get command responses in JSON."
+	exit 1
+fi
                          
-echo "$DOCS"
+cat <<EOF
+Commant not found. Use 'n2 list' to see new commands.
+EOF

@@ -18,9 +18,6 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ## ❯ Usage
 
-- ✅ = Operational
-- ⏺ = In-Development
-
 ```
 Nano.to Cloud Wallet
 ✅  $ n2 login
@@ -60,6 +57,9 @@ Options
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.
 ```
+
+- ✅ = Operational
+- ⏺ = In-Development
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

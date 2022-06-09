@@ -45,43 +45,49 @@ END_HEREDOC
 )
 
 DOCS=$(cat <<'END_HEREDOC'
-Nano.to
+Nano.to 
   $ n2 login
   $ n2 register
   $ n2 account
   $ n2 2factor
-  $ n2 whois
-  $ n2 username
   $ n2 logout
 
-Wallet
-  $ n2 wallets
-  $ n2 send @fosse 0.1
-  $ n2 pow @esteban
-  $ n2 qrcode
-  $ n2 receive
-  $ n2 nickname
-  $ n2 metadata
-  $ n2 renewal
-  $ n2 shop
+Local Wallet (Non-Custodial)
+  $ n2 local wallets
+  $ n2 local send @esteban 0.1 
+  $ n2 local qrcode
+  $ n2 local receive
+  $ n2 local create
+  $ n2 local secret
+  $ n2 local install
+  $ n2 local upgrade
+  $ n2 local plugin
+
+Cloud Wallet (Custodial)
+  $ n2 cloud balance
+  $ n2 cloud send @esteban 0.1
+  $ n2 cloud qrcode
+  $ n2 cloud receive
+  $ n2 cloud renew
 
 Blockchain
   $ n2 price
+  $ n2 stats
 
 Options
-  --json, Respond in JSON.
+  --help, -h  Print CLI Documentation.
+  --docs, -d  Open Nano.to Documentation.
+  --address, -a  Print you Nano address.
+  --email, -e  Print your account email.
   --api, -k  Print CLI API KEY email.
   --update, -u  Get latest CLI Script.
-  --help, -h  Print CLI Documentation.
-  --email, -e  Print your account email.
-  --address, -a  Print you Nano address.
-  --docs, -d  Open Nano.to Documentation.
-  --uninstall, -u  Remove CLI from system.
   --version, -v  Print current CLI Version.
+  --uninstall, -u  Remove CLI from system.
 END_HEREDOC
 )
 
 # Nice
+
 
 
 # ██╗      ██████╗  ██████╗ █████╗ ██╗     
@@ -99,7 +105,7 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 	# 	-H "Content-Type:application/json" \
 	# 	--request POST \
 	# 	--data @<(cat <<EOF
-	# { "action": "$1" }
+	# { "action": "$2" }
 	# EOF
 	# 	))
 	# 	echo $SESSION
@@ -113,17 +119,25 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 	echo "================================="
 	echo "       UNDER CONSTRUCTION        "
 	echo "================================="
-	echo "'n2 node' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind me to get it done."
+	echo "'n2 local' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind me to get it done."
 	echo "================================="
 	echo "https://twitter.com/nano2dev"
 	echo "================================="
 
 	# rpc $2
 	# curl -g -d '{ "$2": "$3" }' "$RPC"
+
+cat <<EOF
+Usage:
+  $ n2 local balance
+  $ n2 local send @esteban 0.1
+  $ n2 local qrcode
+  $ n2 local receive
+  $ n2 local install
+EOF
 	
 	exit 1
 fi
-
 
 
 
@@ -152,10 +166,13 @@ fi
 # ██║╚██╗██║██╔══██║██║╚██╗██║██║   ██║   ██║   ██║   ██║
 # ██║ ╚████║██║  ██║██║ ╚████║╚██████╔╝██╗██║   ╚██████╔╝
 # ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝    ╚═════╝ 
-                                                                           
+                                      
 
 
-if [[ $1 == "login" ]]; then
+if [[ $1 == "cloud" ]]; then
+
+
+if [[ $2 == "login" ]]; then
 
 	echo "$BANNER"
 
@@ -223,9 +240,6 @@ EOF
 
 fi
 
-
-
-
 # ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
 # ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
 # ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
@@ -233,7 +247,7 @@ fi
 # ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
                                                              
-if [[ $1 == "register" ]]; then
+if [[ $2 == "register" ]]; then
 
 	echo "$BANNER"
 
@@ -277,8 +291,6 @@ EOF
 fi
 
 
-
-
 # ██████╗       ███████╗ █████╗ 
 # ╚════██╗      ██╔════╝██╔══██╗
 #  █████╔╝█████╗█████╗  ███████║
@@ -286,10 +298,10 @@ fi
 # ███████╗      ██║     ██║  ██║
 # ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
 
-if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2fa" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]] || [[ "$1" = "--2factor" ]]; then
+if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "Error: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -350,7 +362,7 @@ fi
 
 # STILL 2-FACTOR
 
-if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
+if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 
 	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
@@ -403,7 +415,7 @@ fi
 # ╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
 #  ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝                                                                  
 
-if [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "username" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
+if [ "$2" = "whois" ] || [ "$2" = "search" ] || [ "$2" = "name" ] || [ "$2" = "username" ] || [ "$2" = "-w" ] || [ "$2" = "-f" ]; then
 
 	# AWARD FOR CLEANEST METHOD
 	WHOIS=$(curl -s "https://nano.to/$2/account" \
@@ -433,27 +445,6 @@ if [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "u
 
 fi
 
-
-# ██████╗ ██████╗ ██╗ ██████╗███████╗
-# ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
-# ██████╔╝██████╔╝██║██║     █████╗  
-# ██╔═══╝ ██╔══██╗██║██║     ██╔══╝  
-# ██║     ██║  ██║██║╚██████╗███████╗
-# ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝                                  
-
-if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
-
-	# AWARD FOR CLEANEST METHOD
-	curl -s "https://nano.to/price?currency=$2" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET | jq
-	exit 1
-
-fi
-
-
-
 # In Case Of
 # ██╗  ██╗██╗████████╗    ██████╗ ██╗   ██╗    ██████╗ ██╗   ██╗███████╗███████╗
 # ██║  ██║██║╚══██╔══╝    ██╔══██╗╚██╗ ██╔╝    ██╔══██╗██║   ██║██╔════╝██╔════╝
@@ -462,10 +453,10 @@ fi
 # ██║  ██║██║   ██║       ██████╔╝   ██║       ██████╔╝╚██████╔╝███████║███████║
 # ╚═╝  ╚═╝╚═╝   ╚═╝       ╚═════╝    ╚═╝       ╚═════╝  ╚═════╝ ╚══════╝╚══════╝                 
 
-if [ "$1" = "secret" ] || [ "$1" = "--seed" ]; then
+if [ "$2" = "secret" ] || [ "$2" = "--seed" ]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "Error: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -535,7 +526,7 @@ fi
 # ╚██████╗██║  ██║███████╗╚██████╗██║  ██╗╚██████╔╝╚██████╔╝   ██║   
 #  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝                                                                 
 
-if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
+if [ "$2" = "checkout" ] || [ "$2" = "--checkout" ] || [ "$2" = "-checkout" ] || [ "$2" = "c" ] || [ "$2" = "-c" ]; then
 
 	if [[ $2 == "" ]]; then
 		# read -p 'To (@Username or Address): ' $2
@@ -576,7 +567,7 @@ fi
 # ███████║   ██║   ╚██████╔╝██║  ██║███████╗
 # ╚══════╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
-if [[ $1 == "purchase" ]] || [[ $1 == "store" ]] || [[ $1 == "buy" ]] || [[ $1 == "add" ]] || [[ $1 == "shop" ]] || [[ $1 == "--store" ]] || [[ $1 == "--shop" ]] || [[ $1 == "-s" ]]; then
+if [[ $2 == "purchase" ]] || [[ $2 == "store" ]] || [[ $2 == "buy" ]] || [[ $2 == "add" ]] || [[ $2 == "shop" ]] || [[ $2 == "--store" ]] || [[ $2 == "--shop" ]] || [[ $2 == "-s" ]]; then
 
 	if [[ $2 == "" ]]; then
 cat <<EOF
@@ -664,7 +655,7 @@ fi
 # ██║     ╚██████╔╝╚███╔███╔╝
 # ╚═╝      ╚═════╝  ╚══╝╚══╝ 
                            
-if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
+if [[ $2 == "pow" ]] || [[ $2 == "--pow" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -726,7 +717,7 @@ fi
 # ███████║███████╗██║ ╚████║██████╔╝
 # ╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝                                   
 
-if [[ $1 == "send" ]]; then
+if [[ $2 == "send" ]]; then
 
 	# USERNAME=$2
 	# AMOUNT=$3
@@ -858,7 +849,7 @@ fi
 # ╚███╔███╔╝██║  ██║███████╗███████╗███████╗   ██║   ███████║
 #  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
                                                            
-if [[ "$1" = "ls" ]] || [[ "$1" = "--wallets" ]] || [[ "$1" = "wallets" ]] || [[ "$1" = "accounts" ]] || [[ "$1" = "balances" ]] || [[ "$1" = "--wallets" ]]; then
+if [[ "$2" = "ls" ]] || [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "accounts" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -926,7 +917,7 @@ fi
 # ██║  ██║╚██████╗╚██████╗╚██████╔╝╚██████╔╝██║ ╚████║   ██║   
 # ╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝   ╚═╝                                                       
 
-if [[ "$1" = "--account" ]] || [[ "$1" = "account" ]] || [[ "$1" = "wallet" ]] || [[ "$1" = "balance" ]] || [[ "$1" = "a" ]] || [[ "$1" = "--balance" ]]; then
+if [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -998,7 +989,7 @@ fi
 # ██║  ██║███████╗╚██████╗███████╗██║ ╚████╔╝ ███████╗
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝                                               
 
-if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "qr" ]]; then
+if [[ "$2" = "deposit" ]] || [[ "$2" = "receive" ]] || [[ "$2" = "qr" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1056,7 +1047,7 @@ fi
 # ███████╗██║ ╚═╝ ██║██║  ██║██║███████╗
 # ╚══════╝╚═╝     ╚═╝╚═╝  ╚═╝╚═╝╚══════╝                          
 
-if [[ "$1" = "email" ]] || [[ "$1" = "-email" ]] || [[ "$1" = "--email" ]] || [[ "$1" = "-e" ]]; then
+if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[ "$2" = "-e" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1085,7 +1076,7 @@ fi
 # ██║  ██║██║     ██║    ██║  ██╗███████╗   ██║   
 # ╚═╝  ╚═╝╚═╝     ╚═╝    ╚═╝  ╚═╝╚══════╝   ╚═╝                                       
 
-if [[ "$1" = "api" ]] || [[ "$1" = "-api" ]] || [[ "$1" = "--api" ]] || [[ "$1" = "-k" ]]; then
+if [[ "$2" = "api" ]] || [[ "$2" = "-api" ]] || [[ "$2" = "--api" ]] || [[ "$2" = "-k" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1112,7 +1103,7 @@ fi
 # ██║  ██║██████╔╝██████╔╝██║  ██║███████╗███████║███████║
 # ╚═╝  ╚═╝╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝                                                        
 
-if [[ "$1" = "address" ]] || [[ "$1" = "-address" ]] || [[ "$1" = "--address" ]] || [[ "$1" = "-a" ]]; then
+if [[ "$2" = "address" ]] || [[ "$2" = "-address" ]] || [[ "$2" = "--address" ]] || [[ "$2" = "-a" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1140,7 +1131,7 @@ fi
 # ╚══════╝ ╚═════╝  ╚═════╝  ╚═════╝  ╚═════╝    ╚═╝   
                                                      
 
-if [[ "$1" = "logout" ]]; then
+if [[ "$2" = "logout" ]]; then
 	rm $DIR/.n2-session
 	echo "Ok: You logged out of Nano.to."
 	exit 1
@@ -1155,7 +1146,7 @@ fi
 #  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
                                                                                                 
                                                       
-if [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] || [[ "$1" = "-qr" ]] || [[ "$1" = "-q" ]] || [[ "$1" = "q" ]]; then
+if [[ "$2" = "--qrcode" ]] || [[ "$2" = "qrcode" ]] || [[ "$2" = "-qrcode" ]] || [[ "$2" = "-qr" ]] || [[ "$2" = "-q" ]] || [[ "$2" = "q" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1216,7 +1207,7 @@ fi
 # ██║  ██║███████╗╚██████╗   ██║   ╚██████╗███████╗███████╗
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝╚══════╝╚══════╝                                                
 
-if [[ $1 == "recycle" ]] || [[ $1 == "renew" ]]; then
+if [[ $2 == "recycle" ]] || [[ $2 == "renew" ]]; then
 
 	read -p 'Want to change your Nano address for a new one? All funds are moved over. This service is NOT free. It costs 0.01 NANO. (yes/no): ' YES
 
@@ -1246,7 +1237,7 @@ fi
 #  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝   ╚═╝   
                                                              
 
-if [ "$1" = "convert" ] || [ "$1" = "--convert" ] || [ "$1" = "-c" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
+if [ "$2" = "convert" ] || [ "$2" = "--convert" ] || [ "$2" = "-c" ] || [ "$2" = "c" ] || [ "$2" = "-c" ]; then
 	TIMELINE='week'
 	echo "================================="
 	echo "       UNDER CONSTRUCTION        "
@@ -1267,14 +1258,12 @@ fi
 # ██████╔╝╚██████╔╝╚██████╗███████║
 # ╚═════╝  ╚═════╝  ╚═════╝╚══════╝
 
-if [ "$1" = "docs" ] || [ "$1" = "--docs" ] || [ "$1" = "-docs" ] || [ "$1" = "d" ] || [ "$1" = "-d" ]; then
+if [ "$2" = "docs" ] || [ "$2" = "--docs" ] || [ "$2" = "-docs" ] || [ "$2" = "d" ] || [ "$2" = "-d" ]; then
 	URL="https://docs.nano.to/n2"
 	echo "Visit Docs: $URL"
 	open $URL
 	exit 1
 fi
-
-
 
 
 #  ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗
@@ -1284,8 +1273,7 @@ fi
 # ╚██████╗██║  ██║██║  ██║██║██║ ╚████║
 #  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
                                     
-
-if [ "$1" = "nanolooker" ] || [ "$1" = "--nl" ] || [ "$1" = "-nl" ] || [ "$1" = "-l" ]; then
+if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = "-l" ]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1309,6 +1297,38 @@ if [ "$1" = "nanolooker" ] || [ "$1" = "--nl" ] || [ "$1" = "-nl" ] || [ "$1" = 
 	exit
 fi
 
+cat <<EOF
+Usage:
+  $ n2 cloud balance
+  $ n2 cloud send @esteban 0.1
+  $ n2 cloud qrcode
+  $ n2 cloud receive
+  $ n2 cloud renew
+EOF
+
+exit 1
+
+fi
+
+
+# ██████╗ ██████╗ ██╗ ██████╗███████╗
+# ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
+# ██████╔╝██████╔╝██║██║     █████╗  
+# ██╔═══╝ ██╔══██╗██║██║     ██╔══╝  
+# ██║     ██║  ██║██║╚██████╗███████╗
+# ╚═╝     ╚═╝  ╚═╝╚═╝ ╚═════╝╚══════╝                                  
+
+if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
+
+	# AWARD FOR CLEANEST METHOD
+	curl -s "https://nano.to/price?currency=$2" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET | jq
+	exit 1
+
+fi
+
 
 # ██╗  ██╗███████╗██╗     ██████╗ 
 # ██║  ██║██╔════╝██║     ██╔══██╗
@@ -1321,7 +1341,6 @@ if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-
 	echo "$DOCS"
 	exit 1
 fi
-
 
 
 # ██╗   ██╗███████╗██████╗ ███████╗██╗ ██████╗ ███╗   ██╗
@@ -1338,7 +1357,6 @@ if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" 
 fi
 
 
-
 # ██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗
 # ██║   ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝
 # ██║   ██║██████╔╝██║  ██║███████║   ██║   █████╗  
@@ -1347,7 +1365,7 @@ fi
 #  ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
                                                   
 
-if [ "$1" = "u" ] || [ "$1" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
+if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Installed latest version."

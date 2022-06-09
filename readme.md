@@ -47,9 +47,9 @@ Blockchain
 Options
   --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
-  --address, -h  Print you Nano address.
-  --email, -h  Print your account email.
-  --api, -h  Print CLI API KEY email.
+  --address, -a  Print you Nano address.
+  --email, -e  Print your account email.
+  --api, -k  Print CLI API KEY email.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.

@@ -23,22 +23,30 @@ sudo chmod +x /usr/local/bin/n2
 ## ❯ Usage
 
 ```
-Nano.to
+Local Wallet (Non-Custodial)
+  $ n2 local wallets
+  $ n2 local send @esteban 0.1 
+  $ n2 local qrcode
+  $ n2 local receive
+  $ n2 local install
+
+Nano.to Cloud Wallet
   $ n2 login
   $ n2 register
   $ n2 account
   $ n2 2factor
   $ n2 logout
 
-Wallet (Cloud)
-  $ n2 balance
-  $ n2 send @esteban 0.1
-  $ n2 qrcode
-  $ n2 receive
-  $ n2 renew
+Nano.to Cloud Wallet (Custodial)
+  $ n2 cloud balance
+  $ n2 cloud send @esteban 0.1
+  $ n2 cloud qrcode
+  $ n2 cloud receive
+  $ n2 cloud renew
 
-Blockchain 
+Blockchain
   $ n2 price
+  $ n2 stats
 
 Options
   --help, -h  Print CLI Documentation.
@@ -85,4 +93,4 @@ SOFTWARE.
 
 ## ❯ Stargazers
 
-[![Stargazers over time](https://starchart.cc/fwd/n2.svg)](https://starchart.cc/fwd/n2)
+[![Stargazers over time](https://starchart.cc/fwd/n2.svg)](https://github.com/fwd/n2)

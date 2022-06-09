@@ -13,23 +13,12 @@
 ## ❯ Install
 
 ```bash
-curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
-```
-
-```bash
-sudo chmod +x /usr/local/bin/n2
+curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
 ## ❯ Usage
 
 ```
-Local Wallet (Non-Custodial)
-  $ n2 local wallets
-  $ n2 local send @esteban 0.1 
-  $ n2 local qrcode
-  $ n2 local receive
-  $ n2 local install
-
 Nano.to Cloud Wallet
   $ n2 login
   $ n2 register
@@ -37,7 +26,14 @@ Nano.to Cloud Wallet
   $ n2 2factor
   $ n2 logout
 
-Nano.to Cloud Wallet (Custodial)
+Local Wallet (Non-Custodial)
+  $ n2 local wallets
+  $ n2 local send @esteban 0.1 
+  $ n2 local qrcode
+  $ n2 local receive
+  $ n2 local install
+
+Nano.to Cloud (Custodial)
   $ n2 cloud balance
   $ n2 cloud send @esteban 0.1
   $ n2 cloud qrcode

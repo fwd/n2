@@ -32,7 +32,6 @@ Local Wallet (Non-Custodial)
 ⏺  $ n2 local qrcode
 ⏺  $ n2 local receive
 ⏺  $ n2 local install
-⏺  $ n2 local install
 ⏺  $ n2 local upgrade
 ⏺  $ n2 local plugins
 

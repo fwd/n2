@@ -97,8 +97,87 @@ END_HEREDOC
 # ██║     ██║   ██║██║     ██╔══██║██║     
 # ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
 # ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
-                                                                                                                  
+          
+function sponsor() {
+	echo "=============================="
+	echo "     FREE CLOUD HOSTING      "
+	echo "   (\$100 ON DIGITALOCEAN)    "
+	echo "------------------------------"
+	echo "https://m.do.co/c/f139acf4ddcb"
+	echo "========ADVERTISE HERE========"
+}
+
 if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
+
+	if [[ "$2" = "install" ]]; then
+
+		if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+			echo ""
+		elif [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "Error: N2 node install only on Ubuntu."
+			sponsor
+			exit 1
+		  # Mac OSX
+		elif [[ "$OSTYPE" == "cygwin" ]]; then
+			echo "Error: Operating system not supported."
+			sponsor
+			exit 1
+		  # POSIX compatibility layer and Linux environment emulation for Windows
+		elif [[ "$OSTYPE" == "msys" ]]; then
+			echo "Error: Operating system not supported."
+			sponsor
+			exit 1
+		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+		elif [[ "$OSTYPE" == "win32" ]]; then
+		  # I'm not sure this can happen.
+			echo "Error: Operating system not supported."
+			sponsor
+			exit 1
+		elif [[ "$OSTYPE" == "freebsd"* ]]; then
+		  # ...
+			echo "Error: Operating system not supported."
+			sponsor
+			exit 1
+		else
+		   # Unknown.
+			echo "Error: Operating system not supported."
+			sponsor
+			exit 1
+		fi
+
+		if [[ "$3" = "node" ]] || [[ "$3" = "--node" ]]; then
+			read -p 'Install a Live Nano Node on this machine. Enter 'Y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+# if [ "$2" = "--prod" ]; then
+# 		curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
+# 		sudo chmod +x /usr/local/bin/n2
+# 		echo "Installed latest 'stable' version."
+# 		exit 1
+# 	fi
+				# sudo apt-get purge nvidia*
+				# sudo ubuntu-drivers autoinstall
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+		if [[ "$3" = "gpu" ]] || [[ "$3" = "--gpu" ]]; then
+			read -p 'Remove all NVIDIA drivers attemp tp auto install them? Enter 'Y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				echo "You crazy."
+				# sudo apt-get purge nvidia*
+				# sudo ubuntu-drivers autoinstall
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+		echo " WTF "
+		exit 1
+
+	fi
 
 	# if [[ "$2" = "" ]]; then
 	# fi
@@ -137,6 +216,8 @@ Usage:
   $ n2 local install 23.1
   $ n2 local plugins ls
 EOF
+
+
 
 	# echo "================================="
 	# echo "       UNDER CONSTRUCTION        "

@@ -18,7 +18,8 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ## ❯ Usage
 
-✅ = Operational       ⏺ = In-Development
+- ✅ = Operational
+- ⏺ = In-Development
 
 ```
 Nano.to Cloud Wallet
@@ -47,7 +48,7 @@ Nano.to Cloud (Custodial)
 
 Blockchain
 ✅  $ n2 price
-✅  $ n2 stats
+⏺  $ n2 stats
 
 Options
   --help, -h  Print CLI Documentation.

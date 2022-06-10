@@ -235,13 +235,13 @@ EOF
 
 	echo ""
 
-  echo $(curl -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
 
-	# if curl -s --fail -X GET '[::1]:7076'; then
-	# 	echo ""
-	# else
-	#    echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"
-	# fi;
+	if curl -s --fail -d '{ "action": "telemetry" }' '[::1]:7076'; then
+  	echo $(curl -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
+		# echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"
+	fi;
 
 	# echo "================================="
 	# echo "       UNDER CONSTRUCTION        "

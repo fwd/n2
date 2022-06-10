@@ -235,8 +235,9 @@ EOF
 
 	echo ""
 
-	if curl -s --fail -X POST '[::1]:7076'; then
-  	echo $(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
+	if curl -S --fail -X POST '[::1]:7076'; then
+		JSON=$(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
+  	echo $JSON
 		# echo ""
 	else
 	   echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"

@@ -110,7 +110,7 @@ function sponsor() {
 }
 
 rpc() {
-	RPC=$(curl -s "[::1]:7676" \
+	RPC=$(curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \

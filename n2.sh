@@ -171,7 +171,7 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
 				cd $DIR && git clone https://github.com/fwd/nano-docker.git
 				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-				sudo $DIR/nano-docker/setup.sh -s -t $LATEST
+				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
 				exit 1
 			fi
 			echo "Canceled"

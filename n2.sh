@@ -29,7 +29,7 @@ fi
 
 # VERSION: 0.4-C
 # CODENAME: "ROVER"
-VERSION=0.2
+VERSION=0.4-C
 GREEN=$'\e[0;32m'
 RED=$'\e[0;31m'
 NC=$'\e[0m'

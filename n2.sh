@@ -27,8 +27,8 @@ if ! command -v curl &> /dev/null; then
 	fi
 fi
 
-# VERSION: 0.2
-# CODENAME: "FUZZY SLIPPERS"
+# VERSION: 0.4-C
+# CODENAME: "ROVER"
 VERSION=0.2
 GREEN=$'\e[0;32m'
 RED=$'\e[0;31m'

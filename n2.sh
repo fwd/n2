@@ -235,7 +235,7 @@ EOF
 
 	echo ""
 
-	if curl -S --fail -X POST '[::1]:7076'; then
+	if curl -s --fail -X POST '[::1]:7076'; then
 		# JSON=$(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
   	# echo $JSON
 		echo ""

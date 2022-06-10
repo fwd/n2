@@ -11,7 +11,7 @@ if ! command -v jq &> /dev/null; then
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
 		sudo apt install jq -y
 	else
-		echo "Error: We could not auto install 'jq'. Please install it manually, before continuing."
+		echo "${RED}Error${NC}: We could not auto install 'jq'. Please install it manually, before continuing."
 		exit 1
 	fi
 fi
@@ -22,7 +22,7 @@ if ! command -v curl &> /dev/null; then
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
 		sudo apt install curl -y
 	else
-		echo "Error: We could not auto install 'curl'. Please install it manually, before continuing."
+		echo "${RED}Error${NC}: We could not auto install 'curl'. Please install it manually, before continuing."
 		exit 1
 	fi
 fi
@@ -30,6 +30,9 @@ fi
 # VERSION: 0.2
 # CODENAME: "FUZZY SLIPPERS"
 VERSION=0.2
+GREEN=$'\e[0;32m'
+RED=$'\e[0;31m'
+NC=$'\e[0m'
 
 # GET HOME DIR
 DIR=$(eval echo "~$different_user")
@@ -45,35 +48,34 @@ END_HEREDOC
 )
 
 DOCS=$(cat <<'END_HEREDOC'
-Nano.to 
-  $ n2 login
-  $ n2 register
-  $ n2 account
-  $ n2 2factor
-  $ n2 logout
+Nano.to
+✅  $ n2 login
+✅  $ n2 register
+✅  $ n2 account
+✅  $ n2 username
+✅  $ n2 2factor
+✅  $ n2 logout
 
 Local Wallet (Non-Custodial)
-  $ n2 local wallets
-  $ n2 local send @esteban 0.1 
-  $ n2 local qrcode
-  $ n2 local receive
-  $ n2 local create
-  $ n2 local secret
-  $ n2 local install
-  $ n2 local upgrade
-  $ n2 local plugins
+⏺  $ n2 local wallets
+⏺  $ n2 local send @esteban 0.1 
+⏺  $ n2 local qrcode
+⏺  $ n2 local receive
+⏺  $ n2 local install
+⏺  $ n2 local upgrade
+⏺  $ n2 local plugins
 
-Cloud Wallet (Custodial)
-  $ n2 cloud balance
-  $ n2 cloud send @esteban 0.1
-  $ n2 cloud pow @esteban
-  $ n2 cloud qrcode
-  $ n2 cloud receive
-  $ n2 cloud recycle
+Nano.to Cloud (Custodial)
+✅  $ n2 cloud balance
+✅  $ n2 cloud send @esteban 0.1
+✅  $ n2 cloud qrcode
+✅  $ n2 cloud receive
+✅  $ n2 cloud renew
+✅  $ n2 cloud recycle
 
-Cloud Services
-  $ n2 price
-  $ n2 stats
+Blockchain
+✅  $ n2 price
+⏺  $ n2 stats
 
 Options
   --help, -h  Print CLI Documentation.
@@ -107,55 +109,71 @@ function sponsor() {
 	echo "========ADVERTISE HERE========"
 }
 
+rpc() {
+	RPC=$(curl -s "[::1]:7676" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "action": "$1" }
+EOF
+))
+	echo $RPC
+}
+
 if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
+
+	# if [[ "$2" = "plugins" ]]; then; 
+	# fi
 
 	if [[ "$2" = "install" ]]; then
 
 		if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
 		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "Error: N2 node install only on Ubuntu."
+			echo "${RED}Error${NC}: N2 node install only on Ubuntu."
 			sponsor
 			exit 1
 		  # Mac OSX
 		elif [[ "$OSTYPE" == "cygwin" ]]; then
-			echo "Error: Operating system not supported."
+			echo "${RED}Error${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		  # POSIX compatibility layer and Linux environment emulation for Windows
 		elif [[ "$OSTYPE" == "msys" ]]; then
-			echo "Error: Operating system not supported."
+			echo "${RED}Error${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
 		elif [[ "$OSTYPE" == "win32" ]]; then
 		  # I'm not sure this can happen.
-			echo "Error: Operating system not supported."
+			echo "${RED}Error${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		elif [[ "$OSTYPE" == "freebsd"* ]]; then
 		  # ...
-			echo "Error: Operating system not supported."
+			echo "${RED}Error${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		else
 		   # Unknown.
-			echo "Error: Operating system not supported."
+			echo "${RED}Error${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		fi
 
+		# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
+		# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
+		# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
+
 		if [[ "$3" = "node" ]] || [[ "$3" = "--node" ]]; then
-			read -p 'Install a Live Nano Node on this machine. Enter 'Y' to continue: ' YES
+			read -p 'Install a new Nano Node on this machine. Enter 'Y' to continue: ' YES
 			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-# if [ "$2" = "--prod" ]; then
-# 		curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
-# 		sudo chmod +x /usr/local/bin/n2
-# 		echo "Installed latest 'stable' version."
-# 		exit 1
-# 	fi
-				# sudo apt-get purge nvidia*
-				# sudo ubuntu-drivers autoinstall
+				cd $DIR
+				git clone https://github.com/fwd/nano-docker.git
+				cd $DIR/nano-docker
+				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+				sudo $DIR/setup.sh -s -t $LATEST
 				exit 1
 			fi
 			echo "Canceled"
@@ -163,61 +181,65 @@ if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
 		fi
 
 		if [[ "$3" = "gpu" ]] || [[ "$3" = "--gpu" ]]; then
-			read -p 'Remove all NVIDIA drivers attemp tp auto install them? Enter 'Y' to continue: ' YES
+			read -p 'Remove NVIDIA drivers and auto re-install GPU drivers. Enter 'Y' to continue: ' YES
 			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				echo "You crazy."
-				# sudo apt-get purge nvidia*
-				# sudo ubuntu-drivers autoinstall
+				sudo apt-get purge nvidia*
+				sudo ubuntu-drivers autoinstall
 				exit 1
 			fi
 			echo "Canceled"
 			exit 1
 		fi
 
-		echo " WTF "
+cat <<EOF
+Usage:
+  $ n2 local install node
+  $ n2 local install gpu
+EOF
 		exit 1
 
 	fi
 
-	# if [[ "$2" = "" ]]; then
+
+	# if [[ "$2" = "wallets" ]]; then; 
 	# fi
 
-	# rpc() {
-	# 	SESSION=$(curl -s "$RPC" \
-	# 	-H "Accept: application/json" \
-	# 	-H "Content-Type:application/json" \
-	# 	--request POST \
-	# 	--data @<(cat <<EOF
-	# { "action": "$2" }
-	# EOF
-	# 	))
-	# 	echo $SESSION
-	# }
+	# if [[ "$2" = "send" ]]; then; 
+	# fi
 
-	# LOCAL "NON-CUSTODIAL" WALLET, IS A WORK IN PROGRESS
-	# BE A HERO, SEND A PULL REQUEST
+	# if [[ "$2" = "qrcode" ]]; then; 
+	# fi
 
-	TIMELINE='month'
+	# if [[ "$2" = "receive" ]]; then; 
+	# fi
 
-	# rpc $2
-	# curl -g -d '{ "$2": "$3" }' "$RPC"
+	# if [[ "$2" = "upgrade" ]]; then; 
+	# fi
 
-echo "========================"
-echo "      LOCAL WALLET      "
-echo "========================"
+
+	echo "========================"
+	echo "      LOCAL WALLET      "
+	echo "========================"
 
 cat <<EOF
+
 Usage:
   $ n2 local balance
   $ n2 local receive
   $ n2 local account @kraken
   $ n2 local send @esteban 0.1
   $ n2 local qrcode @fosse
-  $ n2 local install 23.1
+  $ n2 local install
   $ n2 local plugins ls
 EOF
 
+	echo ""
 
+	if curl -s --fail -X GET '[::1]:7676'; then
+	    echo $(curl -s '[::1]:7676' | jq)
+	else
+	    echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"
+	fi;
 
 	# echo "================================="
 	# echo "       UNDER CONSTRUCTION        "
@@ -323,7 +345,7 @@ EOF
 
 	if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
 		echo
-		echo "Error:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
+		echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
 		exit 1
 	fi
 
@@ -375,7 +397,7 @@ EOF
 
 	if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
 		echo
-		echo "Error:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
+		echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
 		exit 1
 	fi
 
@@ -404,7 +426,7 @@ if [[ $1 == "cloud" ]]; then
 if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: Not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -441,7 +463,7 @@ if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[
 	read -p 'First OTP Code: ' FIRST_OTP
 
 	if [[ $FIRST_OTP == "" ]]; then
-		echo "Error: No code. Try again, but from scratch."
+		echo "${RED}Error${NC}: No code. Try again, but from scratch."
 		exit 1
 	fi
 
@@ -474,7 +496,7 @@ if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 	--request GET | jq '.two_factor')
 
 	if [[ $HAS_TWO_FACTOR == "false" ]]; then
-		echo "Error: You don't have 2f enabled. Use 'n2 2f' to enable it."
+		echo "${RED}Error${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
 		exit 1
 	fi
 
@@ -488,7 +510,7 @@ if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 	read -p 'Enter OTP Code: ' REMOVE_OTP
 
 	if [[ $REMOVE_OTP == "" ]]; then
-		echo "Error: No code. Try again, but from scratch."
+		echo "${RED}Error${NC}: No code. Try again, but from scratch."
 		exit 1
 	fi
 
@@ -559,7 +581,7 @@ fi
 if [ "$2" = "secret" ] || [ "$2" = "--seed" ]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: Not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -633,13 +655,13 @@ if [ "$2" = "checkout" ] || [ "$2" = "--checkout" ] || [ "$2" = "-checkout" ] ||
 
 	if [[ $2 == "" ]]; then
 		# read -p 'To (@Username or Address): ' $2
-		echo "Error: Username, or Address missing."
+		echo "${RED}Error${NC}: Username, or Address missing."
 		exit 1
 	fi
 
 	if [[ $3 == "" ]]; then
 		# read -p 'Amount: ' $3
-		echo "Error: Amount missing."
+		echo "${RED}Error${NC}: Amount missing."
 		exit 1
 	fi
 
@@ -762,7 +784,7 @@ fi
 if [[ $2 == "pow" ]] || [[ $2 == "--pow" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -829,20 +851,20 @@ if [[ $2 == "send" ]]; then
 	# NOTE=$5
 
 	if [[ $2 == "" ]]; then
-		echo "Error: Missing @Username or Nano Address"
+		echo "${RED}Error${NC}: Missing @Username or Nano Address"
 		exit 1
 		# read -p 'To (@Username or Address): ' USERNAME
 	fi
 	
 	if [[ $3 == "" ]]; then
-		echo "Error: Missing amount. Use 'all' to send balance."
+		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
 		exit 1
 		# read -p 'Amount: ' AMOUNT
 	fi
 
 	# if [[ $4 == "" ]]; then
 		# echo "Default: Sending from Master wallet."
-		# echo "Error: Missing from. Use 'default' to use master wallet."
+		# echo "${RED}Error${NC}: Missing from. Use 'default' to use master wallet."
 		# exit 1
 		# read -p 'Amount: ' AMOUNT
 	# fi
@@ -956,7 +978,7 @@ fi
 if [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "accounts" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1024,7 +1046,7 @@ fi
 if [[ "$2" = "ls" ]] || [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1096,7 +1118,7 @@ fi
 if [[ "$2" = "deposit" ]] || [[ "$2" = "receive" ]] || [[ "$2" = "qr" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1154,7 +1176,7 @@ fi
 if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[ "$2" = "-e" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1183,7 +1205,7 @@ fi
 if [[ "$2" = "api" ]] || [[ "$2" = "-api" ]] || [[ "$2" = "--api" ]] || [[ "$2" = "-k" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1210,7 +1232,7 @@ fi
 if [[ "$2" = "address" ]] || [[ "$2" = "-address" ]] || [[ "$2" = "--address" ]] || [[ "$2" = "-a" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1253,7 +1275,7 @@ fi
 if [[ "$2" = "--qrcode" ]] || [[ "$2" = "qrcode" ]] || [[ "$2" = "-qrcode" ]] || [[ "$2" = "-qr" ]] || [[ "$2" = "-q" ]] || [[ "$2" = "q" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1380,7 +1402,7 @@ fi
 if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = "-l" ]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "Error: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1533,5 +1555,5 @@ if [[ "$1" = "--json" ]]; then
 fi
                          
 cat <<EOF
-Commant not found. Use 'n2 list' to see new commands.
+Commant not found. Use 'n2 help' to see all commands.
 EOF

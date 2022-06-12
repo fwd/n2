@@ -1464,8 +1464,7 @@ if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [
 fi
 
 
-
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "run" ]]; then
 
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
@@ -1501,10 +1500,21 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
 			exit 1
 		fi
 
-		# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
-		# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
-		# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
+		# Coming soon
+		if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "--pow-server" ]]; then
+			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				echo "Coming soon"
+				# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
+				# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
+				# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
 
+		# Sorta working
 		if [[ "$2" = "node" ]] || [[ "$2" = "--node" ]]; then
 			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
 			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
@@ -1517,6 +1527,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
 			exit 1
 		fi
 
+		# Sorta working
 		if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
 			read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
 			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
@@ -1552,7 +1563,6 @@ EOF
 
 	# if [[ "$2" = "upgrade" ]]; then; 
 	# fi
-
 
 	echo "========================"
 	echo "      LOCAL WALLET      "

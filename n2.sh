@@ -50,6 +50,7 @@ END_HEREDOC
 LOCAL_DOCS=$(cat <<EOF
 Local Node (Non-Custodial)
 ⏺  $ n2 setup node
+⏺  $ n2 whois @moon
 ⏺  $ n2 balance
 ⏺  $ n2 receive
 ⏺  $ n2 account @kraken --json
@@ -427,11 +428,11 @@ if [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "s
 	echo "==============================="
 	echo "         WHOIS LOOKUP          "
 	echo "==============================="
+	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
 	echo "USERNAME: " $(jq -r '.username' <<< $WHOIS) 
 	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
 	echo "HEIGHT: " $(jq -r '.height' <<< $WHOIS)
 	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
-	# echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
 	echo "==============================="
 
 	exit 1

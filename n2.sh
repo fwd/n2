@@ -147,12 +147,12 @@ EOF
 		exit 1
 	fi
 
-	if [[ $1 == "login" ]]; then
+	if [[ $2 == "login" ]]; then
 
 		# echo "$BANNER"
 		echo
 		echo "========================"
-		echo "   NANO.TO CLOUD LOGIN  "
+		echo "     NANO.TO LOGIN      "
 		echo "========================"
 		echo
 
@@ -227,19 +227,19 @@ EOF
 	# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
 	# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 	                                                             
-	if [[ $1 == "register" ]]; then
+	if [[ $2 == "register" ]]; then
 
 		echo
 		echo "========================"
-		echo " NANO.TO CLOUD REGISTER "
+		echo "    NANO.TO REGISTER    "
 		echo "========================"
 		echo
 
-		echo 'Welcome to the Cloud'
+		echo 'Create New Account'
 
 		echo 
 		 
-		read -p 'Email: ' USERNAME
+		read -p 'Email Address: ' USERNAME
 		read -sp 'Password: ' PASSWORD
 		 
 		echo 

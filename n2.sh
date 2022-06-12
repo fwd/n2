@@ -1389,7 +1389,22 @@ EOF
 ))
 	echo $RPC
 }
-                               
+         
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
+	docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
+	exit 1
+fi
+
+if [[ "$1" = "--wallet" ]]; then
+	docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
+fi
+
+if [[ "$1" = "--seed" ]]; then
+	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
+	SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
+	echo $SEED
+fi
+
 # Local Send
 if [[ $1 == "send" ]]; then
 
@@ -1569,87 +1584,10 @@ Usage:
 EOF
 		exit 1
 
-	fi
+fi
 
 
-	# if [[ "$2" = "wallets" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "send" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "qrcode" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "receive" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "upgrade" ]]; then; 
-	# fi
-
-	echo "========================"
-	echo "      LOCAL WALLET      "
-	echo "========================"
-
-cat <<EOF
-$LOCAL_DOCS
-EOF
-
-	echo ""
-
-	if curl -s --fail -X POST '[::1]:7076'; then
-		# JSON=$(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
-  	# echo $JSON
-		echo ""
-	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
-	fi;
-
-	if [[ "$2" = "--wallet" ]]; then
-		docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
-	fi
-
-	if [[ "$2" = "--seed" ]]; then
-		WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
-		SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
-		echo $SEED
-	fi
-
-	# echo "================================="
-	# echo "       UNDER CONSTRUCTION        "
-	# echo "================================="
-	# echo "'n2 local' is under development. "
-	# echo "Tweet me @nano2dev to remind me. "
-	# echo "================================="
-	# echo "https://twitter.com/nano2dev"
-	# echo "================================="
-	                     
-# cat <<EOF
-# Commant not found. Use 'n2 list' to see new commands.
-# EOF
-
-	# exit 1
-
-
-
-
-
-# ███╗   ██╗ ██████╗ ██╗    ██╗
-# ████╗  ██║██╔═══██╗██║    ██║
-# ██╔██╗ ██║██║   ██║██║ █╗ ██║
-# ██║╚██╗██║██║   ██║██║███╗██║
-# ██║ ╚████║╚██████╔╝╚███╔███╔╝
-# ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝ 
-
-
-
-# ███████╗███╗   ██╗████████╗███████╗██████╗ ██╗███╗   ██╗ ██████╗ 
-# ██╔════╝████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██║████╗  ██║██╔════╝ 
-# █████╗  ██╔██╗ ██║   ██║   █████╗  ██████╔╝██║██╔██╗ ██║██║  ███╗
-# ██╔══╝  ██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║██║╚██╗██║██║   ██║
-# ███████╗██║ ╚████║   ██║   ███████╗██║  ██║██║██║ ╚████║╚██████╔╝
-# ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-                                                      
+# -----------------------------------BASEMENT------------------------------------#                                       
 
 
 # ██╗  ██╗███████╗██╗     ██████╗ 
@@ -1732,7 +1670,7 @@ if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
 	sudo rm /usr/local/bin/n2
 	rm $DIR/.n2-session
 	rm $DIR/.n2-rpc
-	echo "CLI removed. Thanks for using N2. Hope to see soon."
+	echo "CLI removed. Thanks for using N2. Hope to see you soon."
 	exit 1
 fi
 

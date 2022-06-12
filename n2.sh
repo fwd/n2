@@ -228,12 +228,12 @@ EOF
 
 	fi
 
-	# ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
-	# ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
-	# ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
-	# ██╔══██╗██╔══╝  ██║   ██║██║╚════██║   ██║   ██╔══╝  ██╔══██╗
-	# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
-	# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+# ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
+# ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
+# ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
+# ██╔══██╗██╔══╝  ██║   ██║██║╚════██║   ██║   ██╔══╝  ██╔══██╗
+# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
+# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 	                                                             
 	if [[ $2 == "register" ]]; then
 
@@ -280,12 +280,12 @@ EOF
 
 	fi
 
-	# ██████╗       ███████╗ █████╗ 
-	# ╚════██╗      ██╔════╝██╔══██╗
-	#  █████╔╝█████╗█████╗  ███████║
-	# ██╔═══╝ ╚════╝██╔══╝  ██╔══██║
-	# ███████╗      ██║     ██║  ██║
-	# ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
+# ██████╗       ███████╗ █████╗ 
+# ╚════██╗      ██╔════╝██╔══██╗
+#  █████╔╝█████╗█████╗  ███████║
+# ██╔═══╝ ╚════╝██╔══╝  ██╔══██║
+# ███████╗      ██║     ██║  ██║
+# ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
 
 	if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
 
@@ -408,7 +408,7 @@ fi
 # ╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
 #  ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝                                                                  
 
-if [ "$2" = "whois" ] || [ "$2" = "search" ] || [ "$2" = "name" ] || [ "$2" = "username" ] || [ "$2" = "-w" ] || [ "$2" = "-f" ]; then
+if [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
 
 	# AWARD FOR CLEANEST METHOD
 	WHOIS=$(curl -s "https://nano.to/$2/account" \
@@ -427,11 +427,11 @@ if [ "$2" = "whois" ] || [ "$2" = "search" ] || [ "$2" = "name" ] || [ "$2" = "u
 	echo "==============================="
 	echo "         WHOIS LOOKUP          "
 	echo "==============================="
-	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
-	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
 	echo "USERNAME: " $(jq -r '.username' <<< $WHOIS) 
-	echo "BLOCKS: " $(jq -r '.height' <<< $WHOIS)
-	echo "NANOLOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
+	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
+	echo "HEIGHT: " $(jq -r '.height' <<< $WHOIS)
+	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
+	# echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
 	echo "==============================="
 
 	exit 1
@@ -703,7 +703,6 @@ if [[ $2 == "pow" ]] || [[ $2 == "--pow" ]]; then
 fi
 
 
-
 # ███████╗███████╗███╗   ██╗██████╗ 
 # ██╔════╝██╔════╝████╗  ██║██╔══██╗
 # ███████╗█████╗  ██╔██╗ ██║██║  ██║
@@ -711,7 +710,7 @@ fi
 # ███████║███████╗██║ ╚████║██████╔╝
 # ╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝                                   
 
-if [[ $2 == "send" ]]; then
+if [[ $1 == "cloud" ]] && [[ $2 == "send" ]]; then
 
 	# USERNAME=$2
 	# AMOUNT=$3
@@ -719,7 +718,7 @@ if [[ $2 == "send" ]]; then
 	# NOTE=$5
 
 	if [[ $2 == "" ]]; then
-		echo "${RED}Error${NC}: Missing @Username or Nano Address"
+		echo "${RED}Error${NC}: Missing Username or Nano Address."
 		exit 1
 		# read -p 'To (@Username or Address): ' USERNAME
 	fi
@@ -843,7 +842,7 @@ fi
 # ╚███╔███╔╝██║  ██║███████╗███████╗███████╗   ██║   ███████║
 #  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
                                                            
-if [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "accounts" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
+if [[ "$1" = "--wallets" ]] || [[ "$1" = "wallets" ]] || [[ "$1" = "accounts" ]] || [[ "$1" = "balances" ]] || [[ "$1" = "--wallets" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1349,8 +1348,8 @@ fi
           
 function sponsor() {
 	echo "=============================="
-	echo "      FREE CLOUD HOSTING      "
-	echo "    (\$100 ON DIGITALOCEAN)   "
+	echo "     FREE CLOUD HOSTING       "
+	echo "   (\$100 ON DIGITALOCEAN)    "
 	echo "------------------------------"
 	echo "https://m.do.co/c/f139acf4ddcb"
 	echo "========ADVERTISE HERE========"
@@ -1367,14 +1366,112 @@ EOF
 ))
 	echo $RPC
 }
+                               
+# Local Send
+if [[ $1 == "send" ]]; then
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
+	   exit 1
+	fi;
+
+	if [[ $2 == "" ]]; then
+		echo "${RED}Error${NC}: Missing Username or Nano Address."
+		exit 1
+	fi
+	
+	if [[ $3 == "" ]]; then
+		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
+		exit 1
+	fi
+
+	if [[ $4 == "" ]]; then
+		echo "Note: Sending from Master wallet."
+		# echo "${RED}Error${NC}: . Use 'default' to use master wallet."
+		# exit 1
+		# read -p 'Amount: ' AMOUNT
+	fi
+
+	# POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
+	# -H "Accept: application/json" \
+	# -H "Content-Type:application/json" \
+	# --request GET)
+
+	# if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+	# echo
+	# echo "==============================="
+	# echo "       USED ALL CREDITS        "
+	# echo "==============================="
+	# echo "  Use 'n2 add pow' or wait.    "
+	# echo "==============================="
+	# echo
+	# exit 1
+	# fi
+
+	if [[ $ERROR == "Bad link number" ]]; then
+	echo
+	echo "================================"
+	echo "           ERROR #100           "
+	echo "================================"
+	echo "Bad Address. Fix and try again. "
+	echo "================================"
+	echo
+	exit 1
+	fi
+
+	echo "==============================="
+	echo "            RECEIPT            "
+	echo "==============================="
+	echo "AMOUNT: " $amount
+	echo "TO: " $2
+	echo "FROM: " $ADDRESS
+	echo "==============================="
+	echo "HASH: " $hash
+	echo "BLOCK: " $nanolooker
+	echo "TIME: " $duration
+
+	exit 1
+
+fi
+
+# Local Send
+if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
+	   exit 1
+	fi;
+
+	echo "==============================="
+	echo "          LOCAL NODE           "
+	echo "==============================="
+	echo "PENDING: " $PENDING
+	echo "BALANCE: " $BALANCE
+	echo "USERNAME: " $USERNAME
+	echo "HEIGHT: " $HEIGHT
+	echo "LOOKER: " $LOOKER
+	echo "ACCOUNTS: " $WALLET_COUNT
+	echo "ADDRESS: " $ADDRESS
+	echo "==============================="
+	echo "VERSION: " $VERSION
+
+	exit 1
+
+fi
+
+
 
 if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
 
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
 		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "${RED}Error${NC}: Auto node setup only on Ubuntu."
-			sponsor
+			echo "${RED}Error${NC}: You're on a Mac. OS not supported. Node is supposed to run 24/7. Try a Cloud server running Ubuntu."
+			# sponsor
 			exit 1
 		  # Mac OSX
 		elif [[ "$OSTYPE" == "cygwin" ]]; then

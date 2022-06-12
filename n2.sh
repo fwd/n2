@@ -241,14 +241,14 @@ EOF
 	   echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"
 	fi;
 
-	if [[ "$2" = "--wallet" ]]; then; 
-			docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
+	if [[ "$2" = "--wallet" ]]; then
+		docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
 	fi
 
-	if [[ "$2" = "--seed" ]]; then; 
-			WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
-			SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
-			echo $SEED
+	if [[ "$2" = "--seed" ]]; then
+		WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
+		SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
+		echo $SEED
 	fi
 
 	# echo "================================="

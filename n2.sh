@@ -1308,15 +1308,38 @@ fi
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
+
+
+	if [[ "$2" == "--json" ]]; then
+		curl -s "https://nano.to/price?currency=USD" \
+		-H "Accept: application/json" \
+		-H "Content-Type:application/json" \
+		--request GET | jq
+		exit 1
+	fi
+
 	# AWARD FOR CLEANEST METHOD
-	curl -s "https://nano.to/price?currency=$2" \
+	PRICE=$(curl -s "https://nano.to/price?currency=$2" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
-	--request GET | jq
+	--request GET)
+	# exit 1
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		echo $PRICE
+		exit 1
+	fi
+
+	echo "==============================="
+	echo " NANO PRICE ($(jq -r '.currency' <<< "$PRICE")):" $(jq -r '.price' <<< "$PRICE")
+	echo "==============================="
+	# echo "SYMBOL:" $(jq -r '.price' <<< "$PRICE")
+	echo "COINGECKO: https://www.coingecko.com/en/coins/nano/$(jq -r '.currency' <<< "$PRICE" | awk '{print tolower($0)}')"
+	echo "COINMCAP: https://coinmarketcap.com/currencies/nano"
+
 	exit 1
 
 fi
-
 
 
 

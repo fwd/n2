@@ -102,9 +102,9 @@ $OPTIONS_DOCS
 EOF
 )
 
-if [[ $1 == "" ]]; then
+if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
 	cat <<EOF
-Missing command. Use 'n2 list' to list all actions.
+$DOCS
 EOF
 	exit 1
 fi
@@ -1283,13 +1283,13 @@ if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = 
 	exit
 fi
 
-cat <<EOF
-$LOCAL_DOCS
-EOF
+# cat <<EOF
+# $LOCAL_DOCS
+# EOF
 
-exit 1
+# exit 1
 
-fi
+# fi
 
 
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
@@ -1327,8 +1327,8 @@ fi
           
 function sponsor() {
 	echo "=============================="
-	echo "     FREE CLOUD HOSTING      "
-	echo "   (\$100 ON DIGITALOCEAN)    "
+	echo "      FREE CLOUD HOSTING      "
+	echo "    (\$100 ON DIGITALOCEAN)   "
 	echo "------------------------------"
 	echo "https://m.do.co/c/f139acf4ddcb"
 	echo "========ADVERTISE HERE========"
@@ -1346,7 +1346,7 @@ EOF
 	echo $RPC
 }
 
-if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
 
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""

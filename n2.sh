@@ -1384,13 +1384,18 @@ rpc() {
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "action": "$1" }
+{ "action": "$1", "json_block": "true" }
 EOF
 ))
 	echo $RPC
 }
          
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || ; then
+	rpc $1
+	exit 1
+fi
+
+if [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
 	docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
 	exit 1
 fi

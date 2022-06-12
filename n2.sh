@@ -47,227 +47,67 @@ BANNER=$(cat <<'END_HEREDOC'
 END_HEREDOC
 )
 
-DOCS=$(cat <<'END_HEREDOC'
-Nano.to
-✅  $ n2 login
-✅  $ n2 register
-✅  $ n2 account
-✅  $ n2 username
-✅  $ n2 2factor
-✅  $ n2 logout
+LOCAL_DOCS=$(cat <<EOF
+Local Node (Non-Custodial)
+⏺  $ n2 setup node
+⏺  $ n2 balance
+⏺  $ n2 receive
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1
+⏺  $ n2 qrcode @fosse
+⏺  $ n2 plugins ls
+EOF
+)
 
-Local Wallet (Non-Custodial)
-⏺  $ n2 local wallets
-⏺  $ n2 local send @esteban 0.1 
-⏺  $ n2 local qrcode
-⏺  $ n2 local receive
-⏺  $ n2 local install
-⏺  $ n2 local upgrade
-⏺  $ n2 local plugins
-
-Nano.to Cloud (Custodial)
+CLOUD_WALLET_DOCS=$(cat <<EOF
+Cloud Node (Custodial)
 ✅  $ n2 cloud balance
 ✅  $ n2 cloud send @esteban 0.1
 ✅  $ n2 cloud qrcode
 ✅  $ n2 cloud receive
 ✅  $ n2 cloud renew
 ✅  $ n2 cloud recycle
+EOF
+)
 
-Blockchain
-✅  $ n2 price
-⏺  $ n2 stats
+CLOUD_DOCS=$(cat <<EOF
+Nano.to Cloud
+✅  $ n2 cloud login
+✅  $ n2 cloud register
+✅  $ n2 cloud account
+✅  $ n2 cloud username
+✅  $ n2 cloud 2factor
+✅  $ n2 cloud logout
+EOF
+)
 
+OPTIONS_DOCS=$(cat <<EOF
 Options
   --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
-  --address, -a  Print you Nano address.
-  --email, -e  Print your account email.
-  --api, -k  Print CLI API KEY email.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.
-END_HEREDOC
+EOF
 )
 
-# Nice
+DOCS=$(cat <<EOF
+$LOCAL_DOCS
 
+$CLOUD_WALLET_DOCS
 
+$CLOUD_DOCS
 
-# ██╗      ██████╗  ██████╗ █████╗ ██╗     
-# ██║     ██╔═══██╗██╔════╝██╔══██╗██║     
-# ██║     ██║   ██║██║     ███████║██║     
-# ██║     ██║   ██║██║     ██╔══██║██║     
-# ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
-# ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
-          
-function sponsor() {
-	echo "=============================="
-	echo "     FREE CLOUD HOSTING      "
-	echo "   (\$100 ON DIGITALOCEAN)    "
-	echo "------------------------------"
-	echo "https://m.do.co/c/f139acf4ddcb"
-	echo "========ADVERTISE HERE========"
-}
-
-rpc() {
-	RPC=$(curl -s "[::1]:7076" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "action": "$1" }
+$OPTIONS_DOCS
 EOF
-))
-	echo $RPC
-}
+)
 
-if [[ "$1" = "node" ]] || [[ "$1" = "local" ]]; then
-
-	# if [[ "$2" = "plugins" ]]; then; 
-	# fi
-
-	if [[ "$2" = "install" ]]; then
-
-		if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-			echo ""
-		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "${RED}Error${NC}: N2 node install only on Ubuntu."
-			sponsor
-			exit 1
-		  # Mac OSX
-		elif [[ "$OSTYPE" == "cygwin" ]]; then
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		  # POSIX compatibility layer and Linux environment emulation for Windows
-		elif [[ "$OSTYPE" == "msys" ]]; then
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-		elif [[ "$OSTYPE" == "win32" ]]; then
-		  # I'm not sure this can happen.
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		elif [[ "$OSTYPE" == "freebsd"* ]]; then
-		  # ...
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		else
-		   # Unknown.
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		fi
-
-		# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
-		# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
-		# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
-
-		if [[ "$3" = "node" ]] || [[ "$3" = "--node" ]]; then
-			read -p 'Install a new Nano Node on this machine. Enter 'Y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				cd $DIR && git clone https://github.com/fwd/nano-docker.git
-				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-		if [[ "$3" = "gpu" ]] || [[ "$3" = "--gpu" ]]; then
-			read -p 'Remove NVIDIA drivers and auto re-install GPU drivers. Enter 'Y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				sudo apt-get purge nvidia*
-				sudo ubuntu-drivers autoinstall
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-cat <<EOF
-Usage:
-  $ n2 local install node
-  $ n2 local install gpu
+if [[ $1 == "" ]]; then
+	cat <<EOF
+Missing command. Use 'n2 list' to list all actions.
 EOF
-		exit 1
-
-	fi
-
-
-	# if [[ "$2" = "wallets" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "send" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "qrcode" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "receive" ]]; then; 
-	# fi
-
-	# if [[ "$2" = "upgrade" ]]; then; 
-	# fi
-
-
-	echo "========================"
-	echo "      LOCAL WALLET      "
-	echo "========================"
-
-cat <<EOF
-
-Usage:
-  $ n2 local balance
-  $ n2 local receive
-  $ n2 local account @kraken
-  $ n2 local send @esteban 0.1
-  $ n2 local qrcode @fosse
-  $ n2 local install
-  $ n2 local plugins ls
-EOF
-
-	echo ""
-
-	if curl -s --fail -X POST '[::1]:7076'; then
-		# JSON=$(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
-  	# echo $JSON
-		echo ""
-	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 local install'"
-	fi;
-
-	if [[ "$2" = "--wallet" ]]; then
-		docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
-	fi
-
-	if [[ "$2" = "--seed" ]]; then
-		WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
-		SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
-		echo $SEED
-	fi
-
-	# echo "================================="
-	# echo "       UNDER CONSTRUCTION        "
-	# echo "================================="
-	# echo "'n2 local' is under development. "
-	# echo "Tweet me @nano2dev to remind me. "
-	# echo "================================="
-	# echo "https://twitter.com/nano2dev"
-	# echo "================================="
-	                     
-# cat <<EOF
-# Commant not found. Use 'n2 list' to see new commands.
-# EOF
-
-exit 1
-
+	exit 1
 fi
-
 
 
 # ███╗   ██╗ ██████╗ ██╗    ██╗
@@ -294,188 +134,194 @@ fi
 # ██╔██╗ ██║███████║██╔██╗ ██║██║   ██║   ██║   ██║   ██║
 # ██║╚██╗██║██╔══██║██║╚██╗██║██║   ██║   ██║   ██║   ██║
 # ██║ ╚████║██║  ██║██║ ╚████║╚██████╔╝██╗██║   ╚██████╔╝
-# ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝    ╚═════╝ 
-                                      
-
-
-if [[ $1 == "login" ]]; then
-
-	# echo "$BANNER"
-	echo
-	echo "========================"
-	echo "   NANO.TO CLOUD LOGIN  "
-	echo "========================"
-	echo
-
-	echo "Welcome back"
-
-	echo
-
-	USERNAME=$2
-	PASSWORD=$3
-
-	if [[ $USERNAME == "" ]]; then
-		read -p 'Email: ' USERNAME
-	fi
-
-	if [[ $PASSWORD == "" ]]; then
-		read -sp 'Password: ' PASSWORD
-	fi
-
-	LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "username": "$USERNAME", "password": "$PASSWORD" }
-EOF
-	))
-
-	if [[ $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT") == "true" ]]; then
-
-		echo 
-		echo 
-		echo "========================"
-		echo "   2-FACTOR REQUIRED    "
-		echo "========================"
-		echo
-
-		read -sp 'Enter OTP Code: ' OTP_CODE
-
-	LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "username": "$USERNAME", "password": "$PASSWORD", "code": "$OTP_CODE" }
-EOF
-	))
-
-	fi
-
-	if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
-		echo
-		echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
-		exit 1
-	fi
-
-	rm $DIR/.n2-session 2>/dev/null
-
-	echo $(jq -r '.session' <<< "$LOGIN_ATTEMPT") >> $DIR/.n2-session
-
-	echo
-
-	echo "Ok. Logged in successfully."
-	
-	exit 1
-
-fi
-
-# ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
-# ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
-# ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
-# ██╔══██╗██╔══╝  ██║   ██║██║╚════██║   ██║   ██╔══╝  ██╔══██╗
-# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
-# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
-                                                             
-if [[ $1 == "register" ]]; then
-
-	echo
-	echo "========================"
-	echo " NANO.TO CLOUD REGISTER "
-	echo "========================"
-	echo
-
-	echo 'Welcome to the Cloud'
-
-	echo 
-	 
-	read -p 'Email: ' USERNAME
-	read -sp 'Password: ' PASSWORD
-	 
-	echo 
-	# echo "Thank you $username for showing interest in learning with www.tutorialkart.com"
-
-	REGISTER_ATTEMPT=$(curl -s "https://nano.to/register" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "username": "$USERNAME", "password": "$PASSWORD" }
-EOF
-	))
-
-	if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
-		echo
-		echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
-		exit 1
-	fi
-
-	rm $DIR/.n2-session 2>/dev/null
-
-	echo $(jq -r '.session' <<< "$REGISTER_ATTEMPT") >> $DIR/.n2-session
-
-	echo
-
-	echo "Ok. Logged in successfully."
-	
-	exit 1
-
-fi
-
+# ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝    ╚═════╝      
 
 if [[ $1 == "cloud" ]]; then
 
-# ██████╗       ███████╗ █████╗ 
-# ╚════██╗      ██╔════╝██╔══██╗
-#  █████╔╝█████╗█████╗  ███████║
-# ██╔═══╝ ╚════╝██╔══╝  ██╔══██║
-# ███████╗      ██║     ██║  ██║
-# ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
+	if [[ $2 == "" ]]; then
+		cat <<EOF
+$CLOUD_WALLET_DOCS
 
-if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
-
-	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+$CLOUD_DOCS
+EOF
 		exit 1
 	fi
 
-	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+	if [[ $1 == "login" ]]; then
+
+		# echo "$BANNER"
+		echo
+		echo "========================"
+		echo "   NANO.TO CLOUD LOGIN  "
+		echo "========================"
+		echo
+
+		echo "Welcome back"
+
+		echo
+
+		USERNAME=$2
+		PASSWORD=$3
+
+		if [[ $USERNAME == "" ]]; then
+			read -p 'Email: ' USERNAME
+		fi
+
+		if [[ $PASSWORD == "" ]]; then
+			read -sp 'Password: ' PASSWORD
+		fi
+
+		LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
 		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
-	--request GET | jq '.two_factor')
+		--request POST \
+		--data @<(cat <<EOF
+	{ "username": "$USERNAME", "password": "$PASSWORD" }
+EOF
+		))
 
-	if [[ $HAS_TWO_FACTOR == "true" ]]; then
-		echo "Ok. 2-factor enabled. Use 'n2 2f-remove' to change 2-factor."
-		exit 1
-	fi
+		if [[ $(jq -r '.two_factor' <<< "$LOGIN_ATTEMPT") == "true" ]]; then
 
-	NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
+			echo 
+			echo 
+			echo "========================"
+			echo "   2-FACTOR REQUIRED    "
+			echo "========================"
+			echo
+
+			read -sp 'Enter OTP Code: ' OTP_CODE
+
+		LOGIN_ATTEMPT=$(curl -s "https://nano.to/login" \
 		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
-	--request GET)
+		--request POST \
+		--data @<(cat <<EOF
+	{ "username": "$USERNAME", "password": "$PASSWORD", "code": "$OTP_CODE" }
+EOF
+		))
 
-	OTP_ID=$(jq -r '.id' <<< "$NEW_SETUP")
-	QR=$(jq -r '.qr' <<< "$NEW_SETUP")
-	KEY=$(jq -r '.key' <<< "$NEW_SETUP")
+		fi
 
-	echo "==============================="
-	echo "        ENABLE 2-FACTOR        "
-	echo "==============================="
-	echo "Copy the 'KEY' or scan the provided QR."
-	echo "==============================="
-	echo "NAME: Nano.to"
-	echo "KEY:" $KEY
-	echo "QR:" $QR
-	echo "==============================="
-	read -p 'First OTP Code: ' FIRST_OTP
+		if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
+			echo
+			echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
+			exit 1
+		fi
 
-	if [[ $FIRST_OTP == "" ]]; then
-		echo "${RED}Error${NC}: No code. Try again, but from scratch."
+		rm $DIR/.n2-session 2>/dev/null
+
+		echo $(jq -r '.session' <<< "$LOGIN_ATTEMPT") >> $DIR/.n2-session
+
+		echo
+
+		echo "Ok. Logged in successfully."
+		
 		exit 1
+
 	fi
+
+	# ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
+	# ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
+	# ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
+	# ██╔══██╗██╔══╝  ██║   ██║██║╚════██║   ██║   ██╔══╝  ██╔══██╗
+	# ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
+	# ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+	                                                             
+	if [[ $1 == "register" ]]; then
+
+		echo
+		echo "========================"
+		echo " NANO.TO CLOUD REGISTER "
+		echo "========================"
+		echo
+
+		echo 'Welcome to the Cloud'
+
+		echo 
+		 
+		read -p 'Email: ' USERNAME
+		read -sp 'Password: ' PASSWORD
+		 
+		echo 
+		# echo "Thank you $username for showing interest in learning with www.tutorialkart.com"
+
+		REGISTER_ATTEMPT=$(curl -s "https://nano.to/register" \
+		-H "Accept: application/json" \
+		-H "Content-Type:application/json" \
+		--request POST \
+		--data @<(cat <<EOF
+	{ "username": "$USERNAME", "password": "$PASSWORD" }
+EOF
+		))
+
+		if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
+			echo
+			echo "${RED}Error${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
+			exit 1
+		fi
+
+		rm $DIR/.n2-session 2>/dev/null
+
+		echo $(jq -r '.session' <<< "$REGISTER_ATTEMPT") >> $DIR/.n2-session
+
+		echo
+
+		echo "Ok. Logged in successfully."
+		
+		exit 1
+
+	fi
+
+	# ██████╗       ███████╗ █████╗ 
+	# ╚════██╗      ██╔════╝██╔══██╗
+	#  █████╔╝█████╗█████╗  ███████║
+	# ██╔═══╝ ╚════╝██╔══╝  ██╔══██║
+	# ███████╗      ██║     ██║  ██║
+	# ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
+
+	if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
+
+		if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+			echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+			exit 1
+		fi
+
+		HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+		--request GET | jq '.two_factor')
+
+		if [[ $HAS_TWO_FACTOR == "true" ]]; then
+			echo "Ok. 2-factor enabled. Use 'n2 2f-remove' to change 2-factor."
+			exit 1
+		fi
+
+		NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+		--request GET)
+
+		OTP_ID=$(jq -r '.id' <<< "$NEW_SETUP")
+		QR=$(jq -r '.qr' <<< "$NEW_SETUP")
+		KEY=$(jq -r '.key' <<< "$NEW_SETUP")
+
+		echo "==============================="
+		echo "        ENABLE 2-FACTOR        "
+		echo "==============================="
+		echo "Copy the 'KEY' or scan the provided QR."
+		echo "==============================="
+		echo "NAME: Nano.to"
+		echo "KEY:" $KEY
+		echo "QR:" $QR
+		echo "==============================="
+		read -p 'First OTP Code: ' FIRST_OTP
+
+		if [[ $FIRST_OTP == "" ]]; then
+			echo "${RED}Error${NC}: No code. Try again, but from scratch."
+			exit 1
+		fi
 
 	OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor" \
 	-H "Accept: application/json" \
@@ -487,42 +333,41 @@ if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[
 EOF
 	))
 
-	echo 
+		echo 
 
-	echo "$OTP_ATTEMPT"
+		echo "$OTP_ATTEMPT"
 
-	exit 1
+		exit 1
 
-fi
+	fi
 
 # STILL 2-FACTOR
+	if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 
-if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
+		HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+		--request GET | jq '.two_factor')
 
-	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
-		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
-		-H "Content-Type:application/json" \
-	--request GET | jq '.two_factor')
+		if [[ $HAS_TWO_FACTOR == "false" ]]; then
+			echo "${RED}Error${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
+			exit 1
+		fi
 
-	if [[ $HAS_TWO_FACTOR == "false" ]]; then
-		echo "${RED}Error${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
-		exit 1
-	fi
+		echo "========================"
+		echo "    REMOVE 2-FACTOR     "
+		echo "========================"
+		echo
+		echo "Please provide an existing OTP code."
+		echo
 
-	echo "========================"
-	echo "    REMOVE 2-FACTOR     "
-	echo "========================"
-	echo
-	echo "Please provide an existing OTP code."
-	echo
+		read -p 'Enter OTP Code: ' REMOVE_OTP
 
-	read -p 'Enter OTP Code: ' REMOVE_OTP
-
-	if [[ $REMOVE_OTP == "" ]]; then
-		echo "${RED}Error${NC}: No code. Try again, but from scratch."
-		exit 1
-	fi
+		if [[ $REMOVE_OTP == "" ]]; then
+			echo "${RED}Error${NC}: No code. Try again, but from scratch."
+			exit 1
+		fi
 
 	REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
 	-H "Accept: application/json" \
@@ -534,13 +379,18 @@ if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 EOF
 	))
 
-	echo 
+			echo 
 
-	echo "$REMOVE_OTP_ATTEMPT"
+			echo "$REMOVE_OTP_ATTEMPT"
+
+			exit 1
+
+		fi
 
 	exit 1
 
 fi
+
 
 
 # ██╗    ██╗██╗  ██╗ ██████╗ ██╗███████╗
@@ -1434,13 +1284,7 @@ if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = 
 fi
 
 cat <<EOF
-Usage:
-  $ n2 cloud account
-  $ n2 cloud balance
-  $ n2 cloud send @esteban 0.1
-  $ n2 cloud qrcode
-  $ n2 cloud receive
-  $ n2 cloud recycle
+$LOCAL_DOCS
 EOF
 
 exit 1
@@ -1465,6 +1309,181 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 	exit 1
 
 fi
+
+
+
+
+
+
+
+
+
+# ██╗      ██████╗  ██████╗ █████╗ ██╗     
+# ██║     ██╔═══██╗██╔════╝██╔══██╗██║     
+# ██║     ██║   ██║██║     ███████║██║     
+# ██║     ██║   ██║██║     ██╔══██║██║     
+# ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
+# ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
+          
+function sponsor() {
+	echo "=============================="
+	echo "     FREE CLOUD HOSTING      "
+	echo "   (\$100 ON DIGITALOCEAN)    "
+	echo "------------------------------"
+	echo "https://m.do.co/c/f139acf4ddcb"
+	echo "========ADVERTISE HERE========"
+}
+
+rpc() {
+	RPC=$(curl -s "[::1]:7076" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "action": "$1" }
+EOF
+))
+	echo $RPC
+}
+
+if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
+
+	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+			echo ""
+		elif [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "${RED}Error${NC}: Auto node setup only on Ubuntu."
+			sponsor
+			exit 1
+		  # Mac OSX
+		elif [[ "$OSTYPE" == "cygwin" ]]; then
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		  # POSIX compatibility layer and Linux environment emulation for Windows
+		elif [[ "$OSTYPE" == "msys" ]]; then
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+		elif [[ "$OSTYPE" == "win32" ]]; then
+		  # I'm not sure this can happen.
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		elif [[ "$OSTYPE" == "freebsd"* ]]; then
+		  # ...
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		else
+		   # Unknown.
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		fi
+
+		# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
+		# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
+		# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
+
+		if [[ "$2" = "node" ]] || [[ "$2" = "--node" ]]; then
+			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				cd $DIR && git clone https://github.com/fwd/nano-docker.git
+				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+		if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+			read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				sudo apt-get purge nvidia*
+				sudo ubuntu-drivers autoinstall
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+cat <<EOF
+Usage:
+  $ n2 setup node
+  $ n2 setup gpu
+EOF
+		exit 1
+
+	fi
+
+
+	# if [[ "$2" = "wallets" ]]; then; 
+	# fi
+
+	# if [[ "$2" = "send" ]]; then; 
+	# fi
+
+	# if [[ "$2" = "qrcode" ]]; then; 
+	# fi
+
+	# if [[ "$2" = "receive" ]]; then; 
+	# fi
+
+	# if [[ "$2" = "upgrade" ]]; then; 
+	# fi
+
+
+	echo "========================"
+	echo "      LOCAL WALLET      "
+	echo "========================"
+
+cat <<EOF
+$LOCAL_DOCS
+EOF
+
+	echo ""
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		# JSON=$(curl -s -g -d '{ "action": "telemetry" }' '[::1]:7076' | jq)
+  	# echo $JSON
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
+	fi;
+
+	if [[ "$2" = "--wallet" ]]; then
+		docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
+	fi
+
+	if [[ "$2" = "--seed" ]]; then
+		WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
+		SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
+		echo $SEED
+	fi
+
+	# echo "================================="
+	# echo "       UNDER CONSTRUCTION        "
+	# echo "================================="
+	# echo "'n2 local' is under development. "
+	# echo "Tweet me @nano2dev to remind me. "
+	# echo "================================="
+	# echo "https://twitter.com/nano2dev"
+	# echo "================================="
+	                     
+# cat <<EOF
+# Commant not found. Use 'n2 list' to see new commands.
+# EOF
+
+	# exit 1
+
+
+
+
+
+
+
 
 
 # ██╗  ██╗███████╗██╗     ██████╗ 

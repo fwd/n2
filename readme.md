@@ -19,23 +19,16 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ## ❯ Usage
 
 ```
-Nano.to Cloud Wallet
-✅  $ n2 login
-✅  $ n2 register
-✅  $ n2 account
-✅  $ n2 2factor
-✅  $ n2 logout
+Local Node (Non-Custodial)
+✅  $ n2 price
+⏺  $ n2 setup node
+⏺  $ n2 balance
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1
+⏺  $ n2 qrcode @fosse
+⏺  $ n2 plugin 
 
-Local Wallet (Non-Custodial)
-⏺  $ n2 local wallets
-⏺  $ n2 local send @esteban 0.1 
-⏺  $ n2 local qrcode
-⏺  $ n2 local receive
-⏺  $ n2 local install
-⏺  $ n2 local upgrade
-⏺  $ n2 local plugins
-
-Nano.to Cloud (Custodial)
+Cloud Node (Custodial)
 ✅  $ n2 cloud balance
 ✅  $ n2 cloud send @esteban 0.1
 ✅  $ n2 cloud qrcode
@@ -43,9 +36,13 @@ Nano.to Cloud (Custodial)
 ✅  $ n2 cloud renew
 ✅  $ n2 cloud recycle
 
-Blockchain
-✅  $ n2 price
-⏺  $ n2 stats
+Nano.to Cloud
+✅  $ n2 cloud login
+✅  $ n2 cloud register
+✅  $ n2 cloud account
+✅  $ n2 cloud username
+✅  $ n2 cloud 2factor
+✅  $ n2 cloud logout
 
 Options
   --help, -h  Print CLI Documentation.

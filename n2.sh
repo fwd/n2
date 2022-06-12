@@ -55,7 +55,7 @@ Local Node (Non-Custodial)
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1
 ⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugins ls
+⏺  $ n2 plugin ls
 EOF
 )
 
@@ -1613,7 +1613,7 @@ Nano.to
   $ n2 [ stats • price • login • register • account • username • 2fa • logout ]
 
 Local Node (Non-Custodial)
-  $ n2 local [ ls • send • qrcode • receive • install • upgrade • plugins ]
+  $ n2 local [ ls • send • qrcode • receive • install • upgrade • plugin ]
 
 Cloud Node (Custodial)
   $ n2 cloud [ ls • send • qrcode • receive • recycle ]

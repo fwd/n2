@@ -1392,20 +1392,20 @@ function sponsor() {
 	echo "========ADVERTISE HERE========"
 }
 
-rpc() {
+# rpc() {
+
+# }
+         
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] ; then
 	RPC=$(curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "action": "$1", "json_block": "true" }
+{ "action": "telemetry", "json_block": "true" }
 EOF
 ))
 	echo $RPC
-}
-         
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] ; then
-	rpc $1
 	exit 1
 fi
 

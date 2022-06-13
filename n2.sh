@@ -266,6 +266,12 @@ function cloud_balance() {
 
 
 function cloud_login() {
+
+		if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
+			echo "${RED}Error${NC}: You're logged in. Use 'n2 logout' to logout."
+			exit 1
+		fi
+
 		echo
 		echo "========================"
 		echo "     NANO.TO LOGIN      "
@@ -336,7 +342,13 @@ EOF
 }
 
 function cloud_register() {
-	echo
+
+		if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
+			echo "${RED}Error${NC}: You're logged in. Use 'n2 logout' to logout."
+			exit 1
+		fi
+
+		echo
 		echo "========================"
 		echo "    NANO.TO REGISTER    "
 		echo "========================"

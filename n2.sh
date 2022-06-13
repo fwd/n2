@@ -796,6 +796,15 @@ fi
 
 if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
 
+	if [[ $2 == "" ]]; then
+cat <<EOF
+Usage:
+  $ n2 $1 @fosse
+  $ n2 $1 @kraken --json
+EOF
+		exit 1
+	fi
+
 	# AWARD FOR CLEANEST METHOD
 	WHOIS=$(curl -s "https://nano.to/$2/account" \
 	-H "Accept: application/json" \
@@ -1773,7 +1782,7 @@ if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--inst
 		echo "Installed latest 'stable' version."
 		exit 1
 	fi
-	sudo rm /usr/local/bin/n2
+
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Installed latest version."

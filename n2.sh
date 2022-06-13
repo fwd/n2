@@ -1397,14 +1397,23 @@ function sponsor() {
 # }
          
 if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
-	curl -s "[::1]:7076" \
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	   exit 1
+	fi;
+	
+	RPC=$(curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
 { "action": "$2", "json_block": "true" }
 EOF
-) | jq
+))
+	jq <<< "$RPC"
 	exit 1
 fi
 

@@ -1404,7 +1404,7 @@ if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" 
 	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
 	   exit 1
 	fi;
-	
+
 	RPC=$(curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
@@ -1760,17 +1760,20 @@ fi
                                                   
 if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--install" ]  || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
 	if [ "$2" = "--dev" ]; then
+		sudo rm /usr/local/bin/n2
 		curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o /usr/local/bin/n2
 		sudo chmod +x /usr/local/bin/n2
 		echo "Installed latest 'development' version."
 		exit 1
 	fi
 	if [ "$2" = "--prod" ]; then
+		sudo rm /usr/local/bin/n2
 		curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 		sudo chmod +x /usr/local/bin/n2
 		echo "Installed latest 'stable' version."
 		exit 1
 	fi
+	sudo rm /usr/local/bin/n2
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Installed latest version."

@@ -595,6 +595,8 @@ EOF
 	fi
 
 	hash=$(jq -r '.hash' <<< "$SEND")
+	# hash=$(jq -r '.from' <<< "$SEND")
+	address=$(jq -r '.address' <<< "$ACCOUNT")
 	amount=$(jq -r '.amount' <<< "$SEND")
 	hash_url=$(jq -r '.hash_url' <<< "$SEND")
 	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
@@ -613,11 +615,11 @@ EOF
 	fi
 
 	echo "==============================="
-	echo "            RECEIPT            "
+	echo "          NANO RECEIPT         "
 	echo "==============================="
 	echo "AMOUNT: " $amount
 	echo "TO: " $3
-	echo "FROM: " $ADDRESS
+	echo "FROM: " $address
 	echo "==============================="
 	echo "HASH: " $hash
 	echo "BLOCK: " $nanolooker
@@ -825,10 +827,11 @@ if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" =
 	echo "==============================="
 	echo "          NANO LOOKUP          "
 	echo "==============================="
+	# echo "USERNAME: "$2
 	echo "USERNAME: @"$(jq -r '.username' <<< $WHOIS) 
-	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
-	echo "BLOCKS: " $(jq -r '.height' <<< $WHOIS)
-	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
+	echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
+	echo "BLOCKS: "$(jq -r '.height' <<< $WHOIS)
+	echo "ADDRESS: "$(jq -r '.address' <<< $WHOIS)
 	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
 	echo "==============================="
 
@@ -1506,7 +1509,7 @@ if [[ $1 == "send" ]]; then
 	fi
 
 	echo "==============================="
-	echo "            RECEIPT            "
+	echo "         NANO RECEIPT          "
 	echo "==============================="
 	echo "AMOUNT: " $amount
 	echo "TO: " $2

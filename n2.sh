@@ -1396,7 +1396,7 @@ function sponsor() {
 
 # }
          
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] ; then
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "--curl" ]] || [[ "$1" = "--curl" ]] ; then
 	curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \

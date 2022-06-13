@@ -149,7 +149,6 @@ fi
 # ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝    ╚═════╝    
 
 
-
 function cloud_receive() {
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -163,9 +162,10 @@ function cloud_receive() {
 	-H "Content-Type:application/json" \
 	--request GET)
 
+	account=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
 
-	if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+	if [[ "$4" == "--json" ]]; then
 		QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
@@ -175,7 +175,7 @@ function cloud_receive() {
 		exit 1
 	fi
 
-	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$2" \
+	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$3" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
@@ -187,12 +187,20 @@ function cloud_receive() {
 	echo "======================="
 	echo "      DEPOSIT NANO     "
 	echo "======================="
-	echo $address
-	# echo "NANOLOOKER: https://nanolooker.com/account/$address"
+	if [[ $2 != "" ]]; then
+		echo "AMOUNT: $3 NANO"
+		#statements
+	fi
+	echo "ADDRESS: $address"
+	if [[ "$4" != "--no-account" ]] && [[ "$5" != "--no-account" ]]; then
+	echo "ACCOUNT: $account"
+	fi
 	echo "======================="
-	cat <<EOF
+	if [[ "$4" != "--no-qr" ]] && [[ "$5" != "--no-qr" ]]; then
+		cat <<EOF
 $QRCODE
 EOF
+	fi
 
 	exit 1
 }
@@ -557,8 +565,12 @@ EOF
 		echo "==============================="
 		echo "       INSUFFICIENT FUNDS      "
 		echo "==============================="
+		echo "PENDING: $(jq -r '.pending' <<< "$ACCOUNT") "
+		echo "BALANCE: $(jq -r '.balance' <<< "$ACCOUNT") "
+		echo "-------------------------------"
 		echo "Use 'n2 cloud receive'"
 		echo "==============================="
+		# echo "NANOLOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $ACCOUNT)
 		echo
 		exit 1
 	fi

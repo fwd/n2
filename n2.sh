@@ -1397,15 +1397,14 @@ function sponsor() {
 # }
          
 if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] ; then
-	RPC=$(curl -s "[::1]:7076" \
+	curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
-{ "action": "telemetry", "json_block": "true" }
+{ "action": "$2", "json_block": "true" }
 EOF
-))
-	echo $RPC
+) | jq
 	exit 1
 fi
 

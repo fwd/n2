@@ -165,8 +165,8 @@ function cloud_receive() {
 	account=$(jq -r '.username' <<< "$ACCOUNT")
 	address=$(jq -r '.address' <<< "$ACCOUNT")
 
-	if [[ "$4" == "--json" ]]; then
-		QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
+	if [[ "$4" == "--json" ]] ; then
+		QR_JSON=$(curl -s "https://nano.to/$3/account" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
@@ -175,7 +175,17 @@ function cloud_receive() {
 		exit 1
 	fi
 
-	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$3" \
+	if [[ "$5" == "--json" ]]; then
+		QR_JSON=$(curl -s "https://nano.to/$address?request=$4" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		echo $QR_JSON
+		exit 1
+	fi
+
+	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$4" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
@@ -777,7 +787,7 @@ EOF
 	fi
 fi
 
-if [[ "$2" = "deposit" ]] || [[ "$2" = "receive" ]] || [[ "$2" = "qr" ]]; then
+if [[ "$2" = "deposit" ]] || [[ "$2" = "receive" ]] || [[ "$2" = "qr" ]] || [[ "$2" = "--qrcode" ]] || [[ "$2" = "qrcode" ]] || [[ "$2" = "-qrcode" ]] || [[ "$2" = "-qr" ]] || [[ "$2" = "-q" ]] || [[ "$2" = "q" ]]; then
 cat <<EOF
 $(cloud_receive $1 $2 $3 $4 $5)
 EOF
@@ -871,17 +881,27 @@ fi
 # ╚██████╗██║  ██║███████╗╚██████╗██║  ██╗╚██████╔╝╚██████╔╝   ██║   
 #  ╚═════╝╚═╝  ╚═╝╚══════╝ ╚═════╝╚═╝  ╚═╝ ╚═════╝  ╚═════╝    ╚═╝                                                                 
 
-if [ "$2" = "checkout" ] || [ "$2" = "--checkout" ] || [ "$2" = "-checkout" ] || [ "$2" = "c" ] || [ "$2" = "-c" ]; then
+if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] || [ "$1" = "c" ] || [ "$1" = "-c" ]; then
+
 
 	if [[ $2 == "" ]]; then
 		# read -p 'To (@Username or Address): ' $2
 		echo "${RED}Error${NC}: Username, or Address missing."
+cat <<EOF
+Usage:
+  $ n2 $1 @fosse 10
+  $ n2 $1 @kraken 12.50 --json
+EOF
 		exit 1
 	fi
 
 	if [[ $3 == "" ]]; then
-		# read -p 'Amount: ' $3
 		echo "${RED}Error${NC}: Amount missing."
+cat <<EOF
+Usage:
+  $ n2 $1 @fosse 10
+  $ n2 $1 @kraken 12.50 --json
+EOF
 		exit 1
 	fi
 
@@ -1153,65 +1173,6 @@ if [[ "$2" = "logout" ]]; then
 	exit 1
 fi
 
-
-#  ██████╗ ██████╗ ██████╗ ███████╗
-# ██╔════╝██╔═══██╗██╔══██╗██╔════╝
-# ██║     ██║   ██║██║  ██║█████╗  
-# ██║     ██║   ██║██║  ██║██╔══╝  
-# ╚██████╗╚██████╔╝██████╔╝███████╗
-#  ╚═════╝ ╚═════╝ ╚═════╝ ╚══════╝
-                                                                                                
-                                                      
-if [[ "$2" = "--qrcode" ]] || [[ "$2" = "qrcode" ]] || [[ "$2" = "-qrcode" ]] || [[ "$2" = "-qr" ]] || [[ "$2" = "-q" ]] || [[ "$2" = "q" ]]; then
-
-	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-		exit 1
-	fi
-
-	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request GET)
-
-	ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
-
-	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-		QR_JSON=$(curl -s "https://nano.to/$ADDRESS?request=$2" \
-		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
-		-H "Content-Type:application/json" \
-		--request GET)
-		echo $QR_JSON
-		exit 1
-	fi
-
-	USERNAME=$(jq -r '.username' <<< "$ACCOUNT")
-
-	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$ADDRESS&amount=$2" \
-		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
-		-H "Content-Type:application/json" \
-		--request GET)
-
-	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
-
-	# echo
-	echo "==========================================="
-	echo "               RECEIVE NANO                "
-	echo "==========================================="
-	echo "ACCOUNT: " $USERNAME
-	echo "ADDRESS: " $ADDRESS
-	echo "==========================================="
-	cat <<EOF
-$QRCODE
-EOF
-	# echo
-
-	exit 1
-
-fi
 
 
 
@@ -1673,6 +1634,15 @@ fi
 
 
 # -----------------------------------ALIASES------------------------------------#     
+
+if [[ "$1" = "qrcode" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud qrcode
+  $ n2 cloud qrcode @esteban 10 --json
+EOF
+	exit 1
+fi
 
 if [[ "$1" = "login" ]]; then
 cat <<EOF

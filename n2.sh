@@ -116,6 +116,205 @@ if [[ "$1" = "--json" ]]; then
 fi
 
 
+function cloud_balance() {
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
+	rm $DIR/.n2-session
+	echo
+	echo "==============================="
+	echo "    LOGGED OUT FOR SECURITY    "
+	echo "==============================="
+	echo "Use 'n2 login' to log back in. "
+	echo "==============================="
+	echo
+	exit 1
+	fi
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
+		echo $ACCOUNT
+		exit 1
+	fi
+
+	username=$(jq -r '.username' <<< "$ACCOUNT")
+	address=$(jq -r '.address' <<< "$ACCOUNT")
+	api_key=$(jq -r '.api_key' <<< "$ACCOUNT")
+	balance=$(jq -r '.balance' <<< "$ACCOUNT")
+	pending=$(jq -r '.pending' <<< "$ACCOUNT")
+	frontier=$(jq -r '.frontier' <<< "$ACCOUNT")
+	two_factor=$(jq -r '.two_factor' <<< "$ACCOUNT")
+	pow_usage=$(jq -r '.pow_usage' <<< "$ACCOUNT")
+	pow_limit=$(jq -r '.pow_limit' <<< "$ACCOUNT")
+	wallets=$(jq -r '.accounts' <<< "$ACCOUNT")
+
+	# echo
+	echo "==============================="
+	echo "        NANO.TO ACCOUNT        "
+	echo "==============================="
+	# echo "WALLETS: " $wallets
+	# echo "==============================="
+	echo "PENDING: " $pending
+	echo "BALANCE: " $balance
+	echo "ACCOUNT: " $username
+	echo "POW CREDITS: " "$pow_usage" "/" "$pow_limit"
+	if [[ $two_factor == "true" ]]; then
+		#statements
+		echo "TWO_FACTOR: ${GREEN}" $two_factor "${NC}"
+	else
+		echo "TWO_FACTOR: ${RED}" $two_factor "${NC}"
+	fi
+	echo "ADDRESS: " $address
+	echo "BROWSER: https://nanolooker.com/account/$address"
+	echo "==============================="
+	# echo "See all with 'n2 cloud wallets'"
+	# echo "==============================="
+
+	exit 1
+
+}
+
+
+function cloud_send() {
+
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
+
+	if [[ $3 == "" ]]; then
+		echo "${RED}Error${NC}: Missing Username or Nano Address."
+		return
+		# read -p 'To (@Username or Address): ' USERNAME
+	fi
+	
+	if [[ $4 == "" ]]; then
+		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
+		return
+		# read -p 'Amount: ' AMOUNT
+	fi
+
+	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request GET)
+		
+  # ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
+  FRONTIER=$(jq -r '.frontier' <<< "$ACCOUNT")
+
+	POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+		echo
+		echo "==============================="
+		echo "       USED ALL CREDITS        "
+		echo "==============================="
+		echo "  Use 'n2 add pow' or wait.    "
+		echo "==============================="
+		echo
+		return
+	fi
+
+	# echo $POW
+	# exit 1
+	WORK=$(jq -r '.work' <<< "$POW")
+
+	SEND=$(curl -s "https://nano.to/cli/send" \
+	-H "Accept: application/json" \
+	-H "session: $(cat $DIR/.n2-session)" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "to": "$3", "amount": "$4", "work": "$WORK" }
+EOF
+	))
+
+	if [[ $(jq -r '.code' <<< "$SEND") == "401" ]]; then
+		rm $DIR/.n2-session
+		echo
+		echo "==============================="
+		echo "    LOGGED OUT FOR SECURITY    "
+		echo "==============================="
+		echo "Use 'n2 login' to log back in. "
+		echo "==============================="
+		echo
+		exit 1
+	fi
+
+	# if [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]] || [[ "$7" == "--json" ]]; then
+	# 	echo $SEND
+	# 	return
+	# fi
+
+	ERROR=$(jq -r '.error' <<< "$SEND")
+
+	if [[ $ERROR = "429" ]]; then
+		echo
+		echo "===================================="
+		echo "                ERROR               "
+		echo "===================================="
+		echo "You used up all your PoW credits.   "
+		echo "Buy more with 'n2 add pow' or wait. "
+		echo "===================================="
+		echo
+		return
+	fi
+
+	hash=$(jq -r '.hash' <<< "$SEND")
+	amount=$(jq -r '.amount' <<< "$SEND")
+	hash_url=$(jq -r '.hash_url' <<< "$SEND")
+	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
+	duration=$(jq -r '.duration' <<< "$SEND")
+
+	if [[ $ERROR == "Bad link number" ]]; then
+		echo
+		echo "================================"
+		echo "           ERROR #100           "
+		echo "================================"
+		echo "Bad Address. Fix and try again. "
+		echo "================================"
+		echo
+		return
+		# exit 1
+	fi
+
+	echo "==============================="
+	echo "            RECEIPT            "
+	echo "==============================="
+	echo "AMOUNT: " $amount
+	echo "TO: " $3
+	echo "FROM: " $ADDRESS
+	echo "==============================="
+	echo "HASH: " $hash
+	echo "BLOCK: " $nanolooker
+	echo "TIME: " $duration
+
+	return
+
+}
+
+
+
+
+
+
+
+
+
+
 
 # ███╗   ██╗ ██████╗ ██╗    ██╗
 # ████╗  ██║██╔═══██╗██║    ██║
@@ -147,11 +346,18 @@ fi
 
 if [[ $1 == "cloud" ]]; then
 
-	if [[ $2 == "" ]]; then
-		cat <<EOF
-$CLOUD_WALLET_DOCS
+	# echo "cloud"
 
-$CLOUD_DOCS
+	if [[ $2 == "send" ]]; then
+cat <<EOF
+$(cloud_send $1 $2 $3 $4 $5)
+EOF
+		exit 1
+	fi
+
+	if [[ $2 == "balance" ]]; then
+cat <<EOF
+$(cloud_balance $1 $2 $3 $4 $5)
 EOF
 		exit 1
 	fi
@@ -169,8 +375,8 @@ EOF
 
 		echo
 
-		USERNAME=$2
-		PASSWORD=$3
+		USERNAME=$3
+		PASSWORD=$4
 
 		if [[ $USERNAME == "" ]]; then
 			read -p 'Email: ' USERNAME
@@ -229,6 +435,7 @@ EOF
 
 	fi
 
+
 # ██████╗ ███████╗ ██████╗ ██╗███████╗████████╗███████╗██████╗ 
 # ██╔══██╗██╔════╝██╔════╝ ██║██╔════╝╚══██╔══╝██╔════╝██╔══██╗
 # ██████╔╝█████╗  ██║  ███╗██║███████╗   ██║   █████╗  ██████╔╝
@@ -236,7 +443,7 @@ EOF
 # ██║  ██║███████╗╚██████╔╝██║███████║   ██║   ███████╗██║  ██║
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝ ╚═╝╚══════╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
 	                                                             
-	if [[ $2 == "register" ]]; then
+if [[ $2 == "register" ]]; then
 
 		echo
 		echo "========================"
@@ -288,49 +495,49 @@ EOF
 # ███████╗      ██║     ██║  ██║
 # ╚══════╝      ╚═╝     ╚═╝  ╚═╝                      
 
-	if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
+if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
 
-		if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-			echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
-			exit 1
-		fi
+	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
+		echo "${RED}Error${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+		exit 1
+	fi
 
-		HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
-			-H "Accept: application/json" \
-			-H "session: $(cat $DIR/.n2-session)" \
-			-H "Content-Type:application/json" \
-		--request GET | jq '.two_factor')
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET | jq '.two_factor')
 
-		if [[ $HAS_TWO_FACTOR == "true" ]]; then
-			echo "Ok. 2-factor enabled. Use 'n2 2f-remove' to change 2-factor."
-			exit 1
-		fi
+	if [[ $HAS_TWO_FACTOR == "true" ]]; then
+		echo "Ok. 2-factor enabled. Use 'n2 2f-remove' to change 2-factor."
+		exit 1
+	fi
 
-		NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
-			-H "Accept: application/json" \
-			-H "session: $(cat $DIR/.n2-session)" \
-			-H "Content-Type:application/json" \
-		--request GET)
+	NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET)
 
-		OTP_ID=$(jq -r '.id' <<< "$NEW_SETUP")
-		QR=$(jq -r '.qr' <<< "$NEW_SETUP")
-		KEY=$(jq -r '.key' <<< "$NEW_SETUP")
+	OTP_ID=$(jq -r '.id' <<< "$NEW_SETUP")
+	QR=$(jq -r '.qr' <<< "$NEW_SETUP")
+	KEY=$(jq -r '.key' <<< "$NEW_SETUP")
 
-		echo "==============================="
-		echo "        ENABLE 2-FACTOR        "
-		echo "==============================="
-		echo "Copy the 'KEY' or scan the provided QR."
-		echo "==============================="
-		echo "NAME: Nano.to"
-		echo "KEY:" $KEY
-		echo "QR:" $QR
-		echo "==============================="
-		read -p 'First OTP Code: ' FIRST_OTP
+	echo "==============================="
+	echo "        ENABLE 2-FACTOR        "
+	echo "==============================="
+	echo "Copy the 'KEY' or scan the provided QR."
+	echo "==============================="
+	echo "NAME: Nano.to"
+	echo "KEY:" $KEY
+	echo "QR:" $QR
+	echo "==============================="
+	read -p 'First OTP Code: ' FIRST_OTP
 
-		if [[ $FIRST_OTP == "" ]]; then
-			echo "${RED}Error${NC}: No code. Try again, but from scratch."
-			exit 1
-		fi
+	if [[ $FIRST_OTP == "" ]]; then
+		echo "${RED}Error${NC}: No code. Try again, but from scratch."
+		exit 1
+	fi
 
 	OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor" \
 	-H "Accept: application/json" \
@@ -342,102 +549,64 @@ EOF
 EOF
 	))
 
-		echo 
+	echo 
 
-		echo "$OTP_ATTEMPT"
+	echo "$OTP_ATTEMPT"
 
-		exit 1
+	exit 1
 
-	fi
+fi
 
 # STILL 2-FACTOR
-	if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
+if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
 
-		HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
-			-H "Accept: application/json" \
-			-H "session: $(cat $DIR/.n2-session)" \
-			-H "Content-Type:application/json" \
-		--request GET | jq '.two_factor')
+	HAS_TWO_FACTOR=$(curl -s "https://nano.to/cli/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+	--request GET | jq '.two_factor')
 
-		if [[ $HAS_TWO_FACTOR == "false" ]]; then
-			echo "${RED}Error${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
-			exit 1
-		fi
+	if [[ $HAS_TWO_FACTOR == "false" ]]; then
+		echo "${RED}Error${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
+		exit 1
+	fi
 
-		echo "========================"
-		echo "    REMOVE 2-FACTOR     "
-		echo "========================"
-		echo
-		echo "Please provide an existing OTP code."
-		echo
+	echo "========================"
+	echo "    REMOVE 2-FACTOR     "
+	echo "========================"
+	echo
+	echo "Please provide an existing OTP code."
+	echo
 
-		read -p 'Enter OTP Code: ' REMOVE_OTP
+	read -p 'Enter OTP Code: ' REMOVE_OTP
 
-		if [[ $REMOVE_OTP == "" ]]; then
-			echo "${RED}Error${NC}: No code. Try again, but from scratch."
-			exit 1
-		fi
+	if [[ $REMOVE_OTP == "" ]]; then
+		echo "${RED}Error${NC}: No code. Try again, but from scratch."
+		exit 1
+	fi
 
-	REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
+REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
+-H "Accept: application/json" \
+-H "session: $(cat $DIR/.n2-session)" \
+-H "Content-Type:application/json" \
+--request POST \
+--data @<(cat <<EOF
 { "code": "$REMOVE_OTP" }
 EOF
 	))
 
-			echo 
+		echo 
 
-			echo "$REMOVE_OTP_ATTEMPT"
+		echo "$REMOVE_OTP_ATTEMPT"
 
-			exit 1
-
-		fi
-
-	exit 1
-
-fi
-
-
-
-# ██╗    ██╗██╗  ██╗ ██████╗ ██╗███████╗
-# ██║    ██║██║  ██║██╔═══██╗██║██╔════╝
-# ██║ █╗ ██║███████║██║   ██║██║███████╗
-# ██║███╗██║██╔══██║██║   ██║██║╚════██║
-# ╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
-#  ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝                                                                  
-
-if [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
-
-	# AWARD FOR CLEANEST METHOD
-	WHOIS=$(curl -s "https://nano.to/$2/account" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET)
-
-	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-		echo $POW
 		exit 1
+
 	fi
 
-	WALLETS=$(jq -r '.accounts' <<< "$WHOIS")
-
-	# echo
-	echo "==============================="
-	echo "         WHOIS LOOKUP          "
-	echo "==============================="
-	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
-	echo "USERNAME: " $(jq -r '.username' <<< $WHOIS) 
-	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
-	echo "HEIGHT: " $(jq -r '.height' <<< $WHOIS)
-	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
-	echo "==============================="
-
 	exit 1
 
 fi
+
 
 # In Case Of
 # ██╗  ██╗██╗████████╗    ██████╗ ██╗   ██╗    ██████╗ ██╗   ██╗███████╗███████╗
@@ -508,9 +677,78 @@ if [ "$2" = "secret" ] || [ "$2" = "--seed" ]; then
 	echo "PUBLIC: "$ADDRESS
 	echo "SECRET: "$KEY
 
+fi
+
+
+# ██╗    ██╗██╗  ██╗ ██████╗ ██╗███████╗
+# ██║    ██║██║  ██║██╔═══██╗██║██╔════╝
+# ██║ █╗ ██║███████║██║   ██║██║███████╗
+# ██║███╗██║██╔══██║██║   ██║██║╚════██║
+# ╚███╔███╔╝██║  ██║╚██████╔╝██║███████║
+#  ╚══╝╚══╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝╚══════╝                                                                  
+
+if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
+
+	# AWARD FOR CLEANEST METHOD
+	WHOIS=$(curl -s "https://nano.to/$2/account" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	# echo $WHOIS
+
+	if [[ $(jq -r '.error' <<< "$WHOIS") == "Username not registered." ]]; then
+
+		if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+			echo $WHOIS
+			exit 1
+		fi
+
+		CHECKOUT=$(curl -s "https://nano.to/lease/$2" \
+		-H "Accept: application/json" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		
+		echo "==============================="
+		echo "${GREEN}      USERNAME AVAILABLE ${NC}"
+		echo "==============================="
+		echo "USERNAME: @"$(jq -r '.username' <<< $CHECKOUT)
+		echo "CHECKOUT: " $(jq -r '.checkout' <<< $CHECKOUT)
+		echo "API_DOCS: https://docs.nano.to/username-api"
+		
+		exit 1
+
+	fi
+
+	# if [[ $(jq -r '.error' <<< "$WHOIS") != "" ]]; then 
+	# 	echo "${RED}Error${NC}:" $(jq -r '.error' <<< "$WHOIS")
+	# 	exit
+	# fi
+
+	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
+		echo $WHOIS
+		exit 1
+	fi
+
+	WALLETS=$(jq -r '.accounts' <<< "$WHOIS")
+
+	# echo
+	echo "==============================="
+	echo "          NANO LOOKUP          "
+	echo "==============================="
+	echo "USERNAME: @"$(jq -r '.username' <<< $WHOIS) 
+	echo "BALANCE: " $(jq -r '.balance' <<< $WHOIS)
+	echo "BLOCKS: " $(jq -r '.height' <<< $WHOIS)
+	echo "ADDRESS: " $(jq -r '.address' <<< $WHOIS)
+	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
+	echo "==============================="
+
 	exit 1
 
 fi
+
+
+
 
 
 #  ██████╗██╗  ██╗███████╗ ██████╗██╗  ██╗ ██████╗ ██╗   ██╗████████╗
@@ -703,205 +941,12 @@ if [[ $2 == "pow" ]] || [[ $2 == "--pow" ]]; then
 
 fi
 
-
-# ███████╗███████╗███╗   ██╗██████╗ 
-# ██╔════╝██╔════╝████╗  ██║██╔══██╗
-# ███████╗█████╗  ██╔██╗ ██║██║  ██║
-# ╚════██║██╔══╝  ██║╚██╗██║██║  ██║
-# ███████║███████╗██║ ╚████║██████╔╝
-# ╚══════╝╚══════╝╚═╝  ╚═══╝╚═════╝                                   
-
-if [[ $1 == "cloud" ]] && [[ $2 == "send" ]]; then
-
-	# USERNAME=$2
-	# AMOUNT=$3
-	# FROM=$4
-	# NOTE=$5
-
-	if [[ $2 == "" ]]; then
-		echo "${RED}Error${NC}: Missing Username or Nano Address."
-		exit 1
-		# read -p 'To (@Username or Address): ' USERNAME
-	fi
-	
-	if [[ $3 == "" ]]; then
-		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
-		exit 1
-		# read -p 'Amount: ' AMOUNT
-	fi
-
-	# if [[ $4 == "" ]]; then
-		# echo "Default: Sending from Master wallet."
-		# echo "${RED}Error${NC}: Missing from. Use 'default' to use master wallet."
-		# exit 1
-		# read -p 'Amount: ' AMOUNT
-	# fi
-
-	# if [[ $4 == "" ]]; then
-	# 	read -p 'Note (Optional): ' NOTE
-	# fi
-
-	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request GET)
-	
-  ADDRESS=$(jq -r '.address' <<< "$ACCOUNT")
-  FRONTIER=$(jq -r '.frontier' <<< "$ACCOUNT")
-
-	POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET)
-
-	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-	echo
-	echo "==============================="
-	echo "       USED ALL CREDITS        "
-	echo "==============================="
-	echo "  Use 'n2 add pow' or wait.    "
-	echo "==============================="
-	echo
-	exit 1
-	fi
-
-	# echo $POW
-	# exit 1
-	WORK=$(jq -r '.work' <<< "$POW")
-
-	SEND=$(curl -s "https://nano.to/cli/send" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "to": "$2", "amount": "$3", "from": "$4", "note": "$5", "work": "$WORK" }
-EOF
-	))
-
-	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-		echo $SEND
-		exit 1
-	fi
-
-	ERROR=$(jq -r '.error' <<< "$SEND")
-
-	if [[ $ERROR = "429" ]]; then
-	echo
-	echo "===================================="
-	echo "                ERROR               "
-	echo "===================================="
-	echo "You used up all your PoW credits.   "
-	echo "Buy more with 'n2 add pow' or wait. "
-	echo "===================================="
-	echo
-	exit 1
-	fi
-
-	hash=$(jq -r '.hash' <<< "$SEND")
-	amount=$(jq -r '.amount' <<< "$SEND")
-	hash_url=$(jq -r '.hash_url' <<< "$SEND")
-	nanolooker=$(jq -r '.nanolooker' <<< "$SEND")
-	duration=$(jq -r '.duration' <<< "$SEND")
-
-	if [[ $ERROR == "Bad link number" ]]; then
-	echo
-	echo "================================"
-	echo "           ERROR #100           "
-	echo "================================"
-	echo "Bad Address. Fix and try again. "
-	echo "================================"
-	echo
-	exit 1
-	fi
-
-	echo "==============================="
-	echo "            RECEIPT            "
-	echo "==============================="
-	echo "AMOUNT: " $amount
-	echo "TO: " $2
-	echo "FROM: " $ADDRESS
-	echo "==============================="
-	echo "HASH: " $hash
-	echo "BLOCK: " $nanolooker
-	echo "TIME: " $duration
-	# echo "NOTE: Thanks for using Nano.to"
-
-	exit 1
-
-fi
-
-
-
-
-
-# ██╗    ██╗ █████╗ ██╗     ██╗     ███████╗████████╗███████╗
-# ██║    ██║██╔══██╗██║     ██║     ██╔════╝╚══██╔══╝██╔════╝
-# ██║ █╗ ██║███████║██║     ██║     █████╗     ██║   ███████╗
-# ██║███╗██║██╔══██║██║     ██║     ██╔══╝     ██║   ╚════██║
-# ╚███╔███╔╝██║  ██║███████╗███████╗███████╗   ██║   ███████║
-#  ╚══╝╚══╝ ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   ╚══════╝
                                                            
-if [[ "$1" = "--wallets" ]] || [[ "$1" = "wallets" ]] || [[ "$1" = "accounts" ]] || [[ "$1" = "balances" ]] || [[ "$1" = "--wallets" ]]; then
+# if [[ "$2" = "--wallets" ]] || [[ "$2" = "wallets" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "account" ]] || [[ "$2" = "balances" ]] || [[ "$2" = "--wallets" ]]; then
 
-	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Error${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-		exit 1
-	fi
 
-	ACCOUNTS=$(curl -s "https://nano.to/cli/wallets" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request GET)
 
-	if [[ $(jq -r '.accounts' <<< "$ACCOUNTS") == "[]" ]]; then
-	echo "==============================="
-	echo "         CLOUD WALLETS        "
-	echo "==============================="
-	echo "No additional wallets. "
-	echo "==============================="
-	echo "Use 'n2 cloud shop' to add.    "
-	echo "==============================="
-	exit 1
-	fi
-
-	if [[ $(jq -r '.code' <<< "$ACCOUNTS") == "401" ]]; then
-	rm $DIR/.n2-session
-	echo
-	echo "==============================="
-	echo "    LOGGED OUT FOR SECURITY    "
-	echo "==============================="
-	echo "Use 'n2 login' to log back in. "
-	echo "==============================="
-	echo
-	exit 1
-	fi
-
-	if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
-		echo $ACCOUNT
-		exit 1
-	fi
-
-	WALLETS=$(jq -r '.accounts' <<< "$ACCOUNTS")
-
-	# echo
-	echo "==============================="
-	echo "         CLOUD WALLETS        "
-	echo "==============================="
-	jq -c '.[]' <<< $WALLETS | while read i; do
-	# echo $i
-	echo "ADDRESS: " $(jq -r '.address' <<< $i)
-	echo "BALANCE: " $(jq -r '.balance' <<< $i) "(\$$(jq -r '.usd_value' <<< $i))"
-	echo "PENDING: " $(jq -r '.pending' <<< $i) 
-	echo "BLOCKS: " $(jq -r '.height' <<< $i)
-	echo "==============================="
-	done
-
-	exit 1
-
-fi
+# fi
 
 
 #  █████╗  ██████╗ ██████╗ ██████╗ ██╗   ██╗███╗   ██╗████████╗
@@ -1391,7 +1436,7 @@ EOF
 	echo $RPC
 }
          
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || ; then
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] ; then
 	rpc $1
 	exit 1
 fi
@@ -1411,13 +1456,55 @@ if [[ "$1" = "--seed" ]]; then
 	echo $SEED
 fi
 
+if [[ "$1" = "favorites" ]] || [[ "$1" = "saved" ]]; then
+
+	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
+		echo "[{ \"hello\": \"world\"  }]" >> $DIR/.n2-favorites
+	fi
+
+	cat $DIR/.n2-favorites
+
+	exit 1
+
+fi
+
+if [[ "$1" = "reset-saved" ]]; then
+	rm $DIR/.n2-favorites
+	echo "[]" >> $DIR/.n2-favorites
+	exit 1
+fi
+
+if [[ "$1" = "save" ]] || [[ "$1" = "favorite" ]]; then
+
+	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
+		echo "[]" >> $DIR/.n2-favorites
+	fi
+
+	if [[ "$2" = "" ]]; then
+		echo "${RED}Error${NC}: Missing Nano Address."
+		exit 1
+	fi
+
+	if [[ "$3" = "" ]]; then
+		echo "${RED}Error${NC}: Missing Nickname."
+		exit 1
+	fi
+
+	SAVED="$(cat $DIR/.n2-favorites)" 
+	rm $DIR/.n2-favorites 
+	jq <<< "$SAVED" | jq ". + [ { \"name\": \"$1\", \"address\": \"$2\" } ]" >> $DIR/.n2-favorites 
+
+	exit
+
+fi
+
 # Local Send
 if [[ $1 == "send" ]]; then
 
 	if curl -s --fail -X POST '[::1]:7076'; then
 		echo ""
 	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
 	   exit 1
 	fi;
 
@@ -1486,8 +1573,16 @@ if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [
 	if curl -s --fail -X POST '[::1]:7076'; then
 		echo ""
 	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node'"
-	   exit 1
+	   echo "${RED}Error${NC}: No local Node found."
+cat <<EOF
+Usage:
+  $ n2 setup node
+  $ n2 balance
+
+Nano.to Cloud
+  $ n2 cloud balance 
+EOF
+		exit 1
 	fi;
 
 	echo "==============================="
@@ -1592,6 +1687,46 @@ EOF
 
 fi
 
+if [[ "$1" = "login" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud login
+EOF
+	exit 1
+fi
+
+if [[ "$1" = "login" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud login
+EOF
+	exit 1
+fi
+
+if [[ "$1" = "recycle" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud recycle
+EOF
+	exit 1
+fi
+
+if [[ "$1" = "register" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud register
+EOF
+	exit 1
+fi
+
+if [[ "$1" = "logout" ]]; then
+cat <<EOF
+Usage:
+  $ n2 cloud logout
+EOF
+	exit 1
+fi
+
 
 # -----------------------------------BASEMENT------------------------------------#                                       
 
@@ -1674,6 +1809,7 @@ fi
 
 if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
 	sudo rm /usr/local/bin/n2
+	rm $DIR/.n2-favorites
 	rm $DIR/.n2-session
 	rm $DIR/.n2-rpc
 	echo "CLI removed. Thanks for using N2. Hope to see you soon."

@@ -1493,8 +1493,8 @@ if [[ $1 == "send" ]]; then
 # {
 # 	"action": "send",
 # 	"wallet": "$WALLET_ID",
-# 	"source": "nano_1bank15pep4wzr1suagticbsnsnwynjmd5nfgcbeq9ar86ngtrq884wwgehq",
-# 	"destination": "nano_1m747htgqw5fbhuafuswpwuc18y7zjwqntbi1fynehmz1zaqoj1puj7h96oj",
+# 	"source": "",
+# 	"destination": "",
 # 	"amount": "0.001",
 # 	"id": "$UUID",
 # 	"json_block": "true"
@@ -1510,8 +1510,8 @@ if [[ $1 == "send" ]]; then
 		-H "Content-Type:application/json" \
 		--request GET)
 
-	SRC="nano_1bank15pep4wzr1suagticbsnsnwynjmd5nfgcbeq9ar86ngtrq884wwgehq"
-	DEST="nano_1m747htgqw5fbhuafuswpwuc18y7zjwqntbi1fynehmz1zaqoj1puj7h96oj"
+	SRC=""
+	DEST=""
 
 	ACCOUNT=$(curl -s "https://nano.to/$SRC/account" \
 	-H "Accept: application/json" \

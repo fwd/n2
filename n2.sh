@@ -50,9 +50,8 @@ END_HEREDOC
 LOCAL_DOCS=$(cat <<EOF
 Local Node (Non-Custodial)
 ⏺  $ n2 setup node
-⏺  $ n2 whois @moon
 ⏺  $ n2 balance
-⏺  $ n2 receive
+⏺  $ n2 whois @moon
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1
 ⏺  $ n2 qrcode @fosse
@@ -62,33 +61,33 @@ EOF
 
 CLOUD_WALLET_DOCS=$(cat <<EOF
 Cloud Node (Custodial)
-✅  $ n2 cloud balance
-✅  $ n2 cloud send @esteban 0.1
-✅  $ n2 cloud qrcode
-✅  $ n2 cloud receive
-✅  $ n2 cloud renew
-✅  $ n2 cloud recycle
+✅ $ n2 cloud balance
+✅ $ n2 cloud send @esteban 0.1
+✅ $ n2 cloud qrcode
+✅ $ n2 cloud receive
+✅ $ n2 cloud renew
+✅ $ n2 cloud recycle
 EOF
 )
 
 CLOUD_DOCS=$(cat <<EOF
 Nano.to Cloud
-✅  $ n2 cloud login
-✅  $ n2 cloud register
-✅  $ n2 cloud account
-✅  $ n2 cloud username
-✅  $ n2 cloud 2factor
-✅  $ n2 cloud logout
+✅ $ n2 cloud login
+✅ $ n2 cloud register
+✅ $ n2 cloud account
+✅ $ n2 cloud username
+✅ $ n2 cloud 2factor
+✅ $ n2 cloud logout
 EOF
 )
 
 OPTIONS_DOCS=$(cat <<EOF
 Options
-  --help, -h  Print CLI Documentation.
-  --docs, -d  Open Nano.to Documentation.
-  --update, -u  Get latest CLI Script.
-  --version, -v  Print current CLI Version.
-  --uninstall, -u  Remove CLI from system.
+--help, -h  Print CLI Documentation.
+--docs, -d  Open Nano.to Documentation.
+--update, -u  Get latest CLI Script.
+--version, -v  Print current CLI Version.
+--uninstall, -u  Remove CLI from system.
 EOF
 )
 
@@ -1361,29 +1360,25 @@ function sponsor() {
 	echo "https://m.do.co/c/f139acf4ddcb"
 	echo "========ADVERTISE HERE========"
 }
-
-# rpc() {
-
-# }
          
 if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
 
-	if curl -s --fail -X POST '[::1]:7076'; then
-		echo ""
-	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
-	   exit 1
-	fi;
+	# if curl --fail -s -X POST '[::1]:7076'; then
+	# 	echo ""
+	# else
+	#    echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	#    exit 1
+	# fi;
 
-	RPC=$(curl -s "[::1]:7076" \
+	curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request POST \
 	--data @<(cat <<EOF
 { "action": "$2", "json_block": "true" }
 EOF
-))
-	jq <<< "$RPC"
+) | jq
+
 	exit 1
 fi
 
@@ -1464,17 +1459,18 @@ if [[ $1 == "send" ]]; then
 		exit 1
 	fi
 
-	if [[ $4 == "" ]]; then
-		echo "Note: Sending from Master wallet."
+	# if [[ $4 == "" ]]; then
+		# echo "Note: Sending from Master wallet."
 		# echo "${RED}Error${NC}: . Use 'default' to use master wallet."
 		# exit 1
 		# read -p 'Amount: ' AMOUNT
-	fi
+	# fi
 
 	# POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
 	# -H "Accept: application/json" \
 	# -H "Content-Type:application/json" \
 	# --request GET)
+
 
 	# if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
 	# echo
@@ -1487,27 +1483,112 @@ if [[ $1 == "send" ]]; then
 	# exit 1
 	# fi
 
-	if [[ $ERROR == "Bad link number" ]]; then
-	echo
-	echo "================================"
-	echo "           ERROR #100           "
-	echo "================================"
-	echo "Bad Address. Fix and try again. "
-	echo "================================"
-	echo
-	exit 1
+	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+
+	# FROM_ADDRESS=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
+	
+	UUID=$(cat /proc/sys/kernel/random/uuid)
+
+# cat <<EOF
+# {
+# 	"action": "send",
+# 	"wallet": "$WALLET_ID",
+# 	"source": "nano_1bank15pep4wzr1suagticbsnsnwynjmd5nfgcbeq9ar86ngtrq884wwgehq",
+# 	"destination": "nano_1m747htgqw5fbhuafuswpwuc18y7zjwqntbi1fynehmz1zaqoj1puj7h96oj",
+# 	"amount": "0.001",
+# 	"id": "$UUID",
+# 	"json_block": "true"
+# }
+# EOF
+
+	# if [[ $3 == "all" ]] || [[ $3 == "ALL" ]]; then
+
+	# fi
+
+	AMOUNT_IN_RAW=$(curl -s "https://nano.to/cli/convert/toRaw/$3" \
+		-H "Accept: application/json" \
+		-H "Content-Type:application/json" \
+		--request GET)
+
+	SRC="nano_1bank15pep4wzr1suagticbsnsnwynjmd5nfgcbeq9ar86ngtrq884wwgehq"
+	DEST="nano_1m747htgqw5fbhuafuswpwuc18y7zjwqntbi1fynehmz1zaqoj1puj7h96oj"
+
+	ACCOUNT=$(curl -s "https://nano.to/$SRC/account" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	POW=$(curl -s "https://nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")/pow" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	# echo $POW
+
+	# exit 1
+
+	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+		echo
+		echo "==============================="
+		echo "       USED ALL CREDITS        "
+		echo "==============================="
+		echo "  Use 'n2 buy pow' or wait.    "
+		echo "==============================="
+		echo
+		return
+	fi
+
+	WORK=$(jq -r '.work' <<< "$POW")
+
+	SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{
+	"action": "send",
+	"wallet": "$WALLET_ID",
+	"source": "$SRC",
+	"destination": "$DEST",
+	"amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+	"id": "$UUID",
+	"json_block": "true",
+	"work": "$WORK"
+}
+EOF
+	))
+
+	# echo $SEND_ATTEMPT
+
+	# exit 1
+
+	if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
+		echo
+		echo "================================"
+		echo "             ERROR              "
+		echo "================================"
+		echo "$(jq -r '.error' <<< "$SEND_ATTEMPT") "
+		echo "================================"
+		echo
+		exit 1
 	fi
 
 	echo "==============================="
 	echo "         NANO RECEIPT          "
 	echo "==============================="
-	echo "AMOUNT: " $amount
-	echo "TO: " $2
-	echo "FROM: " $ADDRESS
+	echo "AMOUNT: "$3
+	echo "TO: "$DEST
+	echo "FROM: "$SRC
+	echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
+	echo "--------------------------------"
+	echo "BROWSER: https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
 	echo "==============================="
-	echo "HASH: " $hash
-	echo "BLOCK: " $nanolooker
-	echo "TIME: " $duration
+	# echo "TO: " $2
+	# echo "FROM: " $ADDRESS
+	# echo "==============================="
+	# echo "HASH: " $hash
+	# echo "BLOCK: " $nanolooker
+	# echo "TIME: " $duration
 
 	exit 1
 

@@ -117,6 +117,393 @@ fi
 
 
 
+
+
+
+
+
+# ███╗   ██╗ ██████╗ ██╗    ██╗
+# ████╗  ██║██╔═══██╗██║    ██║
+# ██╔██╗ ██║██║   ██║██║ █╗ ██║
+# ██║╚██╗██║██║   ██║██║███╗██║
+# ██║ ╚████║╚██████╔╝╚███╔███╔╝
+# ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝ 
+
+
+
+# ███████╗███╗   ██╗████████╗███████╗██████╗ ██╗███╗   ██╗ ██████╗ 
+# ██╔════╝████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██║████╗  ██║██╔════╝ 
+# █████╗  ██╔██╗ ██║   ██║   █████╗  ██████╔╝██║██╔██╗ ██║██║  ███╗
+# ██╔══╝  ██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║██║╚██╗██║██║   ██║
+# ███████╗██║ ╚████║   ██║   ███████╗██║  ██║██║██║ ╚████║╚██████╔╝
+# ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
+                                                      
+
+
+# ██╗      ██████╗  ██████╗ █████╗ ██╗     
+# ██║     ██╔═══██╗██╔════╝██╔══██╗██║     
+# ██║     ██║   ██║██║     ███████║██║     
+# ██║     ██║   ██║██║     ██╔══██║██║     
+# ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
+# ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
+          
+function sponsor() {
+	echo "=============================="
+	echo "     FREE CLOUD HOSTING       "
+	echo "   (\$100 ON DIGITALOCEAN)    "
+	echo "------------------------------"
+	echo "https://m.do.co/c/f139acf4ddcb"
+	echo "========ADVERTISE HERE========"
+}
+         
+if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
+
+	# if curl --fail -s -X POST '[::1]:7076'; then
+	# 	echo ""
+	# else
+	#    echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	#    exit 1
+	# fi;
+
+	curl -s "[::1]:7076" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{ "action": "$2", "json_block": "true" }
+EOF
+) | jq
+
+	exit 1
+fi
+
+if [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
+	docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
+	exit 1
+fi
+
+if [[ "$1" = "--wallet" ]]; then
+	docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
+fi
+
+if [[ "$1" = "--seed" ]] || [[ "$1" = "--secret" ]]; then
+	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
+	SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
+	echo $SEED
+fi
+
+if [[ "$1" = "favorites" ]] || [[ "$1" = "saved" ]]; then
+
+	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
+		echo "[{ \"hello\": \"world\"  }]" >> $DIR/.n2-favorites
+	fi
+
+	cat $DIR/.n2-favorites
+
+	exit 1
+
+fi
+
+if [[ "$1" = "reset-saved" ]]; then
+	rm $DIR/.n2-favorites
+	echo "[]" >> $DIR/.n2-favorites
+	exit 1
+fi
+
+if [[ "$1" = "save" ]] || [[ "$1" = "favorite" ]]; then
+
+	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
+		echo "[]" >> $DIR/.n2-favorites
+	fi
+
+	if [[ "$2" = "" ]]; then
+		echo "${RED}Error${NC}: Missing Nano Address."
+		exit 1
+	fi
+
+	if [[ "$3" = "" ]]; then
+		echo "${RED}Error${NC}: Missing Nickname."
+		exit 1
+	fi
+
+	SAVED="$(cat $DIR/.n2-favorites)" 
+	rm $DIR/.n2-favorites 
+	jq <<< "$SAVED" | jq ". + [ { \"name\": \"$1\", \"address\": \"$2\" } ]" >> $DIR/.n2-favorites 
+
+	exit
+
+fi
+
+# Local Send
+if [[ $1 == "send" ]]; then
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	   exit 1
+	fi;
+
+	if [[ $2 == "" ]]; then
+		echo "${RED}Error${NC}: Missing Username or Nano Address."
+		exit 1
+	fi
+	
+	if [[ $3 == "" ]]; then
+		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
+		exit 1
+	fi
+
+	# if [[ $4 == "" ]]; then
+		# echo "Note: Sending from Master wallet."
+		# echo "${RED}Error${NC}: . Use 'default' to use master wallet."
+		# exit 1
+		# read -p 'Amount: ' AMOUNT
+	# fi
+
+	# POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
+	# -H "Accept: application/json" \
+	# -H "Content-Type:application/json" \
+	# --request GET)
+
+
+	# if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+	# echo
+	# echo "==============================="
+	# echo "       USED ALL CREDITS        "
+	# echo "==============================="
+	# echo "  Use 'n2 add pow' or wait.    "
+	# echo "==============================="
+	# echo
+	# exit 1
+	# fi
+
+	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+
+	# FROM_ADDRESS=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
+	
+	UUID=$(cat /proc/sys/kernel/random/uuid)
+
+	AMOUNT_IN_RAW=$(curl -s "https://nano.to/cli/convert/toRaw/$3" \
+		-H "Accept: application/json" \
+		-H "Content-Type:application/json" \
+		--request GET)
+
+	SRC=""
+	DEST=""
+
+	ACCOUNT=$(curl -s "https://nano.to/$SRC/account" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	POW=$(curl -s "https://nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")/pow" \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request GET)
+
+	# echo $POW
+
+	# exit 1
+
+	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+		echo
+		echo "==============================="
+		echo "       USED ALL CREDITS        "
+		echo "==============================="
+		echo "  Use 'n2 buy pow' or wait.    "
+		echo "==============================="
+		echo
+		return
+	fi
+
+	WORK=$(jq -r '.work' <<< "$POW")
+
+	SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+	-H "Accept: application/json" \
+	-H "Content-Type:application/json" \
+	--request POST \
+	--data @<(cat <<EOF
+{
+	"action": "send",
+	"wallet": "$WALLET_ID",
+	"source": "$SRC",
+	"destination": "$DEST",
+	"amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+	"id": "$UUID",
+	"json_block": "true",
+	"work": "$WORK"
+}
+EOF
+	))
+
+	# echo $SEND_ATTEMPT
+
+	# exit 1
+
+	if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
+		echo
+		echo "================================"
+		echo "             ERROR              "
+		echo "================================"
+		echo "$(jq -r '.error' <<< "$SEND_ATTEMPT") "
+		echo "================================"
+		echo
+		exit 1
+	fi
+
+	echo "==============================="
+	echo "         NANO RECEIPT          "
+	echo "==============================="
+	echo "AMOUNT: "$3
+	echo "TO: "$DEST
+	echo "FROM: "$SRC
+	echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
+	echo "--------------------------------"
+	echo "BROWSER: https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
+	echo "==============================="
+
+	exit 1
+
+fi
+
+# Local Send
+if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
+
+	if curl -s --fail -X POST '[::1]:7076'; then
+		echo ""
+	else
+	   echo "${RED}Error${NC}: No local Node found."
+cat <<EOF
+Usage:
+  $ n2 setup node
+  $ n2 balance
+
+Nano.to Cloud
+  $ n2 cloud balance 
+EOF
+		exit 1
+	fi;
+
+	echo "==============================="
+	echo "          LOCAL NODE           "
+	echo "==============================="
+	echo "PENDING: " $PENDING
+	echo "BALANCE: " $BALANCE
+	echo "USERNAME: " $USERNAME
+	echo "HEIGHT: " $HEIGHT
+	echo "ACCOUNTS: " $WALLET_COUNT
+	echo "BROWSER: " $LOOKER
+	echo "ADDRESS: " $ADDRESS
+	echo "==============================="
+	echo "VERSION: " $VERSION
+
+	exit 1
+
+fi
+
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "run" ]]; then
+
+	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+			echo ""
+		elif [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "${RED}Error${NC}: You're on a Mac. OS not supported. Node is supposed to run 24/7. Try a Cloud server running Ubuntu."
+			# sponsor
+			exit 1
+		  # Mac OSX
+		elif [[ "$OSTYPE" == "cygwin" ]]; then
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		  # POSIX compatibility layer and Linux environment emulation for Windows
+		elif [[ "$OSTYPE" == "msys" ]]; then
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+		elif [[ "$OSTYPE" == "win32" ]]; then
+		  # I'm not sure this can happen.
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		elif [[ "$OSTYPE" == "freebsd"* ]]; then
+		  # ...
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		else
+		   # Unknown.
+			echo "${RED}Error${NC}: Operating system not supported."
+			sponsor
+			exit 1
+		fi
+
+		# Coming soon
+		if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "--pow-server" ]]; then
+			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				echo "Coming soon"
+				# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
+				# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
+				# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+		# Sorta working
+		if [[ "$2" = "node" ]] || [[ "$2" = "--node" ]]; then
+			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				cd $DIR && git clone https://github.com/fwd/nano-docker.git
+				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+		# Sorta working
+		if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+			read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
+			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+				sudo apt-get purge nvidia*
+				sudo ubuntu-drivers autoinstall
+				exit 1
+			fi
+			echo "Canceled"
+			exit 1
+		fi
+
+cat <<EOF
+Usage:
+  $ n2 setup node
+  $ n2 setup gpu
+EOF
+		exit 1
+
+fi
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # ███╗   ██╗ ██████╗ ██╗    ██╗
 # ████╗  ██║██╔═══██╗██║    ██║
 # ██╔██╗ ██║██║   ██║██║ █╗ ██║
@@ -146,6 +533,16 @@ fi
 # ██║╚██╗██║██╔══██║██║╚██╗██║██║   ██║   ██║   ██║   ██║
 # ██║ ╚████║██║  ██║██║ ╚████║╚██████╔╝██╗██║   ╚██████╔╝
 # ╚═╝  ╚═══╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚═╝╚═╝    ╚═════╝    
+
+
+
+
+
+
+
+
+
+
 
 
 function cloud_receive() {
@@ -814,7 +1211,6 @@ EOF
 		exit 1
 	fi
 
-	# AWARD FOR CLEANEST METHOD
 	WHOIS=$(curl -s "https://nano.to/$2/account" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
@@ -828,21 +1224,76 @@ EOF
 			echo $WHOIS
 			exit 1
 		fi
-
-		CHECKOUT=$(curl -s "https://nano.to/lease/$2" \
+		
+		if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
+			
+			if [[ $4 == "" ]]; then
+				echo "${RED}Error${NC}: Missing duration."
+cat <<EOF
+Usage:
+  $ n2 $1 $2 $3 --day
+  $ n2 $1 $2 $3 --month
+  $ n2 $1 $2 $3 --year
+  $ n2 $1 $2 $3 --decade
+EOF
+				exit 1
+			fi
+			# /usr/local/bin/n2 version
+		ACCOUNT=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
 		--request GET)
-		
+
+		POW=$(curl -s "https://nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")/pow" \
+			-H "Accept: application/json" \
+			-H "Content-Type:application/json" \
+			--request GET)
+
+		# echo $POW
+
+		# exit 1
+
+		if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
+			echo
+			echo "==============================="
+			echo "       USED ALL CREDITS        "
+			echo "==============================="
+			echo "  Use 'n2 buy pow' or wait.    "
+			echo "==============================="
+			echo
+			return
+		fi
+
+		WORK=$(jq -r '.work' <<< "$POW")
+
+		CHECKOUT=$(curl -s "https://nano.to/cli/lease/$2/$4?work=$WORK" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+			--request GET)
+
+			echo $CHECKOUT
+
+			echo "${GREEN}Error${NC}: OK."
+
+			exit 1
+		fi
+
 		echo "==============================="
 		echo "${GREEN}      USERNAME AVAILABLE ${NC}"
 		echo "==============================="
 		echo "USERNAME: @"$(jq -r '.username' <<< $CHECKOUT)
 		echo "CHECKOUT: " $(jq -r '.checkout' <<< $CHECKOUT)
-		echo "API_DOCS: https://docs.nano.to/username-api"
+		echo "MORE_INFO: https://docs.nano.to/username-api"
 		
 		exit 1
 
+	fi
+
+	if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
+		echo "${RED}Error${NC}: This domain is unavailable."
+		exit 1
 	fi
 
 
@@ -862,7 +1313,7 @@ EOF
 	echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
 	echo "BLOCKS: "$(jq -r '.height' <<< $WHOIS)
 	echo "ADDRESS: "$(jq -r '.address' <<< $WHOIS)
-	echo "LOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
+	echo "BROWSER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
 	echo "==============================="
 
 	exit 1
@@ -1183,9 +1634,9 @@ fi
 # ██║  ██║███████╗╚██████╗   ██║   ╚██████╗███████╗███████╗
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝╚══════╝╚══════╝                                                
 
-if [[ $2 == "recycle" ]] || [[ $2 == "renew" ]]; then
+if [[ $2 == "recycle" ]] ; then
 
-	read -p 'Want to change your Nano address for a new one? All funds are moved over. This service is NOT free. It costs 0.01 NANO. (yes/no): ' YES
+	read -p 'Recyling a Nano address removes it from your wallet. Remaining funds are sent to your master Address: Type (y) to continue.'  YES
 
 	if [[ $YES == "Yes" ]] || [[ $YES == "yes" ]]; then
 		RECYCLE_ATTEMPT=$(curl -s "https://nano.to/cli/recycle" \
@@ -1325,393 +1776,6 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 fi
 
 
-
-
-# ███╗   ██╗ ██████╗ ██╗    ██╗
-# ████╗  ██║██╔═══██╗██║    ██║
-# ██╔██╗ ██║██║   ██║██║ █╗ ██║
-# ██║╚██╗██║██║   ██║██║███╗██║
-# ██║ ╚████║╚██████╔╝╚███╔███╔╝
-# ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝ 
-
-
-
-# ███████╗███╗   ██╗████████╗███████╗██████╗ ██╗███╗   ██╗ ██████╗ 
-# ██╔════╝████╗  ██║╚══██╔══╝██╔════╝██╔══██╗██║████╗  ██║██╔════╝ 
-# █████╗  ██╔██╗ ██║   ██║   █████╗  ██████╔╝██║██╔██╗ ██║██║  ███╗
-# ██╔══╝  ██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗██║██║╚██╗██║██║   ██║
-# ███████╗██║ ╚████║   ██║   ███████╗██║  ██║██║██║ ╚████║╚██████╔╝
-# ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝ 
-                                                      
-
-
-# ██╗      ██████╗  ██████╗ █████╗ ██╗     
-# ██║     ██╔═══██╗██╔════╝██╔══██╗██║     
-# ██║     ██║   ██║██║     ███████║██║     
-# ██║     ██║   ██║██║     ██╔══██║██║     
-# ███████╗╚██████╔╝╚██████╗██║  ██║███████╗
-# ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝╚══════╝
-          
-function sponsor() {
-	echo "=============================="
-	echo "     FREE CLOUD HOSTING       "
-	echo "   (\$100 ON DIGITALOCEAN)    "
-	echo "------------------------------"
-	echo "https://m.do.co/c/f139acf4ddcb"
-	echo "========ADVERTISE HERE========"
-}
-         
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
-
-	# if curl --fail -s -X POST '[::1]:7076'; then
-	# 	echo ""
-	# else
-	#    echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
-	#    exit 1
-	# fi;
-
-	curl -s "[::1]:7076" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "action": "$2", "json_block": "true" }
-EOF
-) | jq
-
-	exit 1
-fi
-
-if [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
-	docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
-	exit 1
-fi
-
-if [[ "$1" = "--wallet" ]]; then
-	docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
-fi
-
-# if [[ "$1" = "--seed" ]]; then
-# 	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
-# 	SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
-# 	echo $SEED
-# fi
-
-if [[ "$1" = "favorites" ]] || [[ "$1" = "saved" ]]; then
-
-	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
-		echo "[{ \"hello\": \"world\"  }]" >> $DIR/.n2-favorites
-	fi
-
-	cat $DIR/.n2-favorites
-
-	exit 1
-
-fi
-
-if [[ "$1" = "reset-saved" ]]; then
-	rm $DIR/.n2-favorites
-	echo "[]" >> $DIR/.n2-favorites
-	exit 1
-fi
-
-if [[ "$1" = "save" ]] || [[ "$1" = "favorite" ]]; then
-
-	if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
-		echo "[]" >> $DIR/.n2-favorites
-	fi
-
-	if [[ "$2" = "" ]]; then
-		echo "${RED}Error${NC}: Missing Nano Address."
-		exit 1
-	fi
-
-	if [[ "$3" = "" ]]; then
-		echo "${RED}Error${NC}: Missing Nickname."
-		exit 1
-	fi
-
-	SAVED="$(cat $DIR/.n2-favorites)" 
-	rm $DIR/.n2-favorites 
-	jq <<< "$SAVED" | jq ". + [ { \"name\": \"$1\", \"address\": \"$2\" } ]" >> $DIR/.n2-favorites 
-
-	exit
-
-fi
-
-# Local Send
-if [[ $1 == "send" ]]; then
-
-	if curl -s --fail -X POST '[::1]:7076'; then
-		echo ""
-	else
-	   echo "${RED}Error${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
-	   exit 1
-	fi;
-
-	if [[ $2 == "" ]]; then
-		echo "${RED}Error${NC}: Missing Username or Nano Address."
-		exit 1
-	fi
-	
-	if [[ $3 == "" ]]; then
-		echo "${RED}Error${NC}: Missing amount. Use 'all' to send balance."
-		exit 1
-	fi
-
-	# if [[ $4 == "" ]]; then
-		# echo "Note: Sending from Master wallet."
-		# echo "${RED}Error${NC}: . Use 'default' to use master wallet."
-		# exit 1
-		# read -p 'Amount: ' AMOUNT
-	# fi
-
-	# POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
-	# -H "Accept: application/json" \
-	# -H "Content-Type:application/json" \
-	# --request GET)
-
-
-	# if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-	# echo
-	# echo "==============================="
-	# echo "       USED ALL CREDITS        "
-	# echo "==============================="
-	# echo "  Use 'n2 add pow' or wait.    "
-	# echo "==============================="
-	# echo
-	# exit 1
-	# fi
-
-	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-
-	# FROM_ADDRESS=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
-	
-	UUID=$(cat /proc/sys/kernel/random/uuid)
-
-# cat <<EOF
-# {
-# 	"action": "send",
-# 	"wallet": "$WALLET_ID",
-# 	"source": "",
-# 	"destination": "",
-# 	"amount": "0.001",
-# 	"id": "$UUID",
-# 	"json_block": "true"
-# }
-# EOF
-
-	# if [[ $3 == "all" ]] || [[ $3 == "ALL" ]]; then
-
-	# fi
-
-	AMOUNT_IN_RAW=$(curl -s "https://nano.to/cli/convert/toRaw/$3" \
-		-H "Accept: application/json" \
-		-H "Content-Type:application/json" \
-		--request GET)
-
-	SRC=""
-	DEST=""
-
-	ACCOUNT=$(curl -s "https://nano.to/$SRC/account" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET)
-
-	POW=$(curl -s "https://nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")/pow" \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request GET)
-
-	# echo $POW
-
-	# exit 1
-
-	if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-		echo
-		echo "==============================="
-		echo "       USED ALL CREDITS        "
-		echo "==============================="
-		echo "  Use 'n2 buy pow' or wait.    "
-		echo "==============================="
-		echo
-		return
-	fi
-
-	WORK=$(jq -r '.work' <<< "$POW")
-
-	SEND_ATTEMPT=$(curl -s '[::1]:7076' \
-	-H "Accept: application/json" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{
-	"action": "send",
-	"wallet": "$WALLET_ID",
-	"source": "$SRC",
-	"destination": "$DEST",
-	"amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
-	"id": "$UUID",
-	"json_block": "true",
-	"work": "$WORK"
-}
-EOF
-	))
-
-	# echo $SEND_ATTEMPT
-
-	# exit 1
-
-	if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
-		echo
-		echo "================================"
-		echo "             ERROR              "
-		echo "================================"
-		echo "$(jq -r '.error' <<< "$SEND_ATTEMPT") "
-		echo "================================"
-		echo
-		exit 1
-	fi
-
-	echo "==============================="
-	echo "         NANO RECEIPT          "
-	echo "==============================="
-	echo "AMOUNT: "$3
-	echo "TO: "$DEST
-	echo "FROM: "$SRC
-	echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
-	echo "--------------------------------"
-	echo "BROWSER: https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
-	echo "==============================="
-	# echo "TO: " $2
-	# echo "FROM: " $ADDRESS
-	# echo "==============================="
-	# echo "HASH: " $hash
-	# echo "BLOCK: " $nanolooker
-	# echo "TIME: " $duration
-
-	exit 1
-
-fi
-
-# Local Send
-if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
-
-	if curl -s --fail -X POST '[::1]:7076'; then
-		echo ""
-	else
-	   echo "${RED}Error${NC}: No local Node found."
-cat <<EOF
-Usage:
-  $ n2 setup node
-  $ n2 balance
-
-Nano.to Cloud
-  $ n2 cloud balance 
-EOF
-		exit 1
-	fi;
-
-	echo "==============================="
-	echo "          LOCAL NODE           "
-	echo "==============================="
-	echo "PENDING: " $PENDING
-	echo "BALANCE: " $BALANCE
-	echo "USERNAME: " $USERNAME
-	echo "HEIGHT: " $HEIGHT
-	echo "LOOKER: " $LOOKER
-	echo "ACCOUNTS: " $WALLET_COUNT
-	echo "ADDRESS: " $ADDRESS
-	echo "==============================="
-	echo "VERSION: " $VERSION
-
-	exit 1
-
-fi
-
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "run" ]]; then
-
-	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-			echo ""
-		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "${RED}Error${NC}: You're on a Mac. OS not supported. Node is supposed to run 24/7. Try a Cloud server running Ubuntu."
-			# sponsor
-			exit 1
-		  # Mac OSX
-		elif [[ "$OSTYPE" == "cygwin" ]]; then
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		  # POSIX compatibility layer and Linux environment emulation for Windows
-		elif [[ "$OSTYPE" == "msys" ]]; then
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-		elif [[ "$OSTYPE" == "win32" ]]; then
-		  # I'm not sure this can happen.
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		elif [[ "$OSTYPE" == "freebsd"* ]]; then
-		  # ...
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		else
-		   # Unknown.
-			echo "${RED}Error${NC}: Operating system not supported."
-			sponsor
-			exit 1
-		fi
-
-		# Coming soon
-		if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "--pow-server" ]]; then
-			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				echo "Coming soon"
-				# @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
-				# $DIR/nano-work-server/target/release/nano-work-server --cpu 2
-				# $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-		# Sorta working
-		if [[ "$2" = "node" ]] || [[ "$2" = "--node" ]]; then
-			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				cd $DIR && git clone https://github.com/fwd/nano-docker.git
-				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-		# Sorta working
-		if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
-			read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				sudo apt-get purge nvidia*
-				sudo ubuntu-drivers autoinstall
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-cat <<EOF
-Usage:
-  $ n2 setup node
-  $ n2 setup gpu
-EOF
-		exit 1
-
-fi
 
 
 # -----------------------------------ALIASES------------------------------------#     

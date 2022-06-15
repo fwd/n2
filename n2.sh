@@ -911,6 +911,7 @@ EOF
 	))
 
 	if [[ $(jq -r '.error' <<< "$SEND") != "" ]]; then
+		echo "======================="
 		echo "${RED}Cloud${NC}: $(jq -r '.message' <<< "$SEND")"
 		exit 1
 	fi
@@ -1237,14 +1238,14 @@ fi
 
 if [[ $1 == "send" ]] || [[ $1 == "--send" ]] || [[ $1 == "-s" ]]; then
 	
-	if [[ "$4" != "--cloud" ]] && [[ "$4" != "--local" ]]; then
-cat <<EOF
-Usage:
-  $ n2 send @esteban 10 --local
-  $ n2 send @esteban 10 --cloud
-EOF
-		exit 1
-	fi
+# 	if [[ "$4" != "--cloud" ]] && [[ "$4" != "--local" ]]; then
+# cat <<EOF
+# Usage:
+#   $ n2 send @esteban 10 --local
+#   $ n2 send @esteban 10 --cloud
+# EOF
+# 		exit 1
+# 	fi
 
 	if [[ $4 == '--local' ]]; then
 		cat <<EOF
@@ -1256,6 +1257,12 @@ EOF
 $(cloud_send $2 $3 $4)
 EOF
 	fi;
+
+	if [[ "$4" != "--cloud" ]] && [[ "$4" != "--local" ]]; then
+		echo "======================="
+		echo "TIP: Use 'n2 $1 --cloud' or 'n2 $1 --local' to set wallet." 
+		echo "======================="
+	fi
 
 	exit 1
 
@@ -1282,7 +1289,9 @@ EOF
 	fi;
 
 	if [[ "$2" != "--cloud" ]] && [[ "$2" != "--local" ]]; then
-		echo "TIP: Use 'n2 $1 --cloud' or 'n2 $1 --local' set which to use." 
+		echo "======================="
+		echo "TIP: Use 'n2 $1 --cloud' or 'n2 $1 --local' to set wallet." 
+		echo "======================="
 	fi
 
 	exit 1
@@ -1467,7 +1476,7 @@ EOF
 
 	if [[ "$3" != "--cloud" ]] && [[ "$3" != "--local" ]]; then
 		echo "======================="
-		echo "TIP: Use 'n2 $1 $2 --cloud' or 'n2 $1 $2 --local' set which to use." 
+		echo "TIP: Use 'n2 $1 $2 --cloud' or 'n2 $1 $2 --local' to set wallet." 
 		echo "======================="
 	fi
 

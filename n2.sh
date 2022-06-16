@@ -1550,8 +1550,8 @@ EOF
 { "banner": "$(cat $6 | base64)" }
 EOF
 				))
-				echo $(cat $6)
-				echo "${GREEN}Success${NC}: File uploaded."
+				# echo $(cat $6)
+				echo "${GREEN}Success${NC}: Banner uploaded."
 				exit 1
 			fi
 

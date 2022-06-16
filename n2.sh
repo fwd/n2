@@ -1597,7 +1597,7 @@ EOF
 EOF
 				))
 				# echo $(cat $6)
-				echo "${GREEN}Success${NC}: Banner uploaded."
+				echo "${GREEN}Cloud${NC}: Banner uploaded."
 				exit 1
 			fi
 
@@ -1611,8 +1611,14 @@ EOF
 --data @<(cat <<EOF
 { "$4": "$5" }
 EOF
-))
-		echo "${GREEN}Success${NC}: Updated."
+))	
+		if [[ $(jq -r '.error' <<< "$ODF") == '404' ]]; then
+			#statements
+			echo "${RED}Cloud${NC}: $(jq -r '.message' <<< "$ODF")"
+			exit 1
+		fi
+		# echo "$ODF"
+		echo "${GREEN}Cloud${NC}: Updated."
 		exit 1
 	fi
 
@@ -1725,7 +1731,7 @@ EOF
 
 			# echo $LEASE_ATTEMPT
 
-			# echo "${GREEN}Success${NC}: You got it."
+			echo "${GREEN}Cloud${NC}: Username Purchased."
 
 			exit 1
 		fi
@@ -1741,7 +1747,7 @@ EOF
 
 	fi
 
-	echo $CHECKOUT
+	# echo $CHECKOUT
 
 	if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
 		echo "${RED}Cloud${NC}: This domain is taken."

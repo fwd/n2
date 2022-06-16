@@ -225,67 +225,111 @@ function sponsor() {
 
 
 
-
-
-
 function cloud_receive() {
+
+	# echo $1
+	# echo $2
+	# echo $3
+	# echo $4
+	# exit 1
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
-	ACCOUNT=$(curl -s "https://nano.to/cli/account" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request GET)
+	re='^[0-9]+$'
 
-	account=$(jq -r '.email' <<< "$ACCOUNT")
-	address=$(jq -r '.address' <<< "$ACCOUNT")
-
-	if [[ "$3" == "--json" ]] ; then
-		QR_JSON=$(curl -s "https://nano.to/$3/account" \
+	if [[ $1 =~ $re ]] || [[ $1 == "" ]] ; then
+		ACCOUNT=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
 		--request GET)
-		echo $QR_JSON
-		exit 1
+		account=$(jq -r '.email' <<< "$ACCOUNT")
+		address=$(jq -r '.address' <<< "$ACCOUNT")
+	else
+		ACCOUNT=$(curl -s "https://nano.to/$1/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		account=$1
+		address=$(jq -r '.address' <<< "$ACCOUNT")
 	fi
 
-	if [[ "$3" == "--json" ]]; then
-		QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
+	# if ; then
+	# else
+	# fi
+
+	# if [[ "$3" == "--json" ]] ; then
+	# 	QR_JSON=$(curl -s "https://nano.to/$2/account" \
+	# 	-H "Accept: application/json" \
+	# 	-H "session: $(cat $DIR/.n2-session)" \
+	# 	-H "Content-Type:application/json" \
+	# 	--request GET)
+	# 	echo $QR_JSON
+	# 	exit 1
+	# fi
+
+	# if [[ "$2" == "--json" ]]; then
+	# 	QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
+	# 	-H "Accept: application/json" \
+	# 	-H "session: $(cat $DIR/.n2-session)" \
+	# 	-H "Content-Type:application/json" \
+	# 	--request GET)
+	# 	echo $QR_JSON
+	# 	exit 1
+	# fi
+
+	# echo $1
+	# echo $2
+
+	# exit 1
+
+	if [[ $1 =~ $re ]] || [[ $1 == "" ]] ; then
+		GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$1" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
 		--request GET)
-		echo $QR_JSON
-		exit 1
+	else
+		GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$2" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+			--request GET)
 	fi
 
-	GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$2" \
-		-H "Accept: application/json" \
-		-H "session: $(cat $DIR/.n2-session)" \
-		-H "Content-Type:application/json" \
-		--request GET)
+	# GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$3" \
+	# 	-H "Accept: application/json" \
+	# 	-H "session: $(cat $DIR/.n2-session)" \
+	# 	-H "Content-Type:application/json" \
+	# 	--request GET)
 
 	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
 
 	# echo
+	if [[ $1 =~ $re ]] || [[ $1 == "" ]] ; then
 	echo "======================="
 	echo "      DEPOSIT NANO     "
 	echo "======================="
-	if [[ $2 != "" ]]; then
-		echo "AMOUNT: $2 NANO"
+	else
+	echo "======================="
+	echo "        SEND NANO      "
+	echo "======================="
+	fi
+
+	if [[ $1 =~ $re ]] || [[ $2 =~ $re ]] ; then
+		echo "AMOUNT: $1 NANO"
 		#statements
 	fi
 	echo "ADDRESS: $address"
-	if [[ "$4" != "--no-account" ]] && [[ "$5" != "--no-account" ]]; then
-	echo "ACCOUNT: $account"
-	fi
+	# if [[ "$4" != "--no-account" ]] && [[ "$5" != "--no-account" ]]; then
+	# echo "USERNAME: $account"
+	# fi
 	echo "======================="
-	if [[ "$4" != "--no-qr" ]] && [[ "$5" != "--no-qr" ]]; then
+	if [[ "$2" != "--no-qr" ]] && [[ "$3" != "--no-qr" ]]; then
 		cat <<EOF
 $QRCODE
 EOF
@@ -1491,8 +1535,10 @@ EOF
 
 	else
 
+
+
 cat <<EOF
-$(cloud_receive $1 $2 $3 $4 $5)
+$(cloud_receive $2 $3 $4 $5 $6)
 EOF
 	fi;
 

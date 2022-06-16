@@ -1534,6 +1534,42 @@ EOF
 
 	# echo $WHOIS
 
+	if [[ "$3" == "--set" ]] ; then
+
+		if [[ $4 == 'banner' ]]; then
+
+			if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
+				# CONTENT=$()
+				# echo $CONTENT
+				EFD=$(curl -s "https://nano.to/cli/username/$2" \
+				-H "Accept: application/json" \
+				-H "session: $(cat $DIR/.n2-session)" \
+				-H "Content-Type:application/json" \
+				--request POST \
+				--data @<(cat <<EOF
+{ "banner": "$(cat $6 | base64)" }
+EOF
+				))
+				echo $(cat $6)
+				echo "${GREEN}Success${NC}: File uploaded."
+				exit 1
+			fi
+
+		fi
+
+		ODF=$(curl -s "https://nano.to/cli/username/$2" \
+-H "Accept: application/json" \
+-H "session: $(cat $DIR/.n2-session)" \
+-H "Content-Type:application/json" \
+--request POST \
+--data @<(cat <<EOF
+{ "$4": "$5" }
+EOF
+))
+		echo "${GREEN}Success${NC}: Updated."
+		exit 1
+	fi
+
 	if [[ $3 == "--prices" ]] || [[ $3 == "--price" ]]; then
 		PRICE_CHECK=$(curl -s "https://nano.to/lease/$2" \
 		-H "Accept: application/json" \
@@ -1564,18 +1600,6 @@ EOF
 			exit 1
 		fi
 		
-		if [[ "$3" == "--set" ]] ; then
-			curl -s "https://nano.to/cli/username/$2" \
-	-H "Accept: application/json" \
-	-H "session: $(cat $DIR/.n2-session)" \
-	-H "Content-Type:application/json" \
-	--request POST \
-	--data @<(cat <<EOF
-{ "$4": "$5" }
-EOF
-)
-			exit 1
-		fi
 
 		if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
 			
@@ -1590,6 +1614,24 @@ Usage:
 EOF
 				exit 1
 			fi
+		
+   echo "======================================="
+   echo "               NEW LEASE               "
+   echo "======================================="
+   echo "USERNAME: @"$2
+   echo "======================================="
+   echo "Manually set the nano address for      "
+   echo "this Username. Default: Cloud Wallet   "
+   echo "======================================="
+	 read -p "${GREEN}Cloud${NC}: Nano Address (optional): " ADDRESS_GIVEN
+
+		# read -p "${GREEN}Cloud${NC}: Are you sure you want to lease '@$2' for a '$4'. Funds are payed from Cloud Wallet on Nano.to. Enter 'y' to continue:" SANITY_CHECK
+
+		# if [[ $SANITY_CHECK != 'y' ]] && [[ $SANITY_CHECK != 'Y' ]]; then
+		# 	echo "Canceled."
+		# 	exit 1
+		# fi
+
 			# /usr/local/bin/n2 version
 		ACCOUNT=$(curl -s "https://nano.to/cli/account" \
 		-H "Accept: application/json" \
@@ -1619,15 +1661,25 @@ EOF
 
 		WORK=$(jq -r '.work' <<< "$POW")
 
-		CHECKOUT=$(curl -s "https://nano.to/cli/lease/$2/$4?work=$WORK" \
-			-H "Accept: application/json" \
-			-H "session: $(cat $DIR/.n2-session)" \
-			-H "Content-Type:application/json" \
-			--request GET)
+		# CHECKOUT=$(curl -s "https://nano.to/cli/lease/$2/$4?work=$WORK" \
+		# 	-H "Accept: application/json" \
+		# 	-H "session: $(cat $DIR/.n2-session)" \
+		# 	-H "Content-Type:application/json" \
+		# 	--request GET)
 
-			echo $CHECKOUT
+		LEASE_ATTEMPT=$(curl -s "https://nano.to/cli/lease/$2" \
+		-H "Accept: application/json" \
+  	-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request POST \
+		--data @<(cat <<EOF
+	{ "duration": "$4", "address": "$ADDRESS_GIVEN" }
+EOF
+		))
 
-			echo "${GREEN}Success${NC}: You got it."
+			# echo $LEASE_ATTEMPT
+
+			# echo "${GREEN}Success${NC}: You got it."
 
 			exit 1
 		fi
@@ -1642,6 +1694,8 @@ EOF
 		exit 1
 
 	fi
+
+	echo $CHECKOUT
 
 	if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
 		echo "${RED}Cloud${NC}: This domain is taken."

@@ -40,8 +40,8 @@ Cloud Node (Custodial)
 
 Nano.to Cloud
 ✅  $ n2 login
-✅  $ n2 register
-✅  $ n2 username
+✅  $ n2 register 
+✅  $ n2 username @joemama --buy --year
 ✅  $ n2 2factor
 ✅  $ n2 logout
 

@@ -11,7 +11,7 @@ if ! command -v jq &> /dev/null; then
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
 		sudo apt install jq -y
 	else
-		echo "${RED}Cloud${NC}: We could not auto install 'jq'. Please install it manually, before continuing."
+		echo "${CYAN}Cloud${NC}: We could not auto install 'jq'. Please install it manually, before continuing."
 		exit 1
 	fi
 fi
@@ -22,7 +22,7 @@ if ! command -v curl &> /dev/null; then
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
 		sudo apt install curl -y
 	else
-		echo "${RED}Cloud${NC}: We could not auto install 'curl'. Please install it manually, before continuing."
+		echo "${CYAN}Cloud${NC}: We could not auto install 'curl'. Please install it manually, before continuing."
 		exit 1
 	fi
 fi
@@ -109,8 +109,8 @@ fi
 
           
 function sponsor() {
-	echo "=============================="
-	echo "     FREE CLOUD HOSTING       "
+	echo "===========SPONSOR============"
+	echo "  FREE 3-MONTH CLOUD SERVER   "
 	echo "   (\$100 ON DIGITALOCEAN)    "
 	echo "------------------------------"
 	echo "https://m.do.co/c/f139acf4ddcb"
@@ -234,7 +234,7 @@ function cloud_receive() {
 	# exit 1
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -341,7 +341,7 @@ EOF
 function cloud_balance() {
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -459,7 +459,7 @@ fi
 function cloud_login() {
 
 		if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
-			echo "${RED}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
+			echo "${CYAN}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
 			exit 1
 		fi
 
@@ -538,7 +538,7 @@ EOF
 
 		if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
 			echo
-			echo "${RED}Cloud${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
+			echo "${CYAN}Cloud${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
 			exit 1
 		fi
 
@@ -556,7 +556,7 @@ EOF
 function cloud_register() {
 
 		if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
-			echo "${RED}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
+			echo "${CYAN}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
 			exit 1
 		fi
 
@@ -605,7 +605,7 @@ EOF
 
 		if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
 			echo
-			echo "${RED}Cloud${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
+			echo "${CYAN}Cloud${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
 			exit 1
 		fi
 
@@ -623,7 +623,7 @@ EOF
 		--request GET)
 
 		if [[ $(jq -r '.error' <<< "$ACCOUNT") != "433" ]]; then
-			echo "${RED}Cloud${NC}: $(jq -r '.message' <<< "$ACCOUNT")"
+			echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$ACCOUNT")"
 			exit 1
 		fi
 
@@ -667,7 +667,7 @@ EOF
 
 function setup_2fa() {
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -704,7 +704,7 @@ function setup_2fa() {
 	read -p 'First OTP Code: ' FIRST_OTP
 
 	if [[ $FIRST_OTP == "" ]]; then
-		echo "${RED}Cloud${NC}: No code. Try again, but from scratch."
+		echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
 		exit 1
 	fi
 
@@ -731,7 +731,7 @@ function remove_2fa() {
 	--request GET | jq '.two_factor')
 
 	if [[ $HAS_TWO_FACTOR == "false" ]]; then
-		echo "${RED}Cloud${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
+		echo "${CYAN}Cloud${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
 		exit 1
 	fi
 
@@ -745,7 +745,7 @@ function remove_2fa() {
 	read -p 'Enter OTP Code: ' REMOVE_OTP
 
 	if [[ $REMOVE_OTP == "" ]]; then
-		echo "${RED}Cloud${NC}: No code. Try again, but from scratch."
+		echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
 		exit 1
 	fi
 
@@ -771,23 +771,23 @@ function local_send() {
 	if curl -s --fail -X POST '[::1]:7076'; then
 		echo ""
 	else
-	   echo "${RED}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	   echo "${CYAN}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
 	   exit 1
 	fi;
 
 	if [[ $2 == "" ]]; then
-		echo "${RED}Cloud${NC}: Missing Username or Nano Address."
+		echo "${CYAN}Cloud${NC}: Missing Username or Nano Address."
 		exit 1
 	fi
 	
 	if [[ $3 == "" ]]; then
-		echo "${RED}Cloud${NC}: Missing amount. Use 'all' to send balance."
+		echo "${CYAN}Cloud${NC}: Missing amount. Use 'all' to send balance."
 		exit 1
 	fi
 
 	# if [[ $4 == "" ]]; then
 		# echo "Note: Sending from Master wallet."
-		# echo "${RED}Cloud${NC}: . Use 'default' to use master wallet."
+		# echo "${CYAN}Cloud${NC}: . Use 'default' to use master wallet."
 		# exit 1
 		# read -p 'Amount: ' AMOUNT
 	# fi
@@ -903,18 +903,18 @@ function cloud_send() {
 	# exit 1
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
 	if [[ $1 == "" ]]; then
-		echo "${RED}Cloud${NC}: Missing @Username or Nano Address."
+		echo "${CYAN}Cloud${NC}: Missing @Username or Nano Address."
 		return
 		# read -p 'To (@Username or Address): ' USERNAME
 	fi
 	
 	if [[ $2 == "" ]]; then
-		echo "${RED}Cloud${NC}: Missing Amount. Use 'all' to empty."
+		echo "${CYAN}Cloud${NC}: Missing Amount. Use 'all' to empty."
 		return
 		# read -p 'Amount: ' AMOUNT
 	fi
@@ -967,7 +967,7 @@ EOF
 
 	if [[ $(jq -r '.error' <<< "$SEND") == "401" ]]; then
 		echo "======================="
-		echo "${RED}Cloud${NC}: $(jq -r '.message' <<< "$SEND")"
+		echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$SEND")"
 		exit 1
 	fi
 
@@ -1062,7 +1062,7 @@ function hit_by_bus() {
 
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1229,7 +1229,7 @@ if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" 
 	# if curl --fail -s -X POST '[::1]:7076'; then
 	# 	echo ""
 	# else
-	#    echo "${RED}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+	#    echo "${CYAN}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
 	#    exit 1
 	# fi;
 
@@ -1285,12 +1285,12 @@ if [[ "$1" = "save" ]] || [[ "$1" = "favorite" ]]; then
 	fi
 
 	if [[ "$2" = "" ]]; then
-		echo "${RED}Cloud${NC}: Missing Nano Address."
+		echo "${CYAN}Cloud${NC}: Missing Nano Address."
 		exit 1
 	fi
 
 	if [[ "$3" = "" ]]; then
-		echo "${RED}Cloud${NC}: Missing Nickname."
+		echo "${CYAN}Cloud${NC}: Missing Nickname."
 		exit 1
 	fi
 
@@ -1374,33 +1374,33 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
 		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "${RED}Cloud${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-			# sponsor
+			echo "${CYAN}Cloud${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
+			sponsor
 			exit 1
 		  # Mac OSX
 		elif [[ "$OSTYPE" == "cygwin" ]]; then
-			echo "${RED}Cloud${NC}: Operating system not supported."
+			echo "${CYAN}Cloud${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		  # POSIX compatibility layer and Linux environment emulation for Windows
 		elif [[ "$OSTYPE" == "msys" ]]; then
-			echo "${RED}Cloud${NC}: Operating system not supported."
+			echo "${CYAN}Cloud${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		  # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
 		elif [[ "$OSTYPE" == "win32" ]]; then
 		  # I'm not sure this can happen.
-			echo "${RED}Cloud${NC}: Operating system not supported."
+			echo "${CYAN}Cloud${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		elif [[ "$OSTYPE" == "freebsd"* ]]; then
 		  # ...
-			echo "${RED}Cloud${NC}: Operating system not supported."
+			echo "${CYAN}Cloud${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		else
 		   # Unknown.
-			echo "${RED}Cloud${NC}: Operating system not supported."
+			echo "${CYAN}Cloud${NC}: Operating system not supported."
 			sponsor
 			exit 1
 		fi
@@ -1614,7 +1614,7 @@ EOF
 ))	
 		if [[ $(jq -r '.error' <<< "$ODF") == '404' ]]; then
 			#statements
-			echo "${RED}Cloud${NC}: $(jq -r '.message' <<< "$ODF")"
+			echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$ODF")"
 			exit 1
 		fi
 		# echo "$ODF"
@@ -1656,7 +1656,7 @@ EOF
 		if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
 			
 			if [[ $4 == "" ]]; then
-				echo "${RED}Cloud${NC}: Missing duration."
+				echo "${CYAN}Cloud${NC}: Missing duration."
 cat <<EOF
 Usage:
   $ n2 $1 $2 $3 --day
@@ -1750,7 +1750,7 @@ EOF
 	# echo $CHECKOUT
 
 	if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
-		echo "${RED}Cloud${NC}: This domain is taken."
+		echo "${CYAN}Cloud${NC}: This domain is taken."
 		exit 1
 	fi
 
@@ -1794,7 +1794,7 @@ if [ "$1" = "checkout" ] || [ "$1" = "--checkout" ] || [ "$1" = "-checkout" ] ||
 
 	if [[ $2 == "" ]]; then
 		# read -p 'To (@Username or Address): ' $2
-		echo "${RED}Cloud${NC}: Username, or Address missing."
+		echo "${CYAN}Cloud${NC}: Username, or Address missing."
 cat <<EOF
 Usage:
   $ n2 $1 @fosse 10
@@ -1804,7 +1804,7 @@ EOF
 	fi
 
 	if [[ $3 == "" ]]; then
-		echo "${RED}Cloud${NC}: Amount missing."
+		echo "${CYAN}Cloud${NC}: Amount missing."
 cat <<EOF
 Usage:
   $ n2 $1 @fosse 10
@@ -1932,7 +1932,7 @@ fi
 if [[ $2 == "pow" ]] || [[ $2 == "--pow" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -1994,7 +1994,7 @@ fi
 if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[ "$2" = "-e" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -2021,7 +2021,7 @@ fi
 if [[ "$2" = "api" ]] || [[ "$2" = "-api" ]] || [[ "$2" = "--api" ]] || [[ "$2" = "-k" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -2048,7 +2048,7 @@ fi
 if [[ "$2" = "address" ]] || [[ "$2" = "-address" ]] || [[ "$2" = "--address" ]] || [[ "$2" = "-a" ]]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 
@@ -2075,7 +2075,7 @@ fi
 
 if [[ "$1" = "logout" ]]; then
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register'."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register'."
 		exit 1
 	else
 		rm $DIR/.n2-session 2> /dev/null
@@ -2161,7 +2161,7 @@ fi
 if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = "-l" ]; then
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-		echo "${RED}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
+		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
 		exit 1
 	fi
 

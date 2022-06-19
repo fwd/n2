@@ -6,7 +6,7 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
  
-> ### This software is in Beta. Stable, but service interruptions may occur.
+> ### This software is in Beta. It's stable, but service interruption may occur.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
@@ -17,6 +17,9 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
 ## ❯ Usage
+
+- ✅ = Operational
+- ⏺ = In-Development
 
 ```
 Local Node (Non-Custodial)
@@ -54,9 +57,6 @@ Options
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.
 ```
-
-- ✅ = Operational
-- ⏺ = In-Development
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

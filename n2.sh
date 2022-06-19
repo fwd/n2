@@ -53,12 +53,12 @@ END_HEREDOC
 LOCAL_DOCS=$(cat <<EOF
 Usage
 ⏺  $ n2 setup node
-⏺  $ n2 balance
+⏺  $ n2 balance --local
 ⏺  $ n2 whois @moon
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1
 ⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin ls
+⏺  $ n2 plugin --list
 EOF
 )
 
@@ -75,8 +75,8 @@ EOF
 
 OPTIONS_DOCS=$(cat <<EOF
 Options
-✅ --cloud, -c  Use Cloud Node (Custodial).
-⏺ --local, -l  Use Local Node (Non-Custodial).
+--cloud, -c  Use Cloud Node (Custodial).
+--local, -l  Use Local Node (Non-Custodial).
 --help, -h  Print CLI Documentation.
 --docs, -d  Open Nano.to Documentation.
 --update, -u  Get latest CLI Script.
@@ -1374,7 +1374,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
 		elif [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "${RED}Cloud${NC}: You're on a Mac. OS not supported. Node is supposed to run 24/7. Try a Cloud server running Ubuntu."
+			echo "${RED}Cloud${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
 			# sponsor
 			exit 1
 		  # Mac OSX

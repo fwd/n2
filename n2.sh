@@ -106,8 +106,7 @@ if [[ "$1" = "--json" ]]; then
 	exit 1
 fi
 
-
-          
+ 
 function sponsor() {
 	echo "===========SPONSOR============"
 	echo "  FREE 3-MONTH CLOUD SERVER   "
@@ -116,34 +115,6 @@ function sponsor() {
 	echo "https://m.do.co/c/f139acf4ddcb"
 	echo "========ADVERTISE HERE========"
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -200,38 +171,9 @@ function sponsor() {
 # ███████╗██║  ██║██║ ╚████║██████╔╝
 # ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝ 
 
-                                                                  
-                                                                  
-
-                                                                                                    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 function cloud_receive() {
-
-	# echo $1
-	# echo $2
-	# echo $3
-	# echo $4
-	# exit 1
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
@@ -258,35 +200,6 @@ function cloud_receive() {
 		address=$(jq -r '.address' <<< "$ACCOUNT")
 	fi
 
-	# if ; then
-	# else
-	# fi
-
-	# if [[ "$3" == "--json" ]] ; then
-	# 	QR_JSON=$(curl -s "https://nano.to/$2/account" \
-	# 	-H "Accept: application/json" \
-	# 	-H "session: $(cat $DIR/.n2-session)" \
-	# 	-H "Content-Type:application/json" \
-	# 	--request GET)
-	# 	echo $QR_JSON
-	# 	exit 1
-	# fi
-
-	# if [[ "$2" == "--json" ]]; then
-	# 	QR_JSON=$(curl -s "https://nano.to/$address?request=$2" \
-	# 	-H "Accept: application/json" \
-	# 	-H "session: $(cat $DIR/.n2-session)" \
-	# 	-H "Content-Type:application/json" \
-	# 	--request GET)
-	# 	echo $QR_JSON
-	# 	exit 1
-	# fi
-
-	# echo $1
-	# echo $2
-
-	# exit 1
-
 	if [[ $1 =~ $re ]] || [[ $1 == "" ]] ; then
 		GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$1" \
 		-H "Accept: application/json" \
@@ -300,12 +213,6 @@ function cloud_receive() {
 			-H "Content-Type:application/json" \
 			--request GET)
 	fi
-
-	# GET_QRCODE=$(curl -s "https://nano.to/cli/qrcode?address=$address&amount=$3" \
-	# 	-H "Accept: application/json" \
-	# 	-H "session: $(cat $DIR/.n2-session)" \
-	# 	-H "Content-Type:application/json" \
-	# 	--request GET)
 
 	QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
 
@@ -785,34 +692,8 @@ function local_send() {
 		exit 1
 	fi
 
-	# if [[ $4 == "" ]]; then
-		# echo "Note: Sending from Master wallet."
-		# echo "${CYAN}Cloud${NC}: . Use 'default' to use master wallet."
-		# exit 1
-		# read -p 'Amount: ' AMOUNT
-	# fi
-
-	# POW=$(curl -s "https://nano.to/$FRONTIER/pow" \
-	# -H "Accept: application/json" \
-	# -H "Content-Type:application/json" \
-	# --request GET)
-
-
-	# if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-	# echo
-	# echo "==============================="
-	# echo "       USED ALL CREDITS        "
-	# echo "==============================="
-	# echo "  Use 'n2 add pow' or wait.    "
-	# echo "==============================="
-	# echo
-	# exit 1
-	# fi
-
 	WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
 
-	# FROM_ADDRESS=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
-	
 	UUID=$(cat /proc/sys/kernel/random/uuid)
 
 	AMOUNT_IN_RAW=$(curl -s "https://nano.to/cli/convert/toRaw/$3" \
@@ -894,13 +775,6 @@ EOF
 }
 
 function cloud_send() {
-
-	# echo "TO: ""$1"
-	# echo "AMOUNT: ""$2"
-	# echo "TYPE: ""$3"
-	# # echo "\$4: ""$4"
-	# # echo "\$5: ""$5"
-	# exit 1
 
 	if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
 		echo "${CYAN}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
@@ -1164,7 +1038,11 @@ EOF
 # ██║╚██╗██║██║   ██║██║███╗██║                                        
 # ██║ ╚████║╚██████╔╝╚███╔███╔╝                                        
 # ╚═╝  ╚═══╝ ╚═════╝  ╚══╝╚══╝                                         
-                                                                     
+                      
+
+
+
+
                                                                      
                                                                      
                                                                      
@@ -1179,7 +1057,10 @@ EOF
 # ███████╗██║ ╚████║   ██║   ███████╗██║  ██║██║██║ ╚████║╚██████╔╝    
 # ╚══════╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝ ╚═════╝     
                                                                      
-                                                                     
+             
+
+
+
                                                                      
                                                                      
                                                                      
@@ -1197,7 +1078,10 @@ EOF
                                                                      
                                                                      
                                                                      
-                                                                     
+                      
+
+
+
                                                                      
                                                                      
 # ██╗      █████╗ ███╗   ██╗██████╗                                    
@@ -1225,13 +1109,6 @@ EOF
 
 
 if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
-
-	# if curl --fail -s -X POST '[::1]:7076'; then
-	# 	echo ""
-	# else
-	#    echo "${CYAN}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
-	#    exit 1
-	# fi;
 
 	curl -s "[::1]:7076" \
 	-H "Accept: application/json" \
@@ -1568,7 +1445,7 @@ if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" =
 cat <<EOF
 Usage:
   $ n2 $1 @fosse
-  $ n2 $1 @kraken --json
+  $ n2 $1 @moon --json
 EOF
 		exit 1
 	fi

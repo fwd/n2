@@ -20,31 +20,31 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ```
 Local Node (Non-Custodial)
-✅  $ n2 price
 ⏺  $ n2 setup node
-⏺  $ n2 balance
+⏺  $ n2 balance --local
+⏺  $ n2 whois @moon
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1
 ⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin 
+⏺  $ n2 plugin --list
 
 Cloud Node (Custodial)
-✅  $ n2 cloud balance
-✅  $ n2 cloud send @esteban 0.1
-✅  $ n2 cloud qrcode
-✅  $ n2 cloud receive
-✅  $ n2 cloud renew
-✅  $ n2 cloud recycle
+⏺  $ n2 balance --cloud
+⏺  $ n2 whois @moon
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1 --cloud
+⏺  $ n2 qrcode @fosse 
 
 Nano.to Cloud
-✅  $ n2 cloud login
-✅  $ n2 cloud register
-✅  $ n2 cloud account
-✅  $ n2 cloud username
-✅  $ n2 cloud 2factor
-✅  $ n2 cloud logout
+✅  $ n2 login
+✅  $ n2 register
+✅  $ n2 username
+✅  $ n2 2factor
+✅  $ n2 logout
 
 Options
+  --cloud, -c  Use Cloud Node (Custodial).
+  --local, -l  Use Local Node (Non-Custodial).
   --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
   --address, -a  Print you Nano address.

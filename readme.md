@@ -1,51 +1,58 @@
 <p align="center">
-  <img src="https://github.com/fwd/n2/raw/master/.github/banner.jpg" alt="Prompts" width="500" />
+  <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
  
-> ### This software is in development. Not ready for general use. You're welcome to test it.
+> ### This software is in Beta. It's stable, but service interruption may occur.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
 
 ```bash
-curl -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
-```
-
-```bash
-sudo chmod +x /usr/local/bin/n2
+curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
 ## ❯ Usage
 
+- ✅ = Operational
+- ⏺ = In-Development
+
 ```
-Nano.to
-  $ n2 login
-  $ n2 register
-  $ n2 account
-  $ n2 2factor
-  $ n2 logout
+Local Node (Non-Custodial)
+⏺  $ n2 setup node
+⏺  $ n2 balance --local
+⏺  $ n2 whois @moon
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1
+⏺  $ n2 qrcode @fosse
+⏺  $ n2 plugin --list
 
-Wallet (Cloud)
-  $ n2 balance
-  $ n2 send @esteban 0.1
-  $ n2 qrcode
-  $ n2 receive
-  $ n2 renew
+Cloud Node (Custodial)
+⏺  $ n2 balance --cloud
+⏺  $ n2 whois @moon
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1 --cloud
+⏺  $ n2 qrcode @fosse 
 
-Blockchain 
-  $ n2 price
+Nano.to Cloud
+✅  $ n2 login
+✅  $ n2 register 
+✅  $ n2 username @joemama --buy --year
+✅  $ n2 2factor
+✅  $ n2 logout
 
 Options
+  --cloud, -c  Use Cloud Node (Custodial).
+  --local, -l  Use Local Node (Non-Custodial).
   --help, -h  Print CLI Documentation.
   --docs, -d  Open Nano.to Documentation.
-  --address, -h  Print you Nano address.
-  --email, -h  Print your account email.
-  --api, -h  Print CLI API KEY email.
+  --address, -a  Print you Nano address.
+  --email, -e  Print your account email.
+  --api, -k  Print CLI API KEY email.
   --update, -u  Get latest CLI Script.
   --version, -v  Print current CLI Version.
   --uninstall, -u  Remove CLI from system.
@@ -85,4 +92,4 @@ SOFTWARE.
 
 ## ❯ Stargazers
 
-[![Stargazers over time](https://starchart.cc/fwd/n2.svg)](https://starchart.cc/fwd/n2)
+[![Stargazers over time](https://starchart.cc/fwd/n2.svg)](https://github.com/fwd/n2)

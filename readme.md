@@ -6,7 +6,7 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
  
-> ### This software is in development. Not ready for general use. You're welcome to test it.
+> ### This software is in Beta. Stable, but service interruptions may occur.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

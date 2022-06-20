@@ -352,19 +352,22 @@ fi
 	echo "==============================="
 	# echo "WALLETS: " $wallets
 	# echo "==============================="
-	echo "BALANCE: "$balance
-	echo "PENDING: "$pending
+	if [[ "$2" != "--hide" ]] && [[ "$2" != "-h" ]] && [[ "$2" != "--h" ]] && [[ "$2" != "-p" ]]; then
+		echo "BALANCE: "$balance
+		echo "PENDING: "$pending
+	fi
 	echo "ADDRESS: "$address
-	echo "BROWSER: https://nanolooker.com/account/"$address
-	echo "==============================="
-	echo "DOMAINS: "$usernames
 	echo "ACCOUNT: "$email
 	if [[ $two_factor == "TRUE" ]]; then
-		#statements
-		echo "2F_AUTH: ${GREEN}"$two_factor "${NC}"
+		echo "2FAUTH: ${GREEN}"$two_factor "${NC}"
 	else
-		echo "2F_AUTH: ${RED}"$two_factor "${NC}"
+		echo "2FAUTH: ${RED}"$two_factor "${NC}"
 	fi
+	# echo "==============================="
+	echo "============DOMAINS============"
+	echo $usernames
+	echo "==========NANOLOOKER==========="
+	echo "https://nanolooker.com/account/"$address
 	echo "==============================="
 
 	exit 1
@@ -1451,14 +1454,20 @@ fi
 
 if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
 
-	if [[ $2 == "" ]]; then
+	if [[ $2 == "" ]] || [[ "$3" == "--help" ]] ; then
 cat <<EOF
 Usage:
   $ n2 $1 @fosse
   $ n2 $1 @moon --json
+  $ n2 $1 @moon --claim
+  $ n2 $1 @moon --set website "James"
+  $ n2 $1 @moon --set name "James"
 EOF
 		exit 1
 	fi
+
+	# if [[ "$3" == "--help" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
+	# fi
 
 	if [[ "$3" == "--claim" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
 		if [[ "$4" == "--check" ]]; then
@@ -1489,17 +1498,17 @@ EOF
 		echo "==============================="
 		echo "   VERIFY USERNAME OWNERSHIP   "
 		echo "==============================="
-		echo "Allows Username control via N2."
-		echo "Username Address is NOT changed."
-		echo "==============================="
-		echo "SEND: Ӿ 1.133"
+		echo "${RED}Allows Username usage via N2.${NC}"
+		echo "${RED}Username Address is NOT changed.${NC}"
+		echo "--------------------------------"
+		echo "${GREEN}SEND: Ӿ 1.133"
 		echo "FROM: "$(jq -r '.address' <<< $CLAIM_WHOIS)
-		echo "TO: "$(jq -r '.address' <<< $ACCOUNT)
-		echo "==============================="
-		echo "QRCODE: https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=nano:$(jq -r '.address' <<< $ACCOUNT)?amount=$(jq -r '.value' <<< "$AMOUNT_RAW_CONSP")"
-		echo "DLINK: nano:$(jq -r '.address' <<< $ACCOUNT)?amount=$(jq -r '.value' <<< "$AMOUNT_RAW_CONSP")"
-		echo "==============================="
-		echo "AFTER: n2 $1 $2 $3 --check"
+		echo "TO: "$(jq -r '.address' <<< $ACCOUNT)${NC}
+		echo "--------------------------------"
+		echo "${CYAN}QRCODE: https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=nano:$(jq -r '.address' <<< $ACCOUNT)?amount=$(jq -r '.value' <<< "$AMOUNT_RAW_CONSP")"${NC}
+		# echo "DLINK: nano:$(jq -r '.address' <<< $ACCOUNT)?amount=$(jq -r '.value' <<< "$AMOUNT_RAW_CONSP")"
+		echo "--------------------------------"
+		echo "NEXT: n2 $1 $2 $3 --check"
 		echo "==============================="
 		exit 1
 	fi
@@ -1530,9 +1539,9 @@ EOF
 
 	# echo $WHOIS
 
-	if [[ "$3" == "--set" ]] ; then
+	if [[ "$3" == "-c" ]] || [[ "$3" == "--config" ]] || [[ "$3" == "--set" ]] || [[ "$3" == "config" ]] || [[ "$3" == "set" ]] ; then
 
-		if [[ $4 == 'banner' ]]; then
+		if [[ $4 == 'website' ]]; then
 
 			if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
 				# CONTENT=$()
@@ -1543,11 +1552,11 @@ EOF
 				-H "Content-Type:application/json" \
 				--request POST \
 				--data @<(cat <<EOF
-{ "banner": "$(cat $6 | base64)" }
+{ "website": "$(cat $6 | base64)" }
 EOF
 				))
 				# echo $(cat $6)
-				echo "${GREEN}Cloud${NC}: Banner uploaded."
+				echo "${GREEN}Cloud${NC}: Website uploaded."
 				exit 1
 			fi
 
@@ -1568,7 +1577,7 @@ EOF
 			exit 1
 		fi
 		# echo "$ODF"
-		echo "${GREEN}Cloud${NC}: Updated."
+		echo "${GREEN}Cloud${NC}: Config Updated."
 		exit 1
 	fi
 
@@ -1618,14 +1627,11 @@ EOF
 			fi
 		
    echo "======================================="
-   echo "               NEW LEASE               "
+   echo "              NEW LEASE                "
    echo "======================================="
-   echo "USERNAME: @"$2
+   echo "USERNAME: "$2
    echo "======================================="
-   echo "Manually set the nano address for      "
-   echo "this Username. Default: Cloud Wallet   "
-   echo "======================================="
-	 read -p "${GREEN}Cloud${NC}: Nano Address (optional): " ADDRESS_GIVEN
+	 read -p "${GREEN}Cloud${NC}: Nano Address (Default: Cloud Wallet): " ADDRESS_GIVEN
 
 		# read -p "${GREEN}Cloud${NC}: Are you sure you want to lease '@$2' for a '$4'. Funds are payed from Cloud Wallet on Nano.to. Enter 'y' to continue:" SANITY_CHECK
 

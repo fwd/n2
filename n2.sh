@@ -1466,6 +1466,18 @@ EOF
 		exit 1
 	fi
 
+
+	if [[ "$3" == "url" ]] || [[ "$3" == "--url" ]] || [[ "$3" == "--website" ]] || [[ "$3" == "-u" ]] || [[ "$3" == "link" ]] ; then
+		echo "==============================="
+		echo "      STATIC WEBSITE URLS      "
+		echo "==============================="
+		echo "https://nano.to/$2"
+		echo "https://xno.to/$2"
+		echo "https://ӿ.to/$2"
+		echo "==============================="
+		exit 1
+	fi
+
 	# if [[ "$3" == "--help" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
 	# fi
 

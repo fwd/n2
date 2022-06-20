@@ -260,7 +260,15 @@ function cloud_balance() {
 
 	# echo "as" $ACCOUNT
 
-	# exit 1
+	if [[ $(jq -r '.error' <<< "$ACCOUNT") == "429" ]]; then
+		echo "==============================="
+		echo "       TOO MANY REQUESTS       "
+		echo "==============================="
+		echo "Wait a few seconds.            "
+		echo "==============================="
+		echo
+		exit 1
+	fi
 
 	if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
 		rm $DIR/.n2-session

@@ -86,11 +86,22 @@ EOF
 )
 
 DOCS=$(cat <<EOF
-$LOCAL_DOCS
-
-$CLOUD_DOCS
-
-$OPTIONS_DOCS
+Usage:
+  $ n2 [ login • register • account • username • 2factor • logout ]
+Usernames:
+  $ n2 username @esteban [ buy • renew • config • claim ]
+  $ n2 username @moon --buy --day
+  $ n2 username @moon --set email "support@nano.to"
+  $ n2 username @moon --set website --file ./index.html
+PoW:
+  $ n2 pow @esteban --json
+Cloud Wallet:
+  $ n2 [ balance • send • qrcode • receive ]
+  $ n2 send @esteban 0.1
+Local Node:
+  $ n2 node [ setup • balance • send • qrcode • receive ]
+Options:
+  $ n2 --update --version --dev --json
 EOF
 )
 
@@ -1140,12 +1151,12 @@ EOF
 	exit 1
 fi
 
-if [[ "$1" = "node" ]] || [[ "$1" = "--exec" ]]; then
+if [[ "$2" = "exec" ]] || [[ "$2" = "--exec" ]]; then
 	docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
 	exit 1
 fi
 
-if [[ "$1" = "--wallet" ]]; then
+if [[ "$1" = "node" ]] && [[ "$2" = "--wallet" ]]; then
 	docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
 fi
 
@@ -1262,9 +1273,7 @@ EOF
 fi
 
 
-
-
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "run" ]]; then
+if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
 
 	if [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			echo ""
@@ -1314,37 +1323,27 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
 			exit 1
 		fi
 
-		# Sorta working
-		if [[ "$2" = "node" ]] || [[ "$2" = "--node" ]]; then
-			read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				cd $DIR && git clone https://github.com/fwd/nano-docker.git
-				LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-				cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
-				exit 1
-			fi
-			echo "Canceled"
+	# Sorta working
+	if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+		read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
+		if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+			sudo apt-get purge nvidia*
+			sudo ubuntu-drivers autoinstall
 			exit 1
 		fi
-
-		# Sorta working
-		if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
-			read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
-			if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-				sudo apt-get purge nvidia*
-				sudo ubuntu-drivers autoinstall
-				exit 1
-			fi
-			echo "Canceled"
-			exit 1
-		fi
-
-cat <<EOF
-Usage:
-  $ n2 setup node
-  $ n2 setup gpu
-EOF
+		echo "Canceled"
 		exit 1
+	fi
+
+	read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+	if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+		cd $DIR && git clone https://github.com/fwd/nano-docker.git
+		LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+		cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+		exit 1
+	fi
+	echo "Canceled"
+	exit 1
 
 fi
 

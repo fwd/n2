@@ -357,7 +357,7 @@ fi
 	pow_limit=$(jq -r '.pow_limit' <<< "$ACCOUNT")
 	wallets=$(jq -r '.accounts' <<< "$ACCOUNT")
 
-	echo $ACCOUNT
+	# echo $ACCOUNT
 
 	# echo
 	echo "==============================="
@@ -380,8 +380,8 @@ fi
 	# echo "==============================="
 	echo "============DOMAINS============"
 	echo $usernames
-	echo "===========POW CREDITS============"
-	echo $pow_limit
+	# echo "===========POW CREDITS============"
+	# echo $pow_limit
 	echo "==========NANOLOOKER==========="
 	echo "https://nanolooker.com/account/"$address
 	echo "==============================="

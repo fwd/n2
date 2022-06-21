@@ -1585,7 +1585,59 @@ EOF
 
 	if [[ "$3" == "-c" ]] || [[ "$3" == "--config" ]] || [[ "$3" == "--set" ]] || [[ "$3" == "config" ]] || [[ "$3" == "set" ]] ; then
 
+		# echo "\$2, $2"
+		# echo "\$3, $3"
+		# echo "\$4, $4"
+		# echo "\$5, $5"
+
+		# exit 1
+
+		if [[ $4 == '--git' ]] || [[ $4 == '--github' ]] || [[ $4 == 'git' ]] || [[ $4 == 'github' ]] || [[ $4 == '-g' ]]; then
+			
+			ESD=$(curl -s "https://nano.to/cloud/username/$2" \
+			-H "Accept: application/json" \
+			-H "session: $(cat $DIR/.n2-session)" \
+			-H "Content-Type:application/json" \
+			--request POST \
+			--data @<(cat <<EOF
+{ "github": "$5" }
+EOF
+			))
+
+			# echo $ESD
+
+		if [[ $(jq -r '.error' <<< "$ESD") == '429' ]]; then
+			#statements
+			echo "${RED}Error${NC}: $(jq -r '.message' <<< "$ESD")"
+			exit 1
+		fi
+
+		# echo "${GREEN}Cloud${NC}: Github website updated."
+		echo "==============================="
+		echo "        ${GREEN}UPDATED${NC}      "
+		echo "==============================="
+		echo "https://xno.to/$2"
+		echo "https://ӿ.to/$2"
+		echo "==============================="
+			exit 1
+		fi
+
 		if [[ $4 == '--website' ]] || [[ $4 == 'website' ]]; then
+
+
+			if [[ $5 == '--git' ]] || [[ $5 == '--github' ]] || [[ $5 == 'git' ]] || [[ $5 == 'github' ]] || [[ $5 == '-g' ]]; then
+				ESD=$(curl -s "https://nano.to/cloud/username/$2" \
+				-H "Accept: application/json" \
+				-H "session: $(cat $DIR/.n2-session)" \
+				-H "Content-Type:application/json" \
+				--request POST \
+				--data @<(cat <<EOF
+{ "github": "$6" }
+EOF
+				))
+				echo "${GREEN}Cloud${NC}: Website removed."
+				exit 1
+			fi
 
 			if [[ $5 == 'remove' ]] || [[ $5 == '--remove' ]]; then
 				ESD=$(curl -s "https://nano.to/cloud/username/$2" \

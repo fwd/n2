@@ -1467,6 +1467,34 @@ EOF
 	fi
 
 
+	if [[ "$3" == "qrcode" ]] || [[ "$3" == "--qrcode" ]] || [[ "$3" == "qr" ]] || [[ "$3" == "-qr" ]] || [[ "$3" == "--qr" ]]; then
+		ACCOUNT=$(curl -s "https://nano.to/$2/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		# account=$1
+		address=$(jq -r '.address' <<< "$ACCOUNT")
+		username=$(jq -r '.username' <<< "$ACCOUNT")
+		echo "==========================================="
+		echo "                  @$username               "
+		echo "==========================================="
+		echo "ADDRESS: ${CYAN}$address${NC}"
+		echo "BROWSER: https://nanolooker.com/account/"$address
+		echo "==========================================="
+		GET_QRCODE=$(curl -s "https://nano.to/cloud/qrcode?address=$address" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		QRCODE=$(jq -r '.acii' <<< "$GET_QRCODE")
+		cat <<EOF
+$QRCODE
+EOF
+		echo "==========================================="
+		exit
+	fi
+
 	if [[ "$3" == "url" ]] || [[ "$3" == "--url" ]] || [[ "$3" == "--website" ]] || [[ "$3" == "-u" ]] || [[ "$3" == "link" ]] ; then
 		echo "==============================="
 		echo "      STATIC WEBSITE URLS      "
@@ -1553,7 +1581,18 @@ EOF
 
 	if [[ "$3" == "-c" ]] || [[ "$3" == "--config" ]] || [[ "$3" == "--set" ]] || [[ "$3" == "config" ]] || [[ "$3" == "set" ]] ; then
 
-		if [[ $4 == 'website' ]]; then
+		if [[ $4 == '--website' ]] || [[ $4 == 'website' ]]; then
+
+			if [[ $5 == 'remove' ]] || [[ $5 == '--remove' ]]; then
+				ESD=$(curl -s "https://nano.to/cloud/username/$2" \
+				-H "Accept: application/json" \
+				-H "session: $(cat $DIR/.n2-session)" \
+				-H "Content-Type:application/json" \
+				--request POST \
+				--data '{ "remove_website": "true" }')
+				echo "${GREEN}Cloud${NC}: Website removed."
+				exit 1
+			fi
 
 			if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
 				# CONTENT=$()
@@ -1564,13 +1603,33 @@ EOF
 				-H "Content-Type:application/json" \
 				--request POST \
 				--data @<(cat <<EOF
-{ "website": "$(cat $6 | base64)" }
+{ "website": "BASE64:$(cat $6 | base64)" }
 EOF
 				))
 				# echo $(cat $6)
 				echo "${GREEN}Cloud${NC}: Website uploaded."
 				exit 1
 			fi
+
+			# if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
+				# CONTENT=$()
+				# echo $CONTENT
+				EFD=$(curl -s "https://nano.to/cloud/username/$2" \
+				-H "Accept: application/json" \
+				-H "session: $(cat $DIR/.n2-session)" \
+				-H "Content-Type:application/json" \
+				--request POST \
+				--data @<(cat <<EOF
+{ "website": "$5" }
+EOF
+				))
+			# echo $(cat $6)
+			echo "${GREEN}Cloud${NC}: Website uploaded."
+			exit 1
+			# fi
+
+
+			exit 
 
 		fi
 
@@ -1588,8 +1647,10 @@ EOF
 			echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$ODF")"
 			exit 1
 		fi
+
 		# echo "$ODF"
-		echo "${GREEN}Cloud${NC}: Config Updated."
+
+		echo "${GREEN}Cloud${NC}: Config updated."
 		exit 1
 	fi
 

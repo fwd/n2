@@ -5,10 +5,6 @@
 <h2 align="center">Nano.to Command Line Interface (CLI)</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
- 
-> ### This software is in Beta. It's stable, but service interruption may occur.
-
-![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
 
@@ -16,12 +12,23 @@
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
+![line](https://github.com/fwd/n2/raw/master/.github/line.png)
+
 ## ❯ Usage
 
 - ✅ = Operational
 - ⏺ = In-Development
 
 ```
+Nano.to Cloud
+✅  $ n2 login
+✅  $ n2 register 
+✅  $ n2 username @joemama --buy --year
+✅  $ n2 username @development --set --email "support@nano.to"
+✅  $ n2 username @esteban --set --website ./index.html
+✅  $ n2 2factor
+✅  $ n2 logout
+
 Local Node (Non-Custodial)
 ⏺  $ n2 setup node
 ⏺  $ n2 balance --local
@@ -37,13 +44,6 @@ Cloud Node (Custodial)
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1 --cloud
 ⏺  $ n2 qrcode @fosse 
-
-Nano.to Cloud
-✅  $ n2 login
-✅  $ n2 register 
-✅  $ n2 username @joemama --buy --year
-✅  $ n2 2factor
-✅  $ n2 logout
 
 Options
   --cloud, -c  Use Cloud Node (Custodial).

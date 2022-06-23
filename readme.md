@@ -2,7 +2,9 @@
   <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-<h2 align="center">Nano.to Command Line Interface (CLI)</h2>
+> This software is in-development. Not ready for general use.
+
+<h2 align="center">Nano.to Command Line</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

@@ -2,7 +2,7 @@
   <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-<h2 align="center">Nano.to Command Line</h2>
+<h2 align="center">Nano.to Command Line Interface (n2)</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

@@ -86,6 +86,25 @@ EOF
 )
 
 DOCS=$(cat <<EOF
+${GREEN}USAGE:${NC}
+  $ n2 [ price • login • register • account • username • 2factor • logout ]
+${GREEN}NAMES:${NC}
+  $ n2 username @esteban [ buy • renew • config • claim ]
+  $ n2 username @moon --buy --day
+  $ n2 username @moon --set email "support@nano.to"
+  $ n2 username @moon --set website --file ./index.html
+${GREEN}CLOUD:${NC}
+  $ n2 [ balance • send • qrcode • receive ]
+  $ n2 send @esteban 0.1
+  $ n2 pow @esteban --json
+${GREEN}LOCAL:${NC}
+  $ n2 node [ setup • balance • send • qrcode • receive ]
+${GREEN}N2 CLI:${NC}
+  $ n2 --update --version --dev --json
+EOF
+)
+
+DOCS2=$(cat <<EOF
 Usage:
   $ n2 [ login • register • account • username • 2factor • logout ]
 Usernames:
@@ -1471,15 +1490,32 @@ EOF
 	fi
 
 
-	if [[ "$3" == "qrcode" ]] || [[ "$3" == "--qrcode" ]] || [[ "$3" == "qr" ]] || [[ "$3" == "-qr" ]] || [[ "$3" == "--qr" ]]; then
-		ACCOUNT=$(curl -s "https://nano.to/$2/account" \
+	ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
 		-H "Accept: application/json" \
 		-H "session: $(cat $DIR/.n2-session)" \
 		-H "Content-Type:application/json" \
 		--request GET)
-		# account=$1
-		address=$(jq -r '.address' <<< "$ACCOUNT")
-		username=$(jq -r '.username' <<< "$ACCOUNT")
+
+	if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
+		rm $DIR/.n2-session
+		# echo
+		echo "==============================="
+		echo "    LOGGED OUT FOR SECURITY    "
+		echo "==============================="
+		echo "Use 'n2 login' to log back in. "
+		echo "==============================="
+		echo
+		exit 1
+	fi
+
+	if [[ "$3" == "qrcode" ]] || [[ "$3" == "--qrcode" ]] || [[ "$3" == "qr" ]] || [[ "$3" == "-qr" ]] || [[ "$3" == "--qr" ]]; then
+		OACCOUNT=$(curl -s "https://nano.to/$2/account" \
+		-H "Accept: application/json" \
+		-H "session: $(cat $DIR/.n2-session)" \
+		-H "Content-Type:application/json" \
+		--request GET)
+		address=$(jq -r '.address' <<< "$OACCOUNT")
+		username=$(jq -r '.username' <<< "$OACCOUNT")
 		echo "==========================================="
 		echo "                  @$username               "
 		echo "==========================================="
@@ -1509,9 +1545,6 @@ EOF
 		echo "==============================="
 		exit 1
 	fi
-
-	# if [[ "$3" == "--help" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
-	# fi
 
 	if [[ "$3" == "--claim" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
 		if [[ "$4" == "--check" ]]; then
@@ -1664,6 +1697,7 @@ EOF
 				))
 				# echo $(cat $6)
 				echo "${GREEN}Cloud${NC}: Website uploaded."
+				echo "BROWSER: https://xno.to/$2"
 				exit 1
 			fi
 
@@ -1680,7 +1714,11 @@ EOF
 EOF
 				))
 			# echo $(cat $6)
+			echo "==============================="
 			echo "${GREEN}Cloud${NC}: Website uploaded."
+			echo "==============================="
+			echo "URL: https://xno.to/$2"
+			echo "==============================="
 			exit 1
 			# fi
 
@@ -1760,7 +1798,7 @@ EOF
    echo "======================================="
    echo "USERNAME: "$2
    echo "======================================="
-	 read -p "${GREEN}Cloud${NC}: Nano Address (Default: Cloud Wallet): " ADDRESS_GIVEN
+	 read -p "${GREEN}Cloud${NC}: Set Nano Address (Default: Cloud): " ADDRESS_GIVEN
 
 		# read -p "${GREEN}Cloud${NC}: Are you sure you want to lease '@$2' for a '$4'. Funds are payed from Cloud Wallet on Nano.to. Enter 'y' to continue:" SANITY_CHECK
 
@@ -1814,7 +1852,17 @@ EOF
 EOF
 		))
 
-			# echo $LEASE_ATTEMPT
+			if [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]] || [[ "$7" == "--json" ]] || [[ "$8" == "--json" ]]; then
+				# echo $WHOIS
+				echo $LEASE_ATTEMPT
+				exit 1
+			fi
+
+			if [[ $(jq -r '.error' <<< "$LEASE_ATTEMPT") == "400" ]]; then
+				# RMESSAGE=
+				echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$LEASE_ATTEMPT")"
+				exit 1
+			fi
 
 			echo "${GREEN}Cloud${NC}: Username Purchased."
 
@@ -2322,7 +2370,7 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 	fi
 
 	# AWARD FOR CLEANEST METHOD
-	PRICE=$(curl -s "https://nano.to/price?currency=$2" \
+	PRICE=$(curl -s "https://nano.to/cloud/price" \
 	-H "Accept: application/json" \
 	-H "Content-Type:application/json" \
 	--request GET)
@@ -2334,11 +2382,15 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 	fi
 
 	echo "==============================="
-	echo " NANO PRICE ($(jq -r '.currency' <<< "$PRICE")):" $(jq -r '.price' <<< "$PRICE")
+	if [[ $(jq -r '.currency' <<< "$PRICE") == 'USD' ]]; then
+		echo "      Ӿ 1.00 = \$ $(jq -r '.price' <<< "$PRICE")"
+	else
+		echo "      Ӿ 1.00 = $(jq -r '.price' <<< "$PRICE") $(jq -r '.currency' <<< "$PRICE")"
+	fi 
 	echo "==============================="
-	# echo "SYMBOL:" $(jq -r '.price' <<< "$PRICE")
-	echo "COINGECKO: https://www.coingecko.com/en/coins/nano/$(jq -r '.currency' <<< "$PRICE" | awk '{print tolower($0)}')"
-	echo "COINMCAP: https://coinmarketcap.com/currencies/nano"
+	echo "https://coinmarketcap.com/currencies/nano"
+	echo "==============================="
+	# echo "COINGECKO: https://www.coingecko.com/en/coins/nano/$(jq -r '.currency' <<< "$PRICE" | awk '{print tolower($0)}')"
 
 	exit 1
 
@@ -2436,21 +2488,20 @@ fi
 #  ╚═════╝ ╚═╝     ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝
                                                   
 if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--install" ]  || [ "$1" = "--update" ] || [ "$1" = "update" ]; then
-	if [ "$2" = "--dev" ]; then
+	if [ "$2" = "--dev" ] || [ "$2" = "dev" ]; then
 		sudo rm /usr/local/bin/n2
 		curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o /usr/local/bin/n2
 		sudo chmod +x /usr/local/bin/n2
 		echo "Installed latest 'development' version."
 		exit 1
 	fi
-	if [ "$2" = "--prod" ]; then
+	if [ "$2" = "--prod" ] || [ "$2" = "prod" ]; then
 		sudo rm /usr/local/bin/n2
 		curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 		sudo chmod +x /usr/local/bin/n2
 		echo "Installed latest 'stable' version."
 		exit 1
 	fi
-
 	curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
 	sudo chmod +x /usr/local/bin/n2
 	echo "Installed latest version."

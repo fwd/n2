@@ -2,7 +2,7 @@
   <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-<h2 align="center">Nano.to Command Line Interface (CLI)</h2>
+<h2 align="center">Nano.to Command Line (n2)</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
@@ -20,30 +20,30 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 - ⏺ = In-Development
 
 ```
+Local Node (Non-Custodial)
+⏺  $ n2 whois @elon
+⏺  $ n2 search @moon --json
+⏺  $ n2 qrcode @fosse
+⏺  $ n2 plugin list
+⏺  $ n2 setup node
+⏺  $ n2 balance
+⏺  $ n2 send @esteban 0.1
+
 Nano.to Cloud
 ✅  $ n2 login
 ✅  $ n2 register 
-✅  $ n2 username @joemama --buy --year
-✅  $ n2 username @development --set --email "support@nano.to"
-✅  $ n2 username @esteban --set --website ./index.html
+✅  $ n2 username @lightyear --buy --year
+✅  $ n2 username @lightyear --set --email "support@lightyear.com"
+✅  $ n2 username @lightyear --set --website ./index.html
 ✅  $ n2 2factor
 ✅  $ n2 logout
 
-Local Node (Non-Custodial)
-⏺  $ n2 setup node
-⏺  $ n2 balance --local
-⏺  $ n2 whois @moon
-⏺  $ n2 account @kraken --json
-⏺  $ n2 send @esteban 0.1
-⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin --list
-
-Cloud Node (Custodial)
-⏺  $ n2 balance --cloud
-⏺  $ n2 whois @moon
-⏺  $ n2 account @kraken --json
-⏺  $ n2 send @esteban 0.1 --cloud
-⏺  $ n2 qrcode @fosse 
+Nano.to Wallet
+⏺  $ n2 cloud balance
+⏺  $ n2 cloud whois @moon
+⏺  $ n2 cloud account @kraken --json
+⏺  $ n2 cloud send @esteban 0.1
+⏺  $ n2 cloud qrcode 
 
 Options
   --cloud, -c  Use Cloud Node (Custodial).

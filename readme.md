@@ -26,36 +26,35 @@ Local Node (Non-Custodial)
 ⏺  $ n2 qrcode @fosse
 ⏺  $ n2 plugin list
 ⏺  $ n2 setup node
+⏺  $ n2 exec telemetry
 ⏺  $ n2 balance
 ⏺  $ n2 send @esteban 0.1
 
 Nano.to Cloud
-✅  $ n2 login
-✅  $ n2 register 
+✅  $ n2 username @moon --qrcode
 ✅  $ n2 username @lightyear --buy --year
 ✅  $ n2 username @lightyear --set --email "support@lightyear.com"
 ✅  $ n2 username @lightyear --set --website ./index.html
+✅  $ n2 username @lightyear --set --website --remove
+✅  $ n2 login
+✅  $ n2 register 
 ✅  $ n2 2factor
 ✅  $ n2 logout
 
-Nano.to Wallet
+Nano.to Cloud (Custodial)
 ⏺  $ n2 cloud balance
 ⏺  $ n2 cloud whois @moon
+⏺  $ n2 cloud pow @esteban --json
 ⏺  $ n2 cloud account @kraken --json
 ⏺  $ n2 cloud send @esteban 0.1
 ⏺  $ n2 cloud qrcode 
 
 Options
-  --cloud, -c  Use Cloud Node (Custodial).
-  --local, -l  Use Local Node (Non-Custodial).
-  --help, -h  Print CLI Documentation.
-  --docs, -d  Open Nano.to Documentation.
-  --address, -a  Print you Nano address.
-  --email, -e  Print your account email.
-  --api, -k  Print CLI API KEY email.
-  --update, -u  Get latest CLI Script.
-  --version, -v  Print current CLI Version.
-  --uninstall, -u  Remove CLI from system.
+--help, -h  Print CLI Docs.
+--docs, -d  Open Nano.to Docs.
+--update, -u  Update CLI Script.
+--version, -v  Print CLI Version.
+--uninstall, -u  Remove CLI.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

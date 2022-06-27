@@ -53,7 +53,7 @@ END_HEREDOC
 LOCAL_DOCS=$(cat <<EOF
 Usage
 ⏺  $ n2 setup node
-⏺  $ n2 balance --local
+⏺  $ n2 balance
 ⏺  $ n2 whois @moon
 ⏺  $ n2 account @kraken --json
 ⏺  $ n2 send @esteban 0.1
@@ -1230,44 +1230,24 @@ fi
 
 
 if [[ $1 == "send" ]] || [[ $1 == "--send" ]] || [[ $1 == "-s" ]]; then
-	
-# 	if [[ "$4" != "--cloud" ]] && [[ "$4" != "--local" ]]; then
-# cat <<EOF
-# Usage:
-#   $ n2 send @esteban 10 --local
-#   $ n2 send @esteban 10 --cloud
-# EOF
-# 		exit 1
-# 	fi
-
-	if [[ $4 == '--local' ]]; then
-
 		cat <<EOF
 $(local_send $2 $3 $4)
 EOF
-		exit 1
-	else
-		cat <<EOF
-$(cloud_send $2 $3 $4)
-EOF
-	fi;
-
-	# if [[ "$4" != "--cloud" ]] && [[ "$4" != "--local" ]]; then
-	# 	echo "==============================="
-	# 	echo "TIP: Use 'n2 $1 --cloud' or 'n2 $1 --local' to set wallet." 
-	# 	echo "==============================="
-	# fi
-
 	exit 1
+fi
 
+
+if [[ $2 == "send" ]] || [[ $2 == "--send" ]] || [[ $2 == "-s" ]]; then
+	cat <<EOF
+	$(cloud_send $3 $4 $5 $6 $7)
+EOF
+	exit 1
 fi
 
 
 if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
-
 	if curl -s --fail -X POST '[::1]:7076' || [[ $2 == '--local' ]]; then
 		echo 
-		# $(cloud_balance $1 $2 $3 $4 $5)
 cat <<EOF
 ${GREEN}Local${NC}: Non-custodial local Wallet is in-development. 
 
@@ -1276,19 +1256,13 @@ Twitter: https://twitter.com/nano2dev
 
 EOF
 		exit 1
-	else
-		cat <<EOF
-$(cloud_balance $1 $2 $3 $4 $5)
+fi
+
+if [[ $2 == "balance" ]] || [[ $2 == "accounts" ]] || [[ $2 == "account" ]] || [[ $2 == "ls" ]]; then
+	cat <<EOF
+$(cloud_balance $2 $3 $4 $5 $6)
 EOF
-	fi;
-
-	# if [[ "$2" != "--cloud" ]] && [[ "$2" != "--local" ]]; then
-	# 	echo "TIP: Use 'n2 $1 --cloud' or 'n2 $1 --local' to set wallet." 
-	# 	echo "==============================="
-	# fi
-
 	exit 1
-
 fi
 
 
@@ -1425,15 +1399,6 @@ fi
 
 if [[ "$1" = "deposit" ]] || [[ "$1" = "receive" ]] || [[ "$1" = "qr" ]] || [[ "$1" = "--qrcode" ]] || [[ "$1" = "qrcode" ]] || [[ "$1" = "-qrcode" ]] || [[ "$1" = "-qr" ]] || [[ "$1" = "-q" ]] || [[ "$1" = "q" ]]; then
 
-	if [[ $2 == '--cloud' ]] ||  [[ $2 == '--local' ]] || [[ $2 == '--json' ]]; then
-cat <<EOF
-Usage:
-  $ n2 $1 0.44 --local
-  $ n2 $1 100 --cloud
-EOF
-		exit 1
-	fi
-
 	if curl -s --fail -X POST '[::1]:7076' || [[ $3 == '--local' ]]; then
 			echo 
 			# $(cloud_receive $1 $2 $3 $4 $5)
@@ -1445,23 +1410,15 @@ Twitter: https://twitter.com/nano2dev
 
 EOF
 		exit 1
+	fi;
+	
+	exit 1 
+fi
 
-	else
-
-
-
+if [[ "$2" = "deposit" ]] || [[ "$2" = "receive" ]] || [[ "$2" = "qr" ]] || [[ "$2" = "--qrcode" ]] || [[ "$2" = "qrcode" ]] || [[ "$2" = "-qrcode" ]] || [[ "$2" = "-qr" ]] || [[ "$2" = "-q" ]] || [[ "$2" = "q" ]]; then
 cat <<EOF
 $(cloud_receive $2 $3 $4 $5 $6)
 EOF
-	fi;
-
-
-	# if [[ "$3" != "--cloud" ]] && [[ "$3" != "--local" ]]; then
-	# 	echo "======================="
-	# 	echo "TIP: Use 'n2 $1 $2 --cloud' or 'n2 $1 $2 --local' to set wallet." 
-	# 	echo "======================="
-	# fi
-
 	exit 1 
 fi
 
@@ -1481,10 +1438,14 @@ if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" =
 cat <<EOF
 Usage:
   $ n2 $1 @fosse
-  $ n2 $1 @moon --json
+  $ n2 $1 @lightyear --json
+  $ n2 $1 @lightyear --buy --year
+  $ n2 $1 @lightyear --set --website "Hello World"
   $ n2 $1 @moon --claim
-  $ n2 $1 @moon --set website "James"
-  $ n2 $1 @moon --set name "James"
+  $ n2 $1 @moon --set name "James Doe"
+  $ n2 $1 @moon --set --email "support@moon.com"
+  $ n2 $1 @moon --set --website ./index.html
+  $ n2 $1 @moon --set --website ./index.html
 EOF
 		exit 1
 	fi
@@ -1668,7 +1629,7 @@ EOF
 { "github": "$6" }
 EOF
 				))
-				echo "${GREEN}Cloud${NC}: Website removed."
+				echo "${GREEN}Cloud${NC}: Wesbite updated from Github."
 				exit 1
 			fi
 

@@ -12,7 +12,7 @@
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
-> **For non-custodial use, see the package [N1](https://github.com/fwd/n1)**
+> **For non-custodial, use the sister [N1](https://github.com/fwd/n1)** pacakge.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

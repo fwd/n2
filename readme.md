@@ -20,30 +20,28 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ```
 Usage
-  $ n2 login
-  $ n2 register 
   $ n2 whois @elon
   $ n2 search @moon --json
   $ n2 qrcode @fosse
+  $ n2 balance
+  $ n2 whois @moon
+  $ n2 account @kraken --json
+  $ n2 send @esteban 0.1
+  $ n2 qrcode 
   $ n2 username @lightyear --buy --year
   $ n2 username @lightyear --set --email "support@lightyear.com"
   $ n2 username @lightyear --set --website ./index.html
+  $ n2 login
+  $ n2 register 
   $ n2 2factor
   $ n2 logout
 
-Cloud Wallet
-⏺  $ n2 cloud balance
-⏺  $ n2 cloud whois @moon
-⏺  $ n2 cloud account @kraken --json
-⏺  $ n2 cloud send @esteban 0.1
-⏺  $ n2 cloud qrcode 
-
 Options
---help, -h  Print CLI Documentation.
---docs, -d  Open Nano.to Documentation.
---update, -u  Updaate CLI Script.
---version, -v  Print CLI Version.
---uninstall, -u  Remove CLI.
+  --help, -h  Print CLI Documentation.
+  --docs, -d  Open Nano.to Documentation.
+  --update, -u  Updaate CLI Script.
+  --version, -v  Print CLI Version.
+  --uninstall, -u  Remove CLI.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

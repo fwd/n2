@@ -20,21 +20,17 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ```
 Usage
-  $ n2 whois @elon
-  $ n2 search @moon --json
-  $ n2 qrcode @fosse
-  $ n2 balance
-  $ n2 whois @moon
-  $ n2 account @kraken --json
-  $ n2 send @esteban 0.1
-  $ n2 qrcode 
-  $ n2 username @lightyear --buy --year
-  $ n2 username @lightyear --set --email "support@lightyear.com"
-  $ n2 username @lightyear --set --website ./index.html
-  $ n2 login
-  $ n2 register 
-  $ n2 2factor
-  $ n2 logout
+$ n2 whois @moon --json
+$ n2 qrcode @fosse
+$ n2 balance
+$ n2 send @esteban 0.1
+$ n2 username @lightyear --buy --year
+$ n2 username @lightyear --set --email "support@lightyear.com"
+$ n2 username @lightyear --set --website ./index.html
+$ n2 login
+$ n2 register 
+$ n2 2factor
+$ n2 logout
 
 Options
   --help, -h  Print CLI Documentation.

@@ -2,47 +2,36 @@
   <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-
-<h2 align="center">Nano.to Command Line (n2)</h2>
-
+<h2 align="center">Nano.to Cloud & Username CLI (n2)</h2>
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
 
-> **This software is in-development. Not ready for general use.**
-
 ```bash
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
+
+> **For non-custodial use, see the package [N1](https://github.com/fwd/n1)**
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Usage
 
-- ✅ = Operational
-- ⏺ = In-Development
-
 ```
-Local Node (Non-Custodial)
-⏺  $ n2 whois @elon
-⏺  $ n2 search @moon --json
-⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin list
-⏺  $ n2 setup node
-⏺  $ n2 balance
-⏺  $ n2 send @esteban 0.1
+Usage
+  $ n2 login
+  $ n2 register 
+  $ n2 whois @elon
+  $ n2 search @moon --json
+  $ n2 qrcode @fosse
+  $ n2 username @lightyear --buy --year
+  $ n2 username @lightyear --set --email "support@lightyear.com"
+  $ n2 username @lightyear --set --website ./index.html
+  $ n2 2factor
+  $ n2 logout
 
-Nano.to Cloud
-✅  $ n2 login
-✅  $ n2 register 
-✅  $ n2 username @lightyear --buy --year
-✅  $ n2 username @lightyear --set --email "support@lightyear.com"
-✅  $ n2 username @lightyear --set --website ./index.html
-✅  $ n2 2factor
-✅  $ n2 logout
-
-Nano.to Wallet
+Cloud Wallet
 ⏺  $ n2 cloud balance
 ⏺  $ n2 cloud whois @moon
 ⏺  $ n2 cloud account @kraken --json
@@ -50,16 +39,11 @@ Nano.to Wallet
 ⏺  $ n2 cloud qrcode 
 
 Options
-  --cloud, -c  Use Cloud Node (Custodial).
-  --local, -l  Use Local Node (Non-Custodial).
-  --help, -h  Print CLI Documentation.
-  --docs, -d  Open Nano.to Documentation.
-  --address, -a  Print you Nano address.
-  --email, -e  Print your account email.
-  --api, -k  Print CLI API KEY email.
-  --update, -u  Get latest CLI Script.
-  --version, -v  Print current CLI Version.
-  --uninstall, -u  Remove CLI from system.
+--help, -h  Print CLI Documentation.
+--docs, -d  Open Nano.to Documentation.
+--update, -u  Updaate CLI Script.
+--version, -v  Print CLI Version.
+--uninstall, -u  Remove CLI.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

@@ -4,8 +4,6 @@
 
 <h2 align="center">Nano.to Cloud Tool (N2)</h2>
 
-> **For Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
-
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
 ## ❯ Install
@@ -13,6 +11,7 @@
 ```bash
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
+> **For Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
 
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

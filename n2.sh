@@ -86,19 +86,17 @@ EOF
 )
 
 DOCS=$(cat <<EOF
-${GREEN}USAGE:${NC}
-  $ n2 [ price • login • register • account • username • 2factor • logout ]
+${GREEN}CLOUD:${NC}
+  $ n2 [ login • register • account • 2factor • logout ]
 ${GREEN}NAMES:${NC}
   $ n2 username @esteban [ buy • renew • config • claim ]
   $ n2 username @moon --buy --day
   $ n2 username @moon --set email "support@nano.to"
   $ n2 username @moon --set website --file ./index.html
-${GREEN}CLOUD:${NC}
-  $ n2 [ balance • send • qrcode • receive ]
+${GREEN}WALLET:${NC}
+  $ n2 receive
   $ n2 send @esteban 0.1
   $ n2 pow @esteban --json
-${GREEN}LOCAL:${NC}
-  $ n2 node [ setup • balance • send • qrcode • receive ]
 ${GREEN}N2 CLI:${NC}
   $ n2 --update --version --dev --json
 EOF

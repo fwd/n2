@@ -2,7 +2,9 @@
   <img src="https://github.com/fwd/n2/raw/master/.github/banner.png" alt="Prompts" width="500" />
 </p>
 
-<h2 align="center">Nano.to Cloud & Username CLI (N2)</h2>
+<h2 align="center">Nano.to Cloud Tool (N2)</h2>
+
+> **For Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
@@ -12,7 +14,6 @@
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
 
-> **For non-custodial, use [N1](https://github.com/fwd/n1)**.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

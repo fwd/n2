@@ -102,26 +102,6 @@ ${GREEN}N2 CLI:${NC}
 EOF
 )
 
-DOCS2=$(cat <<EOF
-Usage:
-  $ n2 [ login • register • account • username • 2factor • logout ]
-Usernames:
-  $ n2 username @esteban [ buy • renew • config • claim ]
-  $ n2 username @moon --buy --day
-  $ n2 username @moon --set email "support@nano.to"
-  $ n2 username @moon --set website --file ./index.html
-PoW:
-  $ n2 pow @esteban --json
-Cloud Wallet:
-  $ n2 [ balance • send • qrcode • receive ]
-  $ n2 send @esteban 0.1
-Local Node:
-  $ n2 node [ setup • balance • send • qrcode • receive ]
-Options:
-  $ n2 --update --version --dev --json
-EOF
-)
-
 if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
 	cat <<EOF
 $DOCS

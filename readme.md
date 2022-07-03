@@ -11,7 +11,7 @@
 ```bash
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
-> **For Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
+> **For a Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
 
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

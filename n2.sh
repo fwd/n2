@@ -366,22 +366,26 @@ fi
 		echo "BALANCE: "$balance
 		echo "PENDING: "$pending
 	fi
-	# echo "ADDRESS: "$address
-	echo "ACCOUNT: "$email
 	if [[ $two_factor == "TRUE" ]]; then
 		echo "2F-AUTH: ${GREEN}"$two_factor "${NC}"
 	else
 		echo "2F-AUTH: ${RED}"$two_factor "${NC}"
 	fi
-	echo "POW-GPU: "$pow_limit
+	# echo "GPU-POW: "$pow_usage"/"$pow_limit
+	echo "ACCOUNT: "$email
+	echo "ADDRESS: "$address
 	# echo "==============================="
 	# echo "============DOMAINS============"
-	# echo $usernames
+	echo DOMAINS: $usernames
 	# echo "===========POW CREDITS============"
 	# echo $pow_limit
 	# echo "==========NANOLOOKER==========="
 	# echo "https://nanolooker.com/account/"$address
-	# echo "==============================="
+	echo "==============================="
+	if [[ $two_factor == "FALSE" ]]; then
+		echo "TIP: Setup 2F with 'n2 2f'"
+		echo "==============================="
+	fi
 	exit 1
 }
 
@@ -622,16 +626,22 @@ function setup_2fa() {
 	QR=$(jq -r '.qr' <<< "$NEW_SETUP")
 	KEY=$(jq -r '.key' <<< "$NEW_SETUP")
 
-	echo "==============================="
-	echo "        ENABLE 2-FACTOR        "
-	echo "==============================="
-	echo "Copy the 'KEY' or scan the provided QR."
-	echo "==============================="
-	echo "NAME: Nano.to"
-	echo "KEY:" $KEY
-	echo "QR:" $QR
-	echo "==============================="
-	read -p 'First OTP Code: ' FIRST_OTP
+
+SETUP_2FA=$(cat <<EOF
+===============================
+        ${CYAN}CLOUD 2-FACTOR${NC}
+===============================
+NAME: nano.to
+SECRET: $KEY
+QRCODE: $QR
+===============================
+Copy 'Secret' or scan QR code.
+===============================
+${GREEN}Enter OTP Code:${NC} 
+EOF
+)
+
+	read -p "$SETUP_2FA " FIRST_OTP
 
 	if [[ $FIRST_OTP == "" ]]; then
 		echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
@@ -651,6 +661,7 @@ EOF
 	echo 
 
 	echo "$OTP_ATTEMPT"
+
 }
 
 function remove_2fa() {
@@ -665,14 +676,24 @@ function remove_2fa() {
 		exit 1
 	fi
 
-	echo "========================"
-	echo "    REMOVE 2-FACTOR     "
-	echo "========================"
-	echo
-	echo "Please provide an existing OTP code."
-	echo
+REMOVE_2FA=$(cat <<EOF
+===============================
+        ${CYAN}REMOVE 2-FACTOR${NC}
+===============================
+${GREEN}Enter OTP Code:${NC} 
+EOF
+)
 
-	read -p 'Enter OTP Code: ' REMOVE_OTP
+	read -p "$REMOVE_2FA " REMOVE_OTP
+
+	# echo "========================"
+	# echo "    REMOVE 2-FACTOR     "
+	# echo "========================"
+	# echo
+	# echo ""
+	# echo
+
+	# read -p 'Enter OTP Code: ' REMOVE_OTP
 
 	if [[ $REMOVE_OTP == "" ]]; then
 		echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
@@ -1353,14 +1374,14 @@ EOF
 fi
 
 
-if [[ $1 == "cloud" ]] || [[ $1 == "c" ]]; then
+# if [[ $1 == "cloud" ]] || [[ $1 == "c" ]]; then
 
-	if [[ "$2" = "ls" ]] || [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
-cat <<EOF
-$(cloud_balance $1 $2 $3 $4 $5)
-EOF
-	exit 1
-fi
+# 	if [[ "$1" = "ls" ]] || [[ "$2" = "--account" ]] || [[ "$2" = "account" ]] || [[ "$2" = "wallet" ]] || [[ "$2" = "balance" ]] || [[ "$2" = "a" ]] || [[ "$2" = "--balance" ]]; then
+# cat <<EOF
+# $(cloud_balance $1 $2 $3 $4 $5)
+# EOF
+# 	exit 1
+# fi
 
 
 # if [[ $2 == "send" ]]; then
@@ -1370,21 +1391,21 @@ fi
 # 	exit 1
 # fi
 
-if [[ "$2" = "2f-disable" ]] || [[ "$2" = "2f-remove" ]]; then
+if [[ "$1" = "2f-disable" ]] || [[ "$1" = "2f-remove" ]]; then
 cat <<EOF
 $(remove_2fa $1 $2 $3 $4 $5)
 EOF
 	exit 1
 fi
 
-if [[ "$2" = "2f-enable" ]] || [[ "$2" = "2f" ]] || [[ "$2" = "2factor" ]] || [[ "$2" = "2fa" ]] || [[ "$2" = "-2f" ]] || [[ "$2" = "--2f" ]] || [[ "$2" = "--2factor" ]]; then
+if [[ "$1" = "2f-enable" ]] || [[ "$1" = "2f" ]] || [[ "$1" = "2factor" ]] || [[ "$1" = "2fa" ]] || [[ "$1" = "-2f" ]] || [[ "$1" = "--2f" ]] || [[ "$1" = "--2factor" ]]; then
 cat <<EOF
 $(setup_2fa $1 $2 $3 $4 $5)
 EOF
 	exit 1
 fi
 
-fi
+# fi
 
 # if [ "$1" = "secret" ] || [ "$1" = "--seed" ]; then
 # cat <<EOF
@@ -2208,7 +2229,7 @@ if [[ "$1" = "logout" ]]; then
 	else
 		rm $DIR/.n2-session 2> /dev/null
 		# echo "Ok:  of Nano.to."
-		echo "${GREEN}Cloud${NC}: You logged out."
+		echo "${GREEN}Cloud${NC}: Logged out from Nano.to."
 		exit 1
 	fi
 fi
@@ -2220,9 +2241,9 @@ fi
 # ██║  ██║███████╗╚██████╗   ██║   ╚██████╗███████╗███████╗
 # ╚═╝  ╚═╝╚══════╝ ╚═════╝   ╚═╝    ╚═════╝╚══════╝╚══════╝                                                
 
-if [[ $2 == "recycle" ]] ; then
+if [[ $1 == "recycle" ]] || [[ $1 == "change" ]]; then
 
-	read -p 'Recyling a Nano address removes it from your wallet. Remaining funds are sent to your master Address: Type (y) to continue.'  YES
+	read -p 'This changes your Cloud Nano address to a diffrent one, while keeping the same funds.  Type (y) to continue.'  YES
 
 	if [[ $YES == "Yes" ]] || [[ $YES == "yes" ]]; then
 		RECYCLE_ATTEMPT=$(curl -s "https://nano.to/cloud/recycle" \

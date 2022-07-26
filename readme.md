@@ -16,7 +16,7 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ```bash
 curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o ./n2
-sudo chmod +x /usr/local/bin/n2
+sudo chmod +x ./n2
 sudo ./n2 price
 ```
 

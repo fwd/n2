@@ -1,3 +1,4 @@
+
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
 # ██████╔╝██████╔╝██║██║     █████╗  
@@ -7,7 +8,7 @@
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-    # For laters
+    # For later
     # https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
     # https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies=usd
 
@@ -43,5 +44,4 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
     exit 1
 
 fi
-
 

@@ -37,6 +37,7 @@ RED=$'\e[0;31m'
 NC=$'\e[0m'
 GREEN2=$'\e[1;92m'
 
+
 LOCAL_DOCS=$(cat <<EOF
 Usage
 ⏺  $ n2 setup node
@@ -182,6 +183,8 @@ EOF
 
   exit 1
 }
+
+
 
 function cloud_balance() {
 
@@ -340,6 +343,8 @@ EOF
 
 fi
 
+
+
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
 # ██████╔╝██████╔╝██║██║     █████╗  
@@ -349,7 +354,7 @@ fi
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-    # For laters
+    # For later
     # https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
     # https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies=usd
 
@@ -386,6 +391,21 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
 
 fi
 
+if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
+
+    if [[ $2 == "" ]] || [[ "$3" == "--help" ]] ; then
+cat <<EOF
+Usage:
+  $ n2 $1 @fosse
+  $ n2 $1 @moon --json
+  $ n2 $1 @moon --claim
+  $ n2 $1 @moon --set website "James"
+  $ n2 $1 @moon --set name "James"
+EOF
+        exit 1
+    fi
+
+fi
 
 function cloud_login() {
 
@@ -491,6 +511,8 @@ cat <<EOF
 $(cloud_balance $1 $2 $3 $4 $5)
 EOF
     exit 1
+    fi
+
 fi
 
 function cloud_register() {
@@ -1138,9 +1160,9 @@ EOF
     echo "==============================="
     # echo "USERNAME: "$2
     echo "USERNAME: @"$(jq -r '.username' <<< $WHOIS) 
-    # echo "BLOCKS: "$(jq -r '.height' <<< $WHOIS)
-    echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
+    # echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
     echo "ADDRESS: "$(jq -r '.address' <<< $WHOIS)
+    echo "HEIGHT: "$(jq -r '.height' <<< $WHOIS)
     echo "BROWSER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
     echo "==============================="
 
@@ -1312,21 +1334,7 @@ if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[
 
 fi
 
-if [ "$1" = "username" ] || [ "$1" = "lookup" ] || [ "$1" = "find" ] || [ "$1" = "whois" ] || [ "$1" = "search" ] || [ "$1" = "name" ] || [ "$1" = "-w" ] || [ "$1" = "-f" ]; then
 
-    if [[ $2 == "" ]] || [[ "$3" == "--help" ]] ; then
-cat <<EOF
-Usage:
-  $ n2 $1 @fosse
-  $ n2 $1 @moon --json
-  $ n2 $1 @moon --claim
-  $ n2 $1 @moon --set website "James"
-  $ n2 $1 @moon --set name "James"
-EOF
-        exit 1
-    fi
-
-    
 #  ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗
 # ██╔════╝██║  ██║██╔══██╗██║████╗  ██║
 # ██║     ███████║███████║██║██╔██╗ ██║

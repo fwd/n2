@@ -429,9 +429,9 @@ EOF
     echo "==============================="
     # echo "USERNAME: "$2
     echo "USERNAME: @"$(jq -r '.username' <<< $WHOIS) 
-    # echo "BLOCKS: "$(jq -r '.height' <<< $WHOIS)
-    echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
+    # echo "BALANCE: "$(jq -r '.balance' <<< $WHOIS)
     echo "ADDRESS: "$(jq -r '.address' <<< $WHOIS)
+    echo "HEIGHT: "$(jq -r '.height' <<< $WHOIS)
     echo "BROWSER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
     echo "==============================="
 

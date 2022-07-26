@@ -1,3 +1,4 @@
+
 LOCAL_DOCS=$(cat <<EOF
 Usage
 ⏺  $ n2 setup node
@@ -71,4 +72,3 @@ function sponsor() {
   echo "https://m.do.co/c/f139acf4ddcb"
   echo "========ADVERTISE HERE========"
 }
-

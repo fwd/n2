@@ -1,3 +1,4 @@
+
 function cloud_balance() {
 
   if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -154,4 +155,5 @@ EOF
   exit 1
 
 fi
+
 

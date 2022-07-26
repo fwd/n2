@@ -1,3 +1,5 @@
+
+
 function cloud_login() {
 
     if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
@@ -102,5 +104,7 @@ cat <<EOF
 $(cloud_balance $1 $2 $3 $4 $5)
 EOF
     exit 1
+    fi
+
 fi
 

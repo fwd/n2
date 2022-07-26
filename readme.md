@@ -6,13 +6,19 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
-## ❯ Install
+## ❯ Global
 
 ```bash
 curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 ```
-> **For a Non-Custodial (Local Node) CLI, see [N1](https://github.com/fwd/n1)**.
 
+## ❯ Local
+
+```bash
+curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o ./n2
+sudo chmod +x /usr/local/bin/n2
+sudo ./n2 price
+```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
@@ -20,17 +26,17 @@ curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
 
 ```
 Usage
-$ n2 whois @moon --json
-$ n2 qrcode @fosse
-$ n2 balance
-$ n2 send @esteban 0.1
-$ n2 username @lightyear --buy --year
-$ n2 username @lightyear --set --email "support@lightyear.com"
-$ n2 username @lightyear --set --website ./index.html
 $ n2 login
 $ n2 register 
 $ n2 2factor
 $ n2 logout
+$ n2 whois @moon --json
+$ n2 qrcode @fosse
+$ n2 balance
+$ n2 username @lightyear --buy --year
+$ n2 username @lightyear --set --email "support@lightyear.com"
+$ n2 username @lightyear --set --website ./index.html
+$ n2 withdraw
 
 Options
   --help, -h  Print CLI Documentation.

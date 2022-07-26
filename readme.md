@@ -26,24 +26,25 @@ sudo ./n2 price
 
 ```
 Usage
-$ n2 login
-$ n2 register 
-$ n2 2factor
-$ n2 logout
 $ n2 whois @moon --json
 $ n2 qrcode @fosse
-$ n2 balance
+$ n2 node setup
+$ n2 node balance
 $ n2 username @lightyear --buy --year
 $ n2 username @lightyear --set --email "support@lightyear.com"
 $ n2 username @lightyear --set --website ./index.html
 $ n2 withdraw
+$ n2 login
+$ n2 register 
+$ n2 2factor
+$ n2 logout
 
 Options
-  --help, -h  Print CLI Documentation.
-  --docs, -d  Open Nano.to Documentation.
-  --update, -u  Updaate CLI Script.
-  --version, -v  Print CLI Version.
-  --uninstall, -u  Remove CLI.
+  --help, -h  Print N2 Documentation.
+  --docs, -d  Open Nano.to Docs.
+  --update, -u  Update N2 Script.
+  --version, -v  Print N2 Version.
+  --uninstall, -u  Remove N2.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
@@ -58,7 +59,7 @@ Contributions, issues and feature requests are welcome at [issues page](https://
 
 MIT License
 
-Copyright © 2022 [@nano2dev](https://twitter.com/nano2dev).
+Copyright © [@nano2dev](https://twitter.com/nano2dev).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

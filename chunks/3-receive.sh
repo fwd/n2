@@ -1,4 +1,3 @@
-
 function cloud_receive() {
 
   if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -70,5 +69,4 @@ EOF
 
   exit 1
 }
-
 

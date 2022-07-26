@@ -111,7 +111,6 @@ function sponsor() {
   echo "https://m.do.co/c/f139acf4ddcb"
   echo "========ADVERTISE HERE========"
 }
-
 function cloud_receive() {
 
   if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -183,7 +182,6 @@ EOF
 
   exit 1
 }
-
 
 
 function cloud_balance() {

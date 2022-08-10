@@ -9,14 +9,14 @@
 DIR=$(eval echo "~$different_user")
 
 # Install '7z' if needed.
-if ! command -v 7z &> /dev/null; then
-	if [  -n "$(uname -a | grep Ubuntu)" ]; then
-		sudo apt install 7z -y
-	else
-		echo "${CYAN}Cloud${NC}: We could not auto install '7z'. Please install it manually, before continuing."
-		exit 1
-	fi
-fi
+# if ! command -v 7z &> /dev/null; then
+# 	if [  -n "$(uname -a | grep Ubuntu)" ]; then
+# 		sudo apt install 7z -y
+# 	else
+# 		echo "${CYAN}Cloud${NC}: We could not auto install '7z'. Please install it manually, before continuing."
+# 		exit 1
+# 	fi
+# fi
 
 if ! command -v jq &> /dev/null; then
 	if [  -n "$(uname -a | grep Ubuntu)" ]; then

@@ -1,53 +1,19 @@
 
-LOCAL_DOCS=$(cat <<EOF
-Usage
-⏺  $ n2 setup node
-⏺  $ n2 balance --local
-⏺  $ n2 whois @moon
-⏺  $ n2 account @kraken --json
-⏺  $ n2 send @esteban 0.1
-⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin --list
-EOF
-)
-
-CLOUD_DOCS=$(cat <<EOF
-Nano.to Cloud
-✅ $ n2 login
-✅ $ n2 register
-✅ $ n2 account
-✅ $ n2 username
-✅ $ n2 2factor
-✅ $ n2 logout
-EOF
-)
-
-OPTIONS_DOCS=$(cat <<EOF
-Options
---cloud, -c  Use Cloud Node (Custodial).
---local, -l  Use Local Node (Non-Custodial).
---help, -h  Print CLI Documentation.
---docs, -d  Open Nano.to Documentation.
---update, -u  Get latest CLI Script.
---version, -v  Print current CLI Version.
---uninstall, -u  Remove CLI from system.
-EOF
-)
-
 DOCS=$(cat <<EOF
-${GREEN}CLOUD:${NC}
-  $ n2 [ login • register • account • 2factor • logout ]
-${GREEN}NAMES:${NC}
-  $ n2 username @esteban [ buy • renew • config • claim ]
-  $ n2 username @moon --buy --day
-  $ n2 username @moon --set email "support@nano.to"
-  $ n2 username @moon --set website --file ./index.html
-${GREEN}WALLET:${NC}
-  $ n2 receive
-  $ n2 send @esteban 0.1
-  $ n2 pow @esteban --json
-${GREEN}N2 CLI:${NC}
-  $ n2 --update --version --dev --json
+${GREEN}Usage:${NC}
+$ n2 whois @moon --json
+$ n2 qrcode @fosse
+$ n2 node setup
+$ n2 node balance
+$ n2 username @lightyear --buy --year
+$ n2 username @lightyear --set --email "support@lightyear.com"
+$ n2 username @lightyear --set --website ./index.html
+${GREEN}Flags:${NC}
+  --help, -h  Print N2 Documentation.
+  --docs, -d  Open Nano.to Docs.
+  --update, -u  Update N2 Script.
+  --version, -v  Print N2 Version.
+  --uninstall, -u  Remove N2.
 EOF
 )
 

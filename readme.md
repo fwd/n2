@@ -27,19 +27,15 @@ sudo ./n2 price
 ```
 Usage
 $ n2 whois @moon --json
-$ n2 qrcode @fosse
 $ n2 node setup
 $ n2 node balance
-$ n2 username @lightyear --buy --year
-$ n2 username @lightyear --set --email "support@lightyear.com"
-$ n2 username @lightyear --set --website ./index.html
 
 Options
-  --help, -h  Print N2 Documentation.
-  --docs, -d  Open Nano.to Docs.
-  --update, -u  Update N2 Script.
-  --version, -v  Print N2 Version.
-  --uninstall, -u  Remove N2.
+--help, -h  N2 Documentation.
+--docs, -d  Nano.to Docs.
+--update, -u  Update N2.
+--version, -v  Print N2 Version.
+--uninstall, -u  Remove N2.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

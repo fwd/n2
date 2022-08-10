@@ -12,17 +12,7 @@ fi
 
 if [ "$1" = "list" ] || [ "$1" = "ls" ] || [ "$1" = "--ls" ] || [ "$1" = "-ls" ] || [ "$1" = "-l" ]; then
 cat <<EOF
-Nano.to
-  $ n2 [ stats • price • login • register • account • username • 2fa • logout ]
-
-Local Node (Non-Custodial)
-  $ n2 local [ ls • send • qrcode • receive • install • upgrade • plugin ]
-
-Cloud Node (Custodial)
-  $ n2 cloud [ ls • send • qrcode • receive • recycle ]
-
-Options
-  $ n2 --update --version --dev --json
+$DOCS
 EOF
     exit 1
 fi

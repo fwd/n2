@@ -1,19 +1,50 @@
 
+LOCAL_DOCS=$(cat <<EOF
+Usage
+⏺  $ n2 setup node
+⏺  $ n2 balance --local
+⏺  $ n2 whois @moon
+⏺  $ n2 account @kraken --json
+⏺  $ n2 send @esteban 0.1
+⏺  $ n2 qrcode @fosse
+⏺  $ n2 plugin --list
+EOF
+)
+
+CLOUD_DOCS=$(cat <<EOF
+Nano.to Cloud
+✅ $ n2 login
+✅ $ n2 register
+✅ $ n2 account
+✅ $ n2 username
+✅ $ n2 2factor
+✅ $ n2 logout
+EOF
+)
+
+OPTIONS_DOCS=$(cat <<EOF
+Options
+--cloud, -c  Use Cloud Node (Custodial).
+--local, -l  Use Local Node (Non-Custodial).
+--help, -h  Print CLI Documentation.
+--docs, -d  Open Nano.to Documentation.
+--update, -u  Get latest CLI Script.
+--version, -v  Print current CLI Version.
+--uninstall, -u  Remove CLI from system.
+EOF
+)
+
 DOCS=$(cat <<EOF
-${GREEN}Usage:${NC}
+${GREEN}USAGE:${NC}
 $ n2 whois @moon --json
-$ n2 qrcode @fosse
 $ n2 node setup
 $ n2 node balance
-$ n2 username @lightyear --buy --year
-$ n2 username @lightyear --set --email "support@lightyear.com"
-$ n2 username @lightyear --set --website ./index.html
-${GREEN}Flags:${NC}
-  --help, -h  Print N2 Documentation.
-  --docs, -d  Open Nano.to Docs.
-  --update, -u  Update N2 Script.
-  --version, -v  Print N2 Version.
-  --uninstall, -u  Remove N2.
+${GREEN}OPTIONS:${NC}
+--help, -h  N2 Documentation.
+--docs, -d  Nano.to Docs.
+--update, -u  Update N2.
+--version, -v  Print N2 Version.
+--uninstall, -u  Remove N2.
 EOF
 )
 

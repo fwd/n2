@@ -9,13 +9,13 @@
 ## ❯ Global
 
 ```bash
-curl -L "https://github.com/fwd/n2/raw/dev/install.sh" | sh
+curl -L "https://github.com/fwd/n2/raw/master/install.sh" | sh
 ```
 
 ## ❯ Local
 
 ```bash
-curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o ./n2
+curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o ./n2
 sudo chmod +x ./n2
 sudo ./n2 price
 ```
@@ -33,11 +33,6 @@ $ n2 node balance
 $ n2 username @lightyear --buy --year
 $ n2 username @lightyear --set --email "support@lightyear.com"
 $ n2 username @lightyear --set --website ./index.html
-$ n2 withdraw
-$ n2 login
-$ n2 register 
-$ n2 2factor
-$ n2 logout
 
 Options
   --help, -h  Print N2 Documentation.
@@ -59,7 +54,7 @@ Contributions, issues and feature requests are welcome at [issues page](https://
 
 MIT License
 
-Copyright © [@nano2dev](https://twitter.com/nano2dev).
+Copyright © [nano2dev](https://twitter.com/nano2dev).
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

@@ -3,39 +3,56 @@ function local_send() {
     if curl -s --fail -X POST '[::1]:7076'; then
         echo ""
     else
-       echo "${CYAN}Cloud${NC}: No local Node found. Use 'n2 setup node' or use 'n2 cloud send'"
+       echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'."
        exit 1
     fi;
 
     if [[ $2 == "" ]]; then
-        echo "${CYAN}Cloud${NC}: Missing Username or Nano Address."
+        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
         exit 1
     fi
     
     if [[ $3 == "" ]]; then
-        echo "${CYAN}Cloud${NC}: Missing amount. Use 'all' to send balance."
+        echo "${CYAN}Node${NC}: Missing amount. Use 'all' to send entire balance."
         exit 1
     fi
 
     WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
 
+    SRC="$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')"
+
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    AMOUNT_IN_RAW=$(curl -s "https://nano.to/cloud/convert/toRaw/$3" \
+    # TODO: Replace with nano_to_raw... but no Decimal support
+    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
         -H "Accept: application/json" \
         -H "session: $(cat $DIR/.n2-session)" \
         -H "Content-Type:application/json" \
         --request GET)
 
-    SRC=""
-    DEST=""
+    if [[ "$2" == *"nano_"* ]]; then
+        DEST=$2
+    else
+        NAME=$(echo $2 | sed -e "s/\@//g")
+        ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-names/master/known.json | jq '. | map(select(.name == "'$NAME'"))' | jq '.[0]')
+        DEST=$(jq -r '.address' <<< "$ACCOUNT")
+    fi
 
-    ACCOUNT=$(curl -s "https://nano.to/$SRC/account" \
+    ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
-    --request GET)
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_info",
+    "account": "$SRC",
+    "pending": "true",
+    "representative": "true",
+}
+EOF
+    ))
 
-    POW=$(curl -s "https://nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")/pow" \
+    POW=$(curl -s "https://pow.nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
@@ -127,48 +144,6 @@ if [[ "$1" = "--seed" ]] || [[ "$1" = "--secret" ]]; then
   echo $SEED
 fi
 
-if [[ "$1" = "favorites" ]] || [[ "$1" = "saved" ]]; then
-
-    if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
-        echo "[{ \"hello\": \"world\"  }]" >> $DIR/.n2-favorites
-    fi
-
-    cat $DIR/.n2-favorites
-
-    exit 1
-
-fi
-
-if [[ "$1" = "reset-saved" ]]; then
-    rm $DIR/.n2-favorites
-    echo "[]" >> $DIR/.n2-favorites
-    exit 1
-fi
-
-if [[ "$1" = "save" ]] || [[ "$1" = "favorite" ]]; then
-
-    if [[ $(cat $DIR/.n2-favorites 2>/dev/null) == "" ]]; then
-        echo "[]" >> $DIR/.n2-favorites
-    fi
-
-    if [[ "$2" = "" ]]; then
-        echo "${CYAN}Cloud${NC}: Missing Nano Address."
-        exit 1
-    fi
-
-    if [[ "$3" = "" ]]; then
-        echo "${CYAN}Cloud${NC}: Missing Nickname."
-        exit 1
-    fi
-
-    SAVED="$(cat $DIR/.n2-favorites)" 
-    rm $DIR/.n2-favorites 
-    jq <<< "$SAVED" | jq ". + [ { \"name\": \"$1\", \"address\": \"$2\" } ]" >> $DIR/.n2-favorites 
-
-    exit
-
-fi
-
 
 if [[ $1 == "send" ]] || [[ $1 == "--send" ]] || [[ $1 == "-s" ]]; then
     cat <<EOF
@@ -180,13 +155,19 @@ fi
 
 if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
 
-    echo 
-cat <<EOF
-${GREEN}Local${NC}: N1: Wallet is in-development. 
+    if curl -s --fail -X POST '[::1]:7076'; then
+        echo ""
+    else
+       echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
+       exit 1
+    fi;
 
-Github: https://github.com/fwd/n2
-Twitter: https://twitter.com/nano2dev
-EOF
+    if [[ $2 == "" ]]; then
+        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
+        exit 1
+    fi
+
+    exit 
 
 fi
 
@@ -194,52 +175,51 @@ fi
 if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-            echo ""
-        elif [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "${CYAN}Cloud${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-            sponsor
-            exit 1
-          # Mac OSX
-        elif [[ "$OSTYPE" == "cygwin" ]]; then
-            echo "${CYAN}Cloud${NC}: Operating system not supported."
-            sponsor
-            exit 1
-          # POSIX compatibility layer and Linux environment emulation for Windows
-        elif [[ "$OSTYPE" == "msys" ]]; then
-            echo "${CYAN}Cloud${NC}: Operating system not supported."
-            sponsor
-            exit 1
-          # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-        elif [[ "$OSTYPE" == "win32" ]]; then
-          # I'm not sure this can happen.
-            echo "${CYAN}Cloud${NC}: Operating system not supported."
-            sponsor
-            exit 1
-        elif [[ "$OSTYPE" == "freebsd"* ]]; then
-          # ...
-            echo "${CYAN}Cloud${NC}: Operating system not supported."
-            sponsor
-            exit 1
-        else
-           # Unknown.
-            echo "${CYAN}Cloud${NC}: Operating system not supported."
-            sponsor
-            exit 1
-        fi
+        echo ""
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
+        sponsor
+        exit 1
+      # Mac OSX
+    elif [[ "$OSTYPE" == "cygwin" ]]; then
+        echo "${CYAN}Node${NC}: Operating system not supported."
+        sponsor
+        exit 1
+      # POSIX compatibility layer and Linux environment emulation for Windows
+    elif [[ "$OSTYPE" == "msys" ]]; then
+        echo "${CYAN}Node${NC}: Operating system not supported."
+        sponsor
+        exit 1
+      # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+    elif [[ "$OSTYPE" == "win32" ]]; then
+      # I'm not sure this can happen.
+        echo "${CYAN}Node${NC}: Operating system not supported."
+        sponsor
+        exit 1
+    elif [[ "$OSTYPE" == "freebsd"* ]]; then
+      # ...
+        echo "${CYAN}Node${NC}: Operating system not supported."
+        sponsor
+        exit 1
+    else
+       # Unknown.
+        echo "${CYAN}Node${NC}: Operating system not supported."
+        sponsor
+        exit 1
+    fi
 
-        # Coming soon
-        if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "--pow-server" ]]; then
-            read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
-            if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-                echo "Coming soon"
-                # @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
-                # $DIR/nano-work-server/target/release/nano-work-server --cpu 2
-                # $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
-                exit 1
-            fi
-            echo "Canceled"
+    # Coming soon
+    if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "pow-proxy" ]] || [[ "$2" = "pow-server" ]]; then
+        read -p 'Setup Nano PoW Server: Enter 'y': ' YES
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+            # @reboot ~/nano-work-server/target/release/nano-work-server --gpu 0:0
+            # $DIR/nano-work-server/target/release/nano-work-server --cpu 2
+            # $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0
             exit 1
         fi
+        echo "Canceled"
+        exit 1
+    fi
 
     # Sorta working
     if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
@@ -253,11 +233,13 @@ if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; the
         exit 1
     fi
 
-    read -p 'Setup a Live Nano Node: Enter 'y' to continue: ' YES
+    read -p 'Attempt to setup a Nano Node: Enter 'y': ' YES
     if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-        cd $DIR && git clone https://github.com/fwd/nano-docker.git
-        LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-        cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+        # https://github.com/fwd/nano-docker
+        curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
+        # cd $DIR && git clone https://github.com/fwd/nano-docker.git
+        # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+        # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
         exit 1
     fi
     echo "Canceled"

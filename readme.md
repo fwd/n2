@@ -6,6 +6,8 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
+> In-development. Not for general use just yet.
+
 ## ❯ Global
 
 ```bash

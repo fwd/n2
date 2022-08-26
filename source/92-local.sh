@@ -7,6 +7,7 @@ function local_send() {
     #    exit 1
     # fi;
 
+
     if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Username or Nano Address."
         exit 1
@@ -22,25 +23,34 @@ function local_send() {
         exit 1
     fi
 
-    echo $1
-    echo $2
-    echo $3
-    echo $4
+    AMOUNT=$2
+    DEST=$3
+    SRC=$4
 
-    exit 1
+    # echo $1
+    # echo $2
+    # echo $3
+    # echo $4
 
-    WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+    # exit 1
 
-    SRC="$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')"
+    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2-wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2-wallet)
+    fi
+    # WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+
+    # SRC="$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')"
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
     # TODO: Replace with nano_to_raw... but no Decimal support
     AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
-        -H "Accept: application/json" \
-        -H "session: $(cat $DIR/.n2-session)" \
-        -H "Content-Type:application/json" \
-        --request GET)
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
 
     if [[ "$2" == *"nano_"* ]]; then
         DEST=$2
@@ -57,12 +67,15 @@ function local_send() {
     --data @<(cat <<EOF
 {
     "action": "account_info",
-    "account": "$SRC",
-    "pending": "true",
-    "representative": "true",
+    "account": "$SRC"
 }
 EOF
     ))
+
+    # echo "asd"
+    # echo $ACCOUNT
+
+    # exit 1
 
     POW=$(curl -s "https://pow.nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")" \
     -H "Accept: application/json" \
@@ -99,6 +112,8 @@ EOF
 }
 EOF
     ))
+
+    # echo $SEND_ATTEMPT
 
     if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
         echo

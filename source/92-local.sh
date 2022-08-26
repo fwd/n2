@@ -190,7 +190,7 @@ EOF
 
     echo $(jq -r '.accounts' <<< "$accounts") 
 
-    exit 1
+    exit 0
 
 fi
 

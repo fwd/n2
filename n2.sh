@@ -347,22 +347,34 @@ fi
 
 function local_send() {
 
-    if curl -s --fail -X POST '[::1]:7076'; then
-        echo ""
-    else
-       echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'."
-       exit 1
-    fi;
+    # if curl -s --fail -X POST '[::1]:7076'; then
+    #     echo ""
+    # else
+    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'."
+    #    exit 1
+    # fi;
 
-    if [[ $2 == "" ]]; then
+    if [[ $1 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Username or Nano Address."
         exit 1
     fi
     
-    if [[ $3 == "" ]]; then
+    if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing amount. Use 'all' to send entire balance."
         exit 1
     fi
+
+    if [[ $3 == "" ]]; then
+        echo "${CYAN}Node${NC}: Missing source address."
+        exit 1
+    fi
+
+    echo $1
+    echo $2
+    echo $3
+    # echo $4
+
+    exit 1
 
     WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
 
@@ -481,9 +493,9 @@ if [[ "$2" = "exec" ]] || [[ "$2" = "--exec" ]]; then
     exit 1
 fi
 
-if [[ "$1" = "node" ]] && [[ "$2" = "--wallet" ]]; then
-    docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
-fi
+# if [[ "$1" = "node" ]] && [[ "$2" = "--wallet" ]]; then
+#     # docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
+# fi
 
 if [[ "$1" = "--seed" ]] || [[ "$1" = "--secret" ]]; then
   WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
@@ -494,7 +506,7 @@ fi
 
 if [[ $1 == "send" ]] || [[ $1 == "--send" ]] || [[ $1 == "-s" ]]; then
     cat <<EOF
-$(local_send $2 $3 $4)
+$(local_send $1 $2 $3 $4)
 EOF
     exit 1
 fi
@@ -518,6 +530,34 @@ if [[ $1 == "address" ]]; then
 fi
 
 
+if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
+
+    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2-wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2-wallet)
+    fi
+
+    accounts=$(curl -s '[::1]:7076' \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_list",
+    "wallet": "$WALLET_ID",
+    "json_block": "true"
+}
+EOF
+    ))
+
+    echo $(jq -r '.accounts' <<< "$accounts") 
+
+    exit 1
+
+fi
+
 if [[ $1 == "wallet" ]]; then
 
     if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
@@ -539,18 +579,6 @@ if [[ $1 == "wallet" ]]; then
 }
 EOF
     ))
-
-    # if curl -s --fail -X POST '[::1]:7076'; then
-    #     echo ""
-    # else
-    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
-    #    exit 1
-    # fi;
-
-    # if [[ $2 == "" ]]; then
-    #     echo "${CYAN}Node${NC}: Missing Username or Nano Address."
-    #     exit 1
-    # fi
 
     echo $WALLET
 

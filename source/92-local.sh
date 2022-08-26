@@ -1,13 +1,5 @@
 function local_send() {
 
-    # if curl -s --fail -X POST '[::1]:7076'; then
-    #     echo ""
-    # else
-    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'."
-    #    exit 1
-    # fi;
-
-
     if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Username or Nano Address."
         exit 1
@@ -23,30 +15,16 @@ function local_send() {
         exit 1
     fi
 
-    AMOUNT=$2
-    DEST=$3
-    SRC=$4
-
-    # echo $1
-    # echo $2
-    # echo $3
-    # echo $4
-
-    # exit 1
-
     if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
         echo $WALLET_ID >> $DIR/.n2-wallet
     else
         WALLET_ID=$(cat $DIR/.n2-wallet)
     fi
-    # WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-
-    # SRC="$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')"
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    # TODO: Replace with nano_to_raw... but no Decimal support
+    # TODO: Replace... no bash BIG.JS
     AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -55,9 +33,17 @@ function local_send() {
     if [[ "$2" == *"nano_"* ]]; then
         DEST=$2
     else
-        NAME=$(echo $2 | sed -e "s/\@//g")
-        ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-names/master/known.json | jq '. | map(select(.name == "'$NAME'"))' | jq '.[0]')
+        NAME_DEST=$(echo $2 | sed -e "s/\@//g")
+        ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-names/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
         DEST=$(jq -r '.address' <<< "$ACCOUNT")
+    fi
+
+    if [[ "$4" == *"nano_"* ]]; then
+        SRC=$4
+    else
+        NAME_SRC=$(echo $4 | sed -e "s/\@//g")
+        ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-names/master/known.json | jq '. | map(select(.name == "'$NAME_SRC'"))' | jq '.[0]')
+        SRC=$(jq -r '.address' <<< "$ACCOUNT")
     fi
 
     ACCOUNT=$(curl -s '[::1]:7076' \
@@ -71,11 +57,6 @@ function local_send() {
 }
 EOF
     ))
-
-    # echo "asd"
-    # echo $ACCOUNT
-
-    # exit 1
 
     POW=$(curl -s "https://pow.nano.to/$(jq -r '.frontier' <<< "$ACCOUNT")" \
     -H "Accept: application/json" \
@@ -112,8 +93,6 @@ EOF
 }
 EOF
     ))
-
-    # echo $SEND_ATTEMPT
 
     if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
         echo
@@ -161,10 +140,6 @@ if [[ "$2" = "exec" ]] || [[ "$2" = "--exec" ]]; then
     exit 1
 fi
 
-# if [[ "$1" = "node" ]] && [[ "$2" = "--wallet" ]]; then
-#     # docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}'
-# fi
-
 if [[ "$1" = "--seed" ]] || [[ "$1" = "--secret" ]]; then
   WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
   SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
@@ -181,13 +156,6 @@ fi
 
 
 if [[ $1 == "address" ]]; then
-
-    # if curl -f -d '{ "action": "block_count" }' '[::1]:7076'; then
-    #     echo ""
-    # else
-    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
-    #    exit 1
-    # fi;
 
     SRC=$(nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
 

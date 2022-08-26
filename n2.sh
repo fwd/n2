@@ -500,19 +500,79 @@ EOF
 fi
 
 
+if [[ $1 == "address" ]]; then
+
+    # if curl -f -d '{ "action": "block_count" }' '[::1]:7076'; then
+    #     echo ""
+    # else
+    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
+    #    exit 1
+    # fi;
+
+    SRC=$(nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
+
+    echo "asd"
+
+    exit 
+
+fi
+
+
+if [[ $1 == "wallet" ]]; then
+
+    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2-wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2-wallet)
+    fi
+
+    WALLET=$(curl -s '[::1]:7076' \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "wallet_info",
+    "wallet": "$WALLET_ID",
+    "json_block": "true"
+}
+EOF
+    ))
+
+    # if curl -s --fail -X POST '[::1]:7076'; then
+    #     echo ""
+    # else
+    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
+    #    exit 1
+    # fi;
+
+    # if [[ $2 == "" ]]; then
+    #     echo "${CYAN}Node${NC}: Missing Username or Nano Address."
+    #     exit 1
+    # fi
+
+    echo $WALLET
+
+    exit 
+
+fi
+
 if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
 
-    if curl -s --fail -X POST '[::1]:7076'; then
-        echo ""
-    else
-       echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
-       exit 1
-    fi;
+    # if curl -s --fail -X POST '[::1]:7076'; then
+    #     echo ""
+    # else
+    #    echo "${CYAN}Node${NC}: No local Node found. Use 'n2 setup node'"
+    #    exit 1
+    # fi;
 
-    if [[ $2 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
-        exit 1
-    fi
+    # if [[ $2 == "" ]]; then
+    #     echo "${CYAN}Node${NC}: Missing Username or Nano Address."
+    #     exit 1
+    # fi
+
+    echo "Balance. lol"
 
     exit 
 

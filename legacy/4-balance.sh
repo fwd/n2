@@ -1,4 +1,3 @@
-
 function cloud_balance() {
 
   if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
@@ -133,10 +132,10 @@ fi
 
 }
 
-if [[ $1 == "balance" ]] || [[ $1 == "accounts" ]] || [[ $1 == "account" ]] || [[ $1 == "ls" ]]; then
+if [[ $1 == "balance" ]]; then
 
   if curl -s --fail -X POST '[::1]:7076' || [[ $2 == '--local' ]]; then
-    echo 
+    echo ""
     # $(cloud_balance $1 $2 $3 $4 $5)
 cat <<EOF
 ${GREEN}Local${NC}: Non-custodial local Wallet is in-development. 

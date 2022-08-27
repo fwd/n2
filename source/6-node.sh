@@ -35,7 +35,17 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || |
         exit 0
     fi
 
+    if [[ -z "$3" ]]; then
+        echo "${RED}Available:${NC}:"
+        echo "- Nano Node"
+        echo "- GPU Drivers"
+        echo "- Nano Vanity"
+        echo "- PoW Server"
+        exit 0
+    fi
+
     # Coming soon
+
     if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "pow-proxy" ]] || [[ "$2" = "pow-server" ]]; then
         read -p 'Setup Nano PoW Server: Enter 'y': ' YES
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then

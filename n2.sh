@@ -82,7 +82,7 @@ if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--hel
   echo "${GREEN}BALANCE:${NC} 40.20"
   echo "${GREEN}PENDING:${NC} 0.00"
   echo "${GREEN}ACCOUNT:${NC} nano_j33kjdkd***"
-  echo "${GREEN}SYNCING:${NC} 100%"
+  echo "${GREEN}SYNCLVL:${NC} 100%"
   echo "${GREEN}VERSION:${NC} Nano Node V23.3"
   echo "${GREEN}RPC-CLI:${NC} N2 $VERSION"
 	exit 0

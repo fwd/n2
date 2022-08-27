@@ -183,11 +183,11 @@ function print_balance() {
   echo "${PURP}Accounts:${NC} ${total_accounts}"
   echo "${PURP}Metadata:${NC} $medata_count"
   echo "============================="
-  echo "${PURP}Nano Node:${NC} ${GREEN}V23.3${NC}"
-  echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
+  echo "${PURP}Nano Node:${NC} ${GREEN}V23.3 @ 100%${NC}"
+  # echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
   # echo "${PURP}Node Uptime:${NC} 25 days"
   # echo "============================="
-  echo "${PURP}N2-Version:${NC} ${GREEN}$VERSION${NC}"
+  echo "${PURP}N2 Version:${NC} ${GREEN}$VERSION${NC}"
   echo "============================="
 
 }

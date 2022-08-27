@@ -23,7 +23,7 @@ EOF
 
         echo 
 
-        exit 1
+        exit 0
     fi
 
     # if [[ $2 == "address" ]] || [[ $2 == "addresses" ]] || [[ $2 == "wallets" ]] || [[ $2 == "accounts" ]]; then
@@ -34,13 +34,13 @@ EOF
     #   echo "================================="
     #   echo "https://twitter.com/nano2dev"
     #   echo "================================="
-    #   exit 1
+    #   exit 0
     # fi
 
     if [[ $2 == "address" ]] || [[ $2 == "addresses" ]] || [[ $2 == "wallets" ]] || [[ $2 == "accounts" ]]; then
         if [[ $3 == "" ]]; then
             echo "Missing amount to purchase. Usage: 'n2 add address 2'"
-            exit 1
+            exit 0
         fi
 curl -s "https://nano.to/cloud/shop/address" \
     -H "Accept: application/json" \
@@ -52,13 +52,13 @@ curl -s "https://nano.to/cloud/shop/address" \
 EOF
     )
         echo
-        exit 1
+        exit 0
     fi
 
     if [[ $2 == "pow" ]]; then
         if [[ $3 == "" ]]; then
             echo "Missing amount to purchase. Usage: 'n2 add pow 5'"
-            exit 1
+            exit 0
         fi
 curl -s "https://nano.to/cloud/shop/pow" \
     -H "Accept: application/json" \
@@ -70,12 +70,12 @@ curl -s "https://nano.to/cloud/shop/pow" \
 EOF
     )
         echo
-        exit 1
+        exit 0
     fi
 
     echo "We don't sell that. Use 'n2 shop' to see list."
 
-    exit 1
+    exit 0
 
 fi
 

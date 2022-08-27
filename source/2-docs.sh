@@ -1,24 +1,11 @@
 
 LOCAL_DOCS=$(cat <<EOF
-Usage
-⏺  $ n2 setup node
-⏺  $ n2 balance --local
-⏺  $ n2 whois @moon
-⏺  $ n2 account @kraken --json
-⏺  $ n2 send @esteban 0.1
-⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin --list
-EOF
-)
-
-CLOUD_DOCS=$(cat <<EOF
-Nano.to Cloud
-✅ $ n2 login
-✅ $ n2 register
-✅ $ n2 account
-✅ $ n2 username
-✅ $ n2 2factor
-✅ $ n2 logout
+${GREEN}USAGE:${NC}
+ $ n2 setup
+ $ n2 balance
+ $ n2 whois @moon
+ $ n2 send @esteban 0.1
+ $ n2 install (Coming Soon)
 EOF
 )
 
@@ -36,36 +23,24 @@ EOF
 
 DOCS=$(cat <<EOF
 ${GREEN}USAGE:${NC}
-$ n2 whois @moon --json
-$ n2 node setup
-$ n2 node balance
-${GREEN}OPTIONS:${NC}
---help, -h  N2 Documentation.
---docs, -d  Nano.to Docs.
---update, -u  Update N2.
---version, -v  Print N2 Version.
---uninstall, -u  Remove N2.
+$ n2 setup
+$ n2 balance
+$ n2 send @esteban 0.1 ADDRESS
+$ n2 whois @moon
 EOF
 )
 
 if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
-	cat <<EOF
-$DOCS
-EOF
-	exit 1
+  echo "${GREEN}BALANCE:${NC} 40.20"
+  echo "${GREEN}PENDING:${NC} 0.00"
+  echo "${GREEN}ACCOUNT:${NC} nano_j33kjdkd***"
+  echo "${GREEN}SYNCING:${NC} 100%"
+  echo "${GREEN}VERSION:${NC} Nano Node V23.3"
+  echo "${GREEN}RPC-CLI:${NC} N2 $VERSION"
+	exit 0
 fi
 
 if [[ "$1" = "--json" ]]; then
 	echo "Tip: Use the '--json' flag to get command responses in JSON."
-	exit 1
+	exit 0
 fi
-
- 
-function sponsor() {
-  echo "===========SPONSOR============"
-  echo "  FREE 3-MONTH CLOUD SERVER   "
-  echo "   (\$100 ON DIGITALOCEAN)    "
-  echo "------------------------------"
-  echo "https://m.do.co/c/f139acf4ddcb"
-  echo "========ADVERTISE HERE========"
-}

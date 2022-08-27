@@ -2,7 +2,7 @@ function cloud_balance() {
 
   if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
     echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-    exit 1
+    exit 0
   fi
 
   ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
@@ -20,7 +20,7 @@ function cloud_balance() {
     echo "Wait a few seconds.            "
     echo "==============================="
     echo
-    exit 1
+    exit 0
   fi
 
   if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
@@ -32,7 +32,7 @@ function cloud_balance() {
     echo "Use 'n2 login' to log back in. "
     echo "==============================="
     echo
-    exit 1
+    exit 0
   fi
 
   if [[ $(jq -r '.error' <<< "$ACCOUNT") == "433" ]]; then
@@ -55,7 +55,7 @@ EOF
 
   # echo $EMAIL_OTP
 
-  # exit 1
+  # exit 0
 
   VERIFY_ATTEMPT=$(curl -s "https://nano.to/cloud/verify?code=$EMAIL_OTP" \
     -H "Accept: application/json" \
@@ -65,7 +65,7 @@ EOF
 
   echo $VERIFY_ATTEMPT
 
-  exit 1
+  exit 0
 fi
 
   # echo $ACCOUNT
@@ -79,11 +79,11 @@ fi
 
   #   # read -sp 'Enter OTP Code: ' OTP_CODE
 
-  # exit 1
+  # exit 0
 
   if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
     echo $ACCOUNT
-    exit 1
+    exit 0
   fi
 
   email=$(jq -r '.email' <<< "$ACCOUNT")
@@ -128,7 +128,7 @@ fi
   echo "https://nanolooker.com/account/"$address
   echo "==============================="
 
-  exit 1
+  exit 0
 
 }
 
@@ -144,14 +144,14 @@ Github: https://github.com/fwd/n2
 Twitter: https://twitter.com/nano2dev
 
 EOF
-    exit 1
+    exit 0
   else
     cat <<EOF
 $(cloud_balance $1 $2 $3 $4 $5)
 EOF
   fi;
   
-  exit 1
+  exit 0
 
 fi
 

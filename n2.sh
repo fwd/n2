@@ -14,7 +14,7 @@ DIR=$(eval echo "~$different_user")
 # 		sudo apt install 7z -y
 # 	else
 # 		echo "${CYAN}Cloud${NC}: We could not auto install '7z'. Please install it manually, before continuing."
-# 		exit 1
+# 		exit 0
 # 	fi
 # fi
 
@@ -23,7 +23,7 @@ if ! command -v jq &> /dev/null; then
 		sudo apt install jq -y
 	else
 		echo "${CYAN}Cloud${NC}: We could not auto install 'jq'. Please install it manually, before continuing."
-		exit 1
+		exit 0
 	fi
 fi
 
@@ -34,7 +34,7 @@ if ! command -v curl &> /dev/null; then
 		sudo apt install curl -y
 	else
 		echo "${CYAN}Cloud${NC}: We could not auto install 'curl'. Please install it manually, before continuing."
-		exit 1
+		exit 0
 	fi
 fi
 
@@ -48,25 +48,12 @@ GREEN2=$'\e[1;92m'
 
 
 LOCAL_DOCS=$(cat <<EOF
-Usage
-⏺  $ n2 setup node
-⏺  $ n2 balance --local
-⏺  $ n2 whois @moon
-⏺  $ n2 account @kraken --json
-⏺  $ n2 send @esteban 0.1
-⏺  $ n2 qrcode @fosse
-⏺  $ n2 plugin --list
-EOF
-)
-
-CLOUD_DOCS=$(cat <<EOF
-Nano.to Cloud
-✅ $ n2 login
-✅ $ n2 register
-✅ $ n2 account
-✅ $ n2 username
-✅ $ n2 2factor
-✅ $ n2 logout
+${GREEN}USAGE:${NC}
+ $ n2 setup
+ $ n2 balance
+ $ n2 whois @moon
+ $ n2 send @esteban 0.1
+ $ n2 install (Coming Soon)
 EOF
 )
 
@@ -84,39 +71,27 @@ EOF
 
 DOCS=$(cat <<EOF
 ${GREEN}USAGE:${NC}
-$ n2 whois @moon --json
-$ n2 node setup
-$ n2 node balance
-${GREEN}OPTIONS:${NC}
---help, -h  N2 Documentation.
---docs, -d  Nano.to Docs.
---update, -u  Update N2.
---version, -v  Print N2 Version.
---uninstall, -u  Remove N2.
+$ n2 setup
+$ n2 balance
+$ n2 send @esteban 0.1 ADDRESS
+$ n2 whois @moon
 EOF
 )
 
 if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
-	cat <<EOF
-$DOCS
-EOF
-	exit 1
+  echo "${GREEN}BALANCE:${NC} 40.20"
+  echo "${GREEN}PENDING:${NC} 0.00"
+  echo "${GREEN}ACCOUNT:${NC} nano_j33kjdkd***"
+  echo "${GREEN}SYNCING:${NC} 100%"
+  echo "${GREEN}VERSION:${NC} Nano Node V23.3"
+  echo "${GREEN}RPC-CLI:${NC} N2 $VERSION"
+	exit 0
 fi
 
 if [[ "$1" = "--json" ]]; then
 	echo "Tip: Use the '--json' flag to get command responses in JSON."
-	exit 1
+	exit 0
 fi
-
- 
-function sponsor() {
-  echo "===========SPONSOR============"
-  echo "  FREE 3-MONTH CLOUD SERVER   "
-  echo "   (\$100 ON DIGITALOCEAN)    "
-  echo "------------------------------"
-  echo "https://m.do.co/c/f139acf4ddcb"
-  echo "========ADVERTISE HERE========"
-}
 
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
@@ -127,40 +102,20 @@ function sponsor() {
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-    # For later
-    # https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd
-    # https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies=usd
-
-    if [[ "$2" == "--json" ]]; then
-        curl -s "https://nano.to/price?currency=USD" \
-        -H "Accept: application/json" \
-        -H "Content-Type:application/json" \
-        --request GET | jq
-        exit 1
+    if [[ -z $2 ]]; then
+        FIAT=$2
+    else  
+        FIAT='usd'
     fi
 
-    # AWARD FOR CLEANEST METHOD
-    PRICE=$(curl -s "https://nano.to/price" \
+    PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies=$FIAT" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
 
-    if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-        echo $PRICE
-        exit 1
-    fi
+    echo $(jq -r '.nano' <<< "$PRICE")
 
-    echo "==============================="
-    if [[ $(jq -r '.currency' <<< "$PRICE") == 'USD' ]]; then
-        echo "      Ӿ 1.00 = \$ $(jq -r '.price' <<< "$PRICE")"
-    else
-        echo "      Ӿ 1.00 = $(jq -r '.price' <<< "$PRICE") $(jq -r '.currency' <<< "$PRICE")"
-    fi 
-    echo "==============================="
-    echo "https://coinmarketcap.com/currencies/nano"
-    echo "==============================="
-
-    exit 1
+    exit 0
 
 fi
 
@@ -180,7 +135,7 @@ if [ "$1" = "whois" ]; then
 
     if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
         echo $ACCOUNT
-        exit 1
+        exit 0
     fi
 
     # echo
@@ -197,154 +152,6 @@ if [ "$1" = "whois" ]; then
     exit 
 
 fi
-
-if [ "$2" = "download-ledger" ] || [ "$2" = "fast-sync" ] || [ "$2" = "--fs" ] || [ "$2" = "-fs" ] || [ "$2" = "-dl" ]; then
-
-    ledgerDownloadLink=$(curl -s 'https://s3.us-east-2.amazonaws.com/repo.nano.org/snapshots/latest')
-
-    wget -O ledger.7z ${ledgerDownloadLink} -q --show-progress
-
-    printf "=> ${yellow}Unzipping and placing files to /Nano (takes a while)...${reset} "
-
-    7z x ledger.7z -o ./Nano -y &> /dev/null
-
-    # rm ledger.7z
-    
-    # printf "${green}Done.${reset}\n"
-    
-    exit
-fi
-
-
-#  ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗
-# ██╔════╝██║  ██║██╔══██╗██║████╗  ██║
-# ██║     ███████║███████║██║██╔██╗ ██║
-# ██║     ██╔══██║██╔══██║██║██║╚██╗██║
-# ╚██████╗██║  ██║██║  ██║██║██║ ╚████║
-#  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝
-                                    
-if [ "$2" = "nanolooker" ] || [ "$2" = "--nl" ] || [ "$2" = "-nl" ] || [ "$2" = "-l" ]; then
-
-    if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-        echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
-    fi
-
-    ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
-    -H "Accept: application/json" \
-    -H "session: $(cat $DIR/.n2-session)" \
-    -H "Content-Type:application/json" \
-    --request GET)
-
-    address=$(jq -r '.address' <<< "$ACCOUNT")
-
-    open "https://nanolooker.com/account/$address"
-    echo "==========================================="
-    echo "                OPEN LINK                  "
-    echo "==========================================="
-    echo "https://nanolooker.com/account/$address"
-    echo "==========================================="
-    exit
-fi
-
-
-# ██████╗  ██████╗ ██╗    ██╗
-# ██╔══██╗██╔═══██╗██║    ██║
-# ██████╔╝██║   ██║██║ █╗ ██║
-# ██╔═══╝ ██║   ██║██║███╗██║
-# ██║     ╚██████╔╝╚███╔███╔╝
-# ╚═╝      ╚═════╝  ╚══╝╚══╝ 
-                           
-if [[ $1 == "pow" ]] || [[ $1 == "--pow" ]]; then
-
-    if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
-        echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
-    fi
-
-    if [[ "$2" = "" ]]; then
-    cat <<EOF
-Usage:
-  $ n2 pow @esteban
-  $ n2 pow nano_1address.. --json
-EOF
-        exit 1
-    fi
-
-    ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
-    -H "Accept: application/json" \
-    -H "session: $(cat $DIR/.n2-session)" \
-    -H "Content-Type:application/json" \
-    --request GET)
-
-    if [[ $(jq -r '.code' <<< "$ACCOUNT") == "401" ]]; then
-    rm $DIR/.n2-session
-    echo "==============================="
-    echo "    LOGGED OUT FOR SECURITY    "
-    echo "==============================="
-    echo "Use 'n2 login' to log back in. "
-    echo "==============================="
-    echo
-    exit 1
-    fi
-
-    POW=$(curl -s "https://nano.to/$2/pow" \
-    -H "Accept: application/json" \
-    -H "Authorization: $(jq -r '.pow_key' <<< "$ACCOUNT")" \
-    -H "Content-Type:application/json" \
-    --request GET)
-
-    if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
-        echo $POW
-        exit 1
-    fi
-
-    if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
-        echo "==============================="
-        echo "         PLEASE WAIT           "
-        echo "==============================="
-        echo "  Use 'n2 add pow' or wait.    "
-        echo "==============================="
-        echo "Docs: https://docs.nano.to/pow "
-        echo "==============================="
-        exit 1
-    fi
-
-    # echo $(jq -r '.work' <<< "$POW")
-
-    echo "==============================="
-    echo "       ☁️   CLOW POW   ☁️      "
-    echo "==============================="
-    echo "WORK: $(jq -r '.work' <<< "$POW")"
-    echo "DIFF: $(jq -r '.difficulty' <<< "$POW")"
-    echo "CREDITS: $(jq -r '.credits' <<< "$POW")"
-    # echo ": $(jq -r '.error' <<< "$work")"
-    echo "==============================="
-
-    exit 1
-
-fi
-
-#  ██████╗ ██████╗ ███╗   ██╗██╗   ██╗███████╗██████╗ ████████╗
-# ██╔════╝██╔═══██╗████╗  ██║██║   ██║██╔════╝██╔══██╗╚══██╔══╝
-# ██║     ██║   ██║██╔██╗ ██║██║   ██║█████╗  ██████╔╝   ██║   
-# ██║     ██║   ██║██║╚██╗██║╚██╗ ██╔╝██╔══╝  ██╔══██╗   ██║   
-# ╚██████╗╚██████╔╝██║ ╚████║ ╚████╔╝ ███████╗██║  ██║   ██║   
-#  ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝   ╚═╝   
-                                                             
-
-if [ "$2" = "convert" ] || [ "$2" = "--convert" ] || [ "$2" = "-c" ] || [ "$2" = "c" ] || [ "$2" = "-c" ]; then
-    TIMELINE='week'
-    echo "================================="
-    echo "       UNDER CONSTRUCTION        "
-    echo "================================="
-    echo "'n2 convert' is under development. Update N2 in a $TIMELINE or so. Tweet @nano2dev to remind me to get it done."
-    echo "================================="
-    echo "https://twitter.com/nano2dev"
-    echo "================================="
-    exit 1
-fi
-
 function local_send() {
 
     if [[ $2 == "" ]]; then
@@ -537,7 +344,7 @@ fi
 
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
 
-   if [[ $2 == "" ]]; then
+    if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Address to remove."
         exit 0
     fi
@@ -620,7 +427,7 @@ EOF
 
     echo $WALLET
 
-    exit 
+    exit 0
 
 fi
 
@@ -653,9 +460,32 @@ EOF
 
     echo $ACCOUNT
 
-    exit 
+    exit 0
 
 fi
+
+if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
+    # rm $DIR/.n2-wallet
+    rm "$DIR/.n2-$2"
+    echo "${RED}N2${NC}: $2 removed."
+    exit 0
+fi
+
+if [[ $1 == "cache" ]] || [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
+    echo $3 >> "$DIR/.n2-$2"
+    exit 0
+fi
+
+if [[ $1 == "metadata" ]]; then
+    # mkdir -p $DIR/.n2-data
+    if [[ $3 == "" ]]; then
+        echo "${RED}Error${NC}: No data provided.." 
+        exit 0
+    fi
+    echo $3 >> "$DIR/.n2-data/$2"
+    exit 0
+fi
+
 
 
 if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
@@ -743,14 +573,14 @@ fi
 
 if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ]; then
     echo "$DOCS"
-    exit 1
+    exit 0
 fi
 
 if [ "$1" = "list" ] || [ "$1" = "ls" ] || [ "$1" = "--ls" ] || [ "$1" = "-ls" ] || [ "$1" = "-l" ]; then
 cat <<EOF
 $DOCS
 EOF
-    exit 1
+    exit 0
 fi
 
 # ██╗   ██╗███████╗██████╗ ███████╗██╗ ██████╗ ███╗   ██╗
@@ -762,7 +592,7 @@ fi
 
 if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" = "version" ]]; then
     echo "Version: $VERSION"
-    exit 1
+    exit 0
 fi
 
 
@@ -779,19 +609,19 @@ if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--inst
         curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o /usr/local/bin/n2
         sudo chmod +x /usr/local/bin/n2
         echo "Installed latest 'development' version."
-        exit 1
+        exit 0
     fi
     if [ "$2" = "--prod" ] || [ "$2" = "prod" ]; then
         sudo rm /usr/local/bin/n2
         curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
         sudo chmod +x /usr/local/bin/n2
         echo "Installed latest 'stable' version."
-        exit 1
+        exit 0
     fi
     curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
     sudo chmod +x /usr/local/bin/n2
     echo "Installed latest version."
-    exit 1
+    exit 0
 fi
 
 
@@ -808,7 +638,7 @@ if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
     rm $DIR/.n2-session
     rm $DIR/.n2-rpc
     echo "CLI removed. Thanks for using N2. Hope to see you soon."
-    exit 1
+    exit 0
 fi
 
 

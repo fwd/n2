@@ -4,7 +4,7 @@ function cloud_login() {
 
     if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
       echo "${CYAN}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
-      exit 1
+      exit 0
     fi
 
 
@@ -83,7 +83,7 @@ EOF
     if [[ $(jq '.session' <<< "$LOGIN_ATTEMPT") == null ]]; then
       echo
       echo "${CYAN}Cloud${NC}:" $(jq -r '.message' <<< "$LOGIN_ATTEMPT")
-      exit 1
+      exit 0
     fi
 
     rm $DIR/.n2-session 2>/dev/null
@@ -94,7 +94,7 @@ EOF
 
     echo "${GREEN}Cloud${NC}: Logged in. "
     
-    exit 1
+    exit 0
 }
 
 if [[ $1 == "cloud" ]] || [[ $1 == "c" ]]; then
@@ -103,7 +103,7 @@ if [[ $1 == "cloud" ]] || [[ $1 == "c" ]]; then
 cat <<EOF
 $(cloud_balance $1 $2 $3 $4 $5)
 EOF
-    exit 1
+    exit 0
     fi
 
 fi

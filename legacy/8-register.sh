@@ -2,7 +2,7 @@ function cloud_register() {
 
         if [[ $(cat $DIR/.n2-session 2>/dev/null) != "" ]]; then
             echo "${CYAN}Cloud${NC}: You're already logged in. Use 'n2 logout' to logout."
-            exit 1
+            exit 0
         fi
 
         # echo
@@ -51,7 +51,7 @@ EOF
         if [[ $(jq '.session' <<< "$REGISTER_ATTEMPT") == null ]]; then
             echo
             echo "${CYAN}Cloud${NC}:" $(jq -r '.message' <<< "$REGISTER_ATTEMPT")
-            exit 1
+            exit 0
         fi
 
         rm $DIR/.n2-session 2>/dev/null
@@ -69,7 +69,7 @@ EOF
 
         if [[ $(jq -r '.error' <<< "$ACCOUNT") != "433" ]]; then
             echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$ACCOUNT")"
-            exit 1
+            exit 0
         fi
 
         if [[ $(jq -r '.error' <<< "$ACCOUNT") == "433" ]]; then
@@ -92,7 +92,7 @@ EOF
 
             # echo $EMAIL_OTP
 
-            # exit 1
+            # exit 0
 
             VERIFY_ATTEMPT=$(curl -s "https://nano.to/cloud/verify?code=$EMAIL_OTP" \
             -H "Accept: application/json" \
@@ -102,11 +102,11 @@ EOF
 
             echo $VERIFY_ATTEMPT
 
-            exit 1
+            exit 0
 
         fi
     
-    exit 1
+    exit 0
 
 }
 

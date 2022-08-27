@@ -14,7 +14,7 @@ DIR=$(eval echo "~$different_user")
 # 		sudo apt install 7z -y
 # 	else
 # 		echo "${CYAN}Cloud${NC}: We could not auto install '7z'. Please install it manually, before continuing."
-# 		exit 1
+# 		exit 0
 # 	fi
 # fi
 
@@ -23,7 +23,7 @@ if ! command -v jq &> /dev/null; then
 		sudo apt install jq -y
 	else
 		echo "${CYAN}Cloud${NC}: We could not auto install 'jq'. Please install it manually, before continuing."
-		exit 1
+		exit 0
 	fi
 fi
 
@@ -34,7 +34,7 @@ if ! command -v curl &> /dev/null; then
 		sudo apt install curl -y
 	else
 		echo "${CYAN}Cloud${NC}: We could not auto install 'curl'. Please install it manually, before continuing."
-		exit 1
+		exit 0
 	fi
 fi
 

@@ -15,6 +15,6 @@ if [ "$2" = "convert" ] || [ "$2" = "--convert" ] || [ "$2" = "-c" ] || [ "$2" =
     echo "================================="
     echo "https://twitter.com/nano2dev"
     echo "================================="
-    exit 1
+    exit 0
 fi
 

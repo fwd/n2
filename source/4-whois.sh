@@ -14,7 +14,7 @@ if [ "$1" = "whois" ]; then
 
     if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
         echo $ACCOUNT
-        exit 1
+        exit 0
     fi
 
     # echo

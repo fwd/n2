@@ -17,7 +17,7 @@ Usage:
   $ n2 $1 @moon --set website "James"
   $ n2 $1 @moon --set name "James"
 EOF
-        exit 1
+        exit 0
     fi
 
     ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
@@ -35,7 +35,7 @@ EOF
         echo "Use 'n2 login' to log back in. "
         echo "==============================="
         echo
-        exit 1
+        exit 0
     fi
 
     if [[ "$3" == "qrcode" ]] || [[ "$3" == "--qrcode" ]] || [[ "$3" == "qr" ]] || [[ "$3" == "-qr" ]] || [[ "$3" == "--qr" ]]; then
@@ -73,7 +73,7 @@ EOF
         echo "https://xno.to/$2"
         echo "https://ӿ.to/$2"
         echo "==============================="
-        exit 1
+        exit 0
     fi
 
     if [[ "$3" == "--claim" ]] || [[ "$3" == "claim" ]] || [[ "$3" == "--verify" ]]  || [[ "$3" == "verify" ]]; then
@@ -84,7 +84,7 @@ EOF
             -H "Content-Type:application/json" \
             --request POST)
             echo $CHECK_CLAIM
-            exit 1
+            exit 0
         fi
     CLAIM_WHOIS=$(curl -s "https://nano.to/$2/account" \
     -H "Accept: application/json" \
@@ -117,7 +117,7 @@ EOF
         echo "--------------------------------"
         echo "NEXT: n2 $1 $2 $3 --check"
         echo "==============================="
-        exit 1
+        exit 0
     fi
 
     if [[ "$3" == "--data" ]] || [[ "$3" == "--lease" ]] || [[ "$3" == "lease" ]]  || [[ "$3" == "expires" ]] || [[ "$3" == "--exp" ]] ; then
@@ -136,7 +136,7 @@ EOF
         # echo "CHECKOUT: " $(jq -r '.checkout' <<< $CHECKOUT)
         # echo "MORE_INFO: https://docs.nano.to/username-api"
         
-        exit 1
+        exit 0
     fi
 
     WHOIS=$(curl -s "https://nano.to/$2/account" \
@@ -151,7 +151,7 @@ EOF
         # echo "\$4, $4"
         # echo "\$5, $5"
 
-        # exit 1
+        # exit 0
 
         if [[ $4 == '--git' ]] || [[ $4 == '--github' ]] || [[ $4 == 'git' ]] || [[ $4 == 'github' ]] || [[ $4 == '-g' ]]; then
             
@@ -170,7 +170,7 @@ EOF
         if [[ $(jq -r '.error' <<< "$ESD") == '429' ]]; then
             #statements
             echo "${RED}Error${NC}: $(jq -r '.message' <<< "$ESD")"
-            exit 1
+            exit 0
         fi
 
         # echo "${GREEN}Cloud${NC}: Github website updated."
@@ -180,7 +180,7 @@ EOF
         echo "https://xno.to/$2"
         echo "https://ӿ.to/$2"
         echo "==============================="
-            exit 1
+            exit 0
         fi
 
         if [[ $4 == '--website' ]] || [[ $4 == 'website' ]]; then
@@ -197,7 +197,7 @@ EOF
 EOF
                 ))
                 echo "${GREEN}Cloud${NC}: Website removed."
-                exit 1
+                exit 0
             fi
 
             if [[ $5 == 'remove' ]] || [[ $5 == '--remove' ]]; then
@@ -208,7 +208,7 @@ EOF
                 --request POST \
                 --data '{ "remove_website": "true" }')
                 echo "${GREEN}Cloud${NC}: Website removed."
-                exit 1
+                exit 0
             fi
 
             if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
@@ -226,7 +226,7 @@ EOF
                 # echo $(cat $6)
                 echo "${GREEN}Cloud${NC}: Website uploaded."
                 echo "BROWSER: https://xno.to/$2"
-                exit 1
+                exit 0
             fi
 
             # if [[ $5 == 'file' ]] || [[ $5 == '--file' ]]; then
@@ -247,7 +247,7 @@ EOF
             echo "==============================="
             echo "URL: https://xno.to/$2"
             echo "==============================="
-            exit 1
+            exit 0
             # fi
 
 
@@ -267,13 +267,13 @@ EOF
         if [[ $(jq -r '.error' <<< "$ODF") == '404' ]]; then
             #statements
             echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$ODF")"
-            exit 1
+            exit 0
         fi
 
         # echo "$ODF"
 
         echo "${GREEN}Cloud${NC}: Config updated."
-        exit 1
+        exit 0
     fi
 
     if [[ $3 == "--prices" ]] || [[ $3 == "--price" ]]; then
@@ -296,14 +296,14 @@ EOF
    echo "======================================="
    # echo "TIP: Use "
    # echo "======================================="
-        exit 1
+        exit 0
     fi
 
     if [[ $(jq -r '.error' <<< "$WHOIS") == "Username not registered." ]]; then
 
         if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
             echo $WHOIS
-            exit 1
+            exit 0
         fi
         
 
@@ -318,7 +318,7 @@ Usage:
   $ n2 $1 $2 $3 --year
   $ n2 $1 $2 $3 --decade
 EOF
-                exit 1
+                exit 0
             fi
         
    echo "======================================="
@@ -332,7 +332,7 @@ EOF
 
         # if [[ $SANITY_CHECK != 'y' ]] && [[ $SANITY_CHECK != 'Y' ]]; then
         #   echo "Canceled."
-        #   exit 1
+        #   exit 0
         # fi
 
             # /usr/local/bin/n2 version
@@ -349,7 +349,7 @@ EOF
 
         # echo $POW
 
-        # exit 1
+        # exit 0
 
         if [[ $(jq -r '.error' <<< "$POW") == "429" ]]; then
             echo
@@ -383,18 +383,18 @@ EOF
             if [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]] || [[ "$7" == "--json" ]] || [[ "$8" == "--json" ]]; then
                 # echo $WHOIS
                 echo $LEASE_ATTEMPT
-                exit 1
+                exit 0
             fi
 
             if [[ $(jq -r '.error' <<< "$LEASE_ATTEMPT") == "400" ]]; then
                 # RMESSAGE=
                 echo "${CYAN}Cloud${NC}: $(jq -r '.message' <<< "$LEASE_ATTEMPT")"
-                exit 1
+                exit 0
             fi
 
             echo "${GREEN}Cloud${NC}: Username Purchased."
 
-            exit 1
+            exit 0
         fi
 
         echo "==============================="
@@ -404,7 +404,7 @@ EOF
         echo "CHECKOUT: " $(jq -r '.checkout' <<< $CHECKOUT)
         echo "MORE_INFO: https://docs.nano.to/username-api"
         
-        exit 1
+        exit 0
 
     fi
 
@@ -412,13 +412,13 @@ EOF
 
     if [[ "$3" == "buy" ]] || [[ "$3" == "lease" ]] || [[ "$3" == "purchase" ]]  || [[ "$3" == "--buy" ]] || [[ "$3" == "--purchase" ]]|| [[ "$3" == "--lease" ]] ; then
         echo "${CYAN}Cloud${NC}: This domain is taken."
-        exit 1
+        exit 0
     fi
 
 
     if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]] || [[ "$6" == "--json" ]]; then
         echo $WHOIS
-        exit 1
+        exit 0
     fi
 
     WALLETS=$(jq -r '.accounts' <<< "$WHOIS")
@@ -435,7 +435,7 @@ EOF
     echo "BROWSER: https://nanolooker.com/account/"$(jq -r '.address' <<< $WHOIS)
     echo "==============================="
 
-    exit 1
+    exit 0
 
 fi
 
@@ -461,7 +461,7 @@ Usage:
   $ n2 $1 @fosse 10
   $ n2 $1 @kraken 12.50 --json
 EOF
-        exit 1
+        exit 0
     fi
 
     if [[ $3 == "" ]]; then
@@ -471,7 +471,7 @@ Usage:
   $ n2 $1 @fosse 10
   $ n2 $1 @kraken 12.50 --json
 EOF
-        exit 1
+        exit 0
     fi
 
     CHECKOUT=$(curl -s "https://nano.to/$2?cli=$3" \
@@ -487,7 +487,7 @@ EOF
 
     echo 
 
-    exit 1
+    exit 0
 
 fi
 
@@ -503,7 +503,7 @@ if [[ "$1" = "key" ]] || [[ "$1" = "k" ]] || [[ "$1" = "-key" ]] || [[ "$1" = "-
 
     if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
         echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
+        exit 0
     fi
 
     ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
@@ -523,7 +523,7 @@ if [[ "$1" = "key" ]] || [[ "$1" = "k" ]] || [[ "$1" = "-key" ]] || [[ "$1" = "-
 
     # echo $(jq -r '.api_key' <<< "$ACCOUNT")
 
-    exit 1
+    exit 0
 
 fi
 
@@ -539,7 +539,7 @@ if [[ "$2" = "address" ]] || [[ "$2" = "-address" ]] || [[ "$2" = "--address" ]]
 
     if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
         echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
+        exit 0
     fi
 
     ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
@@ -550,7 +550,7 @@ if [[ "$2" = "address" ]] || [[ "$2" = "-address" ]] || [[ "$2" = "--address" ]]
 
     echo $(jq -r '.address' <<< "$ACCOUNT")
 
-    exit 1
+    exit 0
 
 fi
 
@@ -566,12 +566,12 @@ fi
 if [[ "$1" = "logout" ]]; then
     if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
         echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register'."
-        exit 1
+        exit 0
     else
         rm $DIR/.n2-session 2> /dev/null
         # echo "Ok:  of Nano.to."
         echo "${GREEN}Cloud${NC}: You logged out."
-        exit 1
+        exit 0
     fi
 fi
 
@@ -588,7 +588,7 @@ if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[
 
     if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
         echo "${CYAN}Cloud${NC}: You're not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
+        exit 0
     fi
 
     ACCOUNT=$(curl -s "https://nano.to/cloud/account" \
@@ -599,7 +599,7 @@ if [[ "$2" = "email" ]] || [[ "$2" = "-email" ]] || [[ "$2" = "--email" ]] || [[
 
     echo $(jq -r '.username' <<< "$ACCOUNT")
 
-    exit 1
+    exit 0
 
 fi
 

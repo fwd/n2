@@ -2,7 +2,7 @@
 function setup_2fa() {
     if [[ $(cat $DIR/.n2-session 2>/dev/null) == "" ]]; then
         echo "${CYAN}Cloud${NC}: Not logged in. Use 'n2 login' or 'n2 register' first."
-        exit 1
+        exit 0
     fi
 
     HAS_TWO_FACTOR=$(curl -s "https://nano.to/cloud/account" \
@@ -13,7 +13,7 @@ function setup_2fa() {
 
     if [[ $HAS_TWO_FACTOR == "true" ]]; then
         echo "2-factor already enabled. Use 'n2 2f-remove' to change 2-factor."
-        exit 1
+        exit 0
     fi
 
     NEW_SETUP=$(curl -s "https://nano.to/user/two-factor" \
@@ -39,7 +39,7 @@ function setup_2fa() {
 
     if [[ $FIRST_OTP == "" ]]; then
         echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
-        exit 1
+        exit 0
     fi
 
     OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor" \
@@ -66,7 +66,7 @@ function remove_2fa() {
 
     if [[ $HAS_TWO_FACTOR == "false" ]]; then
         echo "${CYAN}Cloud${NC}: You don't have 2f enabled. Use 'n2 2f' to enable it."
-        exit 1
+        exit 0
     fi
 
     echo "========================"
@@ -80,7 +80,7 @@ function remove_2fa() {
 
     if [[ $REMOVE_OTP == "" ]]; then
         echo "${CYAN}Cloud${NC}: No code. Try again, but from scratch."
-        exit 1
+        exit 0
     fi
 
 REMOVE_OTP_ATTEMPT=$(curl -s "https://nano.to/user/two-factor/disable" \
@@ -97,6 +97,6 @@ EOF
 
         echo "$REMOVE_OTP_ATTEMPT"
 
-        exit 1
+        exit 0
 }
 

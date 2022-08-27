@@ -136,7 +136,10 @@ function print_balance() {
 
   total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
 
-  if [[ -z "$1" ]]; then
+  # echo $1
+  # exit 0 
+
+  if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
     first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
   else
     first_account=$1
@@ -168,20 +171,26 @@ function print_balance() {
     pending_in_decimal_value=$(jq '.value' <<< "$pending_in_decimal" | tr -d '"') 
   fi
 
-
-
-  
+  mkdir -p $DIR/.n2/data
   medata_count=$(find $DIR/.n2/data -maxdepth 1 -type f | wc -l | xargs)
 
+  if [[ $(cat $DIR/.n2/title 2>/dev/null) == "" ]]; then
+      CLI_TITLE="        NANO CLI (N2)"
+  else
+      CLI_TITLE=$(cat $DIR/.n2/title)
+  fi
+
   echo "============================="
-  echo "            ${GREEN}N2 CLI${NC}"
+  echo "${GREEN}$CLI_TITLE${NC}"
   echo "============================="
-  echo "${PURP}Balance:${NC} $balance_in_decimal_value"
-  echo "${PURP}Pending:${NC} $pending_in_decimal_value"
-  # echo "${PURP}Address:${NC} nano_j332k30d9dkd***"
-  echo "${PURP}Address:${NC} ${first_account}"
-  echo "${PURP}Accounts:${NC} ${total_accounts}"
-  echo "${PURP}Metadata:${NC} $medata_count"
+  if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-16)***"
+  else
+    echo "${PURP}Balance:${NC} $balance_in_decimal_value"
+    echo "${PURP}Pending:${NC} $pending_in_decimal_value"
+    echo "${PURP}Accounts:${NC} ${total_accounts}"
+    echo "${PURP}HashData:${NC} $medata_count"
+  fi
   echo "============================="
   echo "${PURP}Nano Node:${NC} ${GREEN}V23.3 @ 100%${NC}"
   # echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
@@ -189,6 +198,17 @@ function print_balance() {
   # echo "============================="
   echo "${PURP}N2 Version:${NC} ${GREEN}$VERSION${NC}"
   echo "============================="
+  if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
+DOCS=$(cat <<EOF
+${GREEN}$ n2 [ setup | balance | send | upgrade | install ]${NC}
+EOF
+)
+cat <<EOF
+$DOCS
+EOF
+  else
+    echo -n ""
+  fi
 
 }
 

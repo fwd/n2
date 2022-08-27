@@ -1,5 +1,5 @@
 
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || || [[ "$1" = "i" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo ""
@@ -54,11 +54,13 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
         read -p 'Setup Nano Work Server. Enter 'y' to continue: ' YES
 
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-            
-            sudo apt install ocl-icd-opencl-dev gcc build-essential -y
-            curl https://sh.rustup.rs -sSf | sh
-            source $DIR/.cargo/env
 
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
+            
             git clone https://github.com/nanocurrency/nano-work-server.git $DIR/nano-work-server
             cd $DIR/nano-work-server && cargo build --release
 
@@ -78,6 +80,30 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
     fi
 
     # Sorta working
+    if [[ "$2" = "vanity" ]] || [[ "$2" = "--vanity" ]]; then
+        
+        read -p 'Setup Nano Vanity (RUST). Enter 'Y' to continue: ' YES
+
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
+            
+            # GPU
+            cargo install nano-vanity
+
+            exit 0
+        fi
+
+        echo "Canceled"
+        
+        exit 0
+
+    fi
+
     if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
         
         read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES

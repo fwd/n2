@@ -30,10 +30,11 @@ $ n2 whois @moon
 EOF
 )
 
-if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
- 
-  print_balance
 
+if [[ $1 == "" ]] || [[ $1 == "--hide" ]]  || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]] || [[ $1 == "--help" ]]; then
+ 
+  print_balance $2 $1
+ 
 	exit 0
 
 fi

@@ -1,5 +1,5 @@
 
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || || [[ "$1" = "i" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "i" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo ""

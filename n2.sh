@@ -234,8 +234,10 @@ function print_balance() {
   echo "${GREEN}$CLI_TITLE${NC}"
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
-    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-16)***"
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
   else
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
+    # echo "${PURP}Address:${NC} $first_account***"
     echo "${PURP}Balance:${NC} $balance_in_decimal_value"
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
     echo "${PURP}Accounts:${NC} ${total_accounts}"
@@ -250,7 +252,7 @@ function print_balance() {
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF
-${GREEN}n2 [ setup | upgrade | balance | send | update]${NC}
+${GREEN}$ n2 [ balance | send | install | upgrade ]${NC}
 EOF
 )
 cat <<EOF
@@ -663,7 +665,7 @@ if [[ $1 == "save" ]]; then
     fi
     exit 0
 fi
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || || [[ "$1" = "i" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo ""
@@ -718,11 +720,13 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
         read -p 'Setup Nano Work Server. Enter 'y' to continue: ' YES
 
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-            
-            sudo apt install ocl-icd-opencl-dev gcc build-essential -y
-            curl https://sh.rustup.rs -sSf | sh
-            source $DIR/.cargo/env
 
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
+            
             git clone https://github.com/nanocurrency/nano-work-server.git $DIR/nano-work-server
             cd $DIR/nano-work-server && cargo build --release
 
@@ -742,6 +746,30 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
     fi
 
     # Sorta working
+    if [[ "$2" = "vanity" ]] || [[ "$2" = "--vanity" ]]; then
+        
+        read -p 'Setup Nano Vanity (RUST). Enter 'Y' to continue: ' YES
+
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
+            
+            # GPU
+            cargo install nano-vanity
+
+            exit 0
+        fi
+
+        echo "Canceled"
+        
+        exit 0
+
+    fi
+
     if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
         
         read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES

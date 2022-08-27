@@ -184,8 +184,10 @@ function print_balance() {
   echo "${GREEN}$CLI_TITLE${NC}"
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
-    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-16)***"
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
   else
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
+    # echo "${PURP}Address:${NC} $first_account***"
     echo "${PURP}Balance:${NC} $balance_in_decimal_value"
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
     echo "${PURP}Accounts:${NC} ${total_accounts}"
@@ -200,7 +202,7 @@ function print_balance() {
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF
-${GREEN}$ n2 [ setup | balance | send | upgrade | install ]${NC}
+${GREEN}$ n2 [ balance | send | install | upgrade ]${NC}
 EOF
 )
 cat <<EOF

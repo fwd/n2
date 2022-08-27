@@ -5,33 +5,33 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
         echo ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-        sponsor
+        # sponsor
         exit 0
       # Mac OSX
     elif [[ "$OSTYPE" == "cygwin" ]]; then
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
       # POSIX compatibility layer and Linux environment emulation for Windows
     elif [[ "$OSTYPE" == "msys" ]]; then
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
       # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
     elif [[ "$OSTYPE" == "win32" ]]; then
       # I'm not sure this can happen.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     elif [[ "$OSTYPE" == "freebsd"* ]]; then
       # ...
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     else
        # Unknown.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     fi
 

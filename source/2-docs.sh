@@ -31,13 +31,11 @@ EOF
 )
 
 if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
-  echo "${GREEN}BALANCE:${NC} 40.20"
-  echo "${GREEN}PENDING:${NC} 0.00"
-  echo "${GREEN}ACCOUNT:${NC} nano_j33kjdkd***"
-  echo "${GREEN}SYNCLVL:${NC} 100%"
-  echo "${GREEN}VERSION:${NC} Nano Node V23.3"
-  echo "${GREEN}RPC-CLI:${NC} N2 $VERSION"
+ 
+  print_balance
+
 	exit 0
+
 fi
 
 if [[ "$1" = "--json" ]]; then

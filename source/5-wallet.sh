@@ -198,33 +198,6 @@ EOF
 
 fi
 
-if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
-
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
-        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
-    else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
-    fi
-
-    accounts=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "account_list",
-    "wallet": "$WALLET_ID",
-    "json_block": "true"
-}
-EOF
-    ))
-
-    echo $(jq -r '.accounts' <<< "$accounts") 
-
-    exit 0
-
-fi
 
 if [[ $1 == "wallet" ]]; then
 
@@ -256,49 +229,28 @@ fi
 
 if [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 
-    if [[ $2 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
-        exit 0
-    fi
 
-    if [[ "$2" == *"nano_"* ]]; then
-        _ADDRESS=$2
-    else
-        _NAME=$(echo $2 | sed -e "s/\@//g")
-        _ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$_NAME'"))' | jq '.[0]')
-        _ADDRESS=$(jq -r '.address' <<< "$_ACCOUNT")
-    fi
-
-    ACCOUNT=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "account_info",
-    "account": "$_ADDRESS"
-}
-EOF
-    ))
-
-    echo $ACCOUNT
+    print_balance $2 $3
 
     exit 0
 
 fi
 
-if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
+if [[ $1 == "clear-cache" ]]; then
+    rm "$DIR/.n2-wallet"
+    rm "$DIR/.n2-wallet"
+    rm "$DIR/.n2-price-url"
     rm "$DIR/.n2-$2"
-    echo "${RED}N2${NC}: $2 removed."
+    echo "${RED}N2${NC}: Cache cleared."
     exit 0
 fi
 
-if [[ $1 == "cache" ]] || [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
+if [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
     echo $3 >> "$DIR/.n2-$2"
     exit 0
 fi
 
-if [[ $1 == "metadata" ]] || [[ $1 == "store" ]] || [[ $1 == "memo" ]] || [[ $1 == "data" ]]; then
+if [[ $1 == "save" ]]; then
     if [[ $2 == "" ]]; then
         echo "${RED}Error${NC}: Missing Hash" 
         exit 0

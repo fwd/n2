@@ -46,6 +46,209 @@ if ! command -v curl &> /dev/null; then
 fi
 
 
+
+function get_accounts() {
+
+  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2-node
+  else
+      NODE_URL=$(cat $DIR/.n2-node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+      WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+      echo $WALLET_ID >> $DIR/.n2-wallet
+  else
+      WALLET_ID=$(cat $DIR/.n2-wallet)
+  fi
+
+  accounts=$(curl -s '[::1]:7076' \
+  -H "Accept: application/json" \
+  -H "Content-Type:application/json" \
+  --request POST \
+  --data @<(cat <<EOF
+{
+    "action": "account_list",
+    "wallet": "$WALLET_ID",
+    "json_block": "true"
+}
+EOF
+    ))
+
+    # COUNT="{ \"accounts\": \""$(jq -r '.accounts | length' <<< "$accounts")"\"  }"
+    # COUNT="{ \"accounts\": \""$(jq -r '.accounts | length' <<< "$accounts")"\"  }"
+
+    # echo $(jq -n "$COUNT") 
+    echo $accounts
+    # echo $(jq '.accounts[0]' <<< "") 
+    # echo $(jq '.accounts[0]' <<< "$accounts") 
+
+}
+
+function get_balance() {
+
+  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2-node
+  else
+      NODE_URL=$(cat $DIR/.n2-node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  if [ -z "$1" ]; then
+        
+      # all_accounts=$(get_accounts) 
+      ALL_ACCOUNTS=$(get_accounts) 
+      THE_ADDRESS=$(jq '.accounts[0]' <<< "$ALL_ACCOUNTS" | tr -d '"') 
+      # _ADDRESS=$(jq '.accounts[0]' <<< "$all_accounts" | tr -d '"') 
+
+  else
+      
+      if [[ "$1" == *"nano_"* ]]; then
+          THE_ADDRESS=$1
+      else
+          THE_NAME=$(echo $1 | sed -e "s/\@//g")
+          THE_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$THE_NAME'"))' | jq '.[0]')
+          THE_ADDRESS=$(jq -r '.address' <<< "$THE_ACCOUNT")
+      fi
+
+  fi
+
+  if curl -sL --fail '[::1]:7076' -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2-node
+  else
+      NODE_URL=$(cat $DIR/.n2-node)
+  fi
+
+  ACCOUNT=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_info",
+    "account": "$THE_ADDRESS",
+    "representative": "true",
+    "pending": "true",
+    "receivable": "true"
+}
+EOF
+  ))
+
+  echo $ACCOUNT
+
+
+}
+
+
+function print_balance() {
+
+  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2-node
+  else
+      NODE_URL=$(cat $DIR/.n2-node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  accounts_on_file=$(get_accounts)
+
+  total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
+
+  if [[ -z "$1" ]]; then
+    first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+  else
+    first_account=$1
+  fi
+
+  account_info=$(get_balance "$first_account")
+
+  account_balance=$(jq '.balance' <<< "$account_info" | tr -d '"') 
+
+  account_pending=$(jq '.pending' <<< "$account_info" | tr -d '"') 
+
+  balance_in_decimal=$(curl -s "https://api.nano.to/convert/fromRaw/$account_balance" \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
+  
+  # echo $account_pending
+  balance_in_decimal_value=$(jq '.value' <<< "$balance_in_decimal" | tr -d '"') 
+  # exit 1
+
+  if [[ $account_pending == "0" ]]; then
+    echo -n ""
+    pending_in_decimal_value="0"
+  else 
+    pending_in_decimal=$(curl -s "https://api.nano.to/convert/fromRaw/$account_pending" \
+      -H "Accept: application/json" \
+      -H "Content-Type:application/json" \
+      --request GET)
+    pending_in_decimal_value=$(jq '.value' <<< "$pending_in_decimal" | tr -d '"') 
+  fi
+
+
+  mkdir -p $DIR/.n2-data
+  
+  medata_count=$(find $DIR/.n2-data -maxdepth 1 -type f | wc -l | xargs)
+
+  echo "============================="
+  echo "            ${GREEN}N2 CLI${NC}"
+  echo "============================="
+  echo "${PURP}Balance:${NC} $balance_in_decimal_value"
+  echo "${PURP}Pending:${NC} $pending_in_decimal_value"
+  # echo "${PURP}Address:${NC} nano_j332k30d9dkd***"
+  echo "${PURP}Address:${NC} ${first_account}"
+  echo "${PURP}Accounts:${NC} ${total_accounts}"
+  echo "${PURP}Metadata:${NC} $medata_count"
+  echo "============================="
+  echo "${PURP}Nano Node:${NC} ${GREEN}V23.3${NC}"
+  echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
+  # echo "${PURP}Node Uptime:${NC} 25 days"
+  # echo "============================="
+  echo "${PURP}N2-Version:${NC} ${GREEN}$VERSION${NC}"
+  echo "============================="
+
+}
+
+if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
+
+    get_accounts
+
+    # echo $(jq length <<< list_accounts)
+
+    exit 0
+
+fi
+
 LOCAL_DOCS=$(cat <<EOF
 ${GREEN}USAGE:${NC}
  $ n2 setup
@@ -78,13 +281,11 @@ EOF
 )
 
 if [[ $1 == "" ]] || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]]; then
-  echo "${GREEN}BALANCE:${NC} 40.20"
-  echo "${GREEN}PENDING:${NC} 0.00"
-  echo "${GREEN}ACCOUNT:${NC} nano_j33kjdkd***"
-  echo "${GREEN}SYNCLVL:${NC} 100%"
-  echo "${GREEN}VERSION:${NC} Nano Node V23.3"
-  echo "${GREEN}RPC-CLI:${NC} N2 $VERSION"
+ 
+  print_balance
+
 	exit 0
+
 fi
 
 if [[ "$1" = "--json" ]]; then
@@ -101,16 +302,25 @@ fi
 
 if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" = "p" ] || [ "$1" = "-p" ]; then
 
-    if [[ -z $2 ]]; then
-        FIAT=$2
-    else  
+    if [[ -z "$2" ]]; then
         FIAT='usd'
+    else  
+        FIAT=$2
     fi
 
-    PRICE=$(curl -s "https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies=$FIAT" \
+    if [[ $(cat $DIR/.n2-price-url 2>/dev/null) == "" ]]; then
+        PRICE_URL="https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies="
+        echo $PRICE_URL > $DIR/.n2-price-url
+    else
+        PRICE_URL=$(cat $DIR/.n2-price-url)
+    fi
+
+    PRICE=$(curl -s "$PRICE_URL"$FIAT \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
+
+    # echo $PRICE
 
     echo $(jq -r '.nano' <<< "$PRICE")
 
@@ -350,33 +560,6 @@ EOF
 
 fi
 
-if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
-
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
-        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
-    else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
-    fi
-
-    accounts=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "account_list",
-    "wallet": "$WALLET_ID",
-    "json_block": "true"
-}
-EOF
-    ))
-
-    echo $(jq -r '.accounts' <<< "$accounts") 
-
-    exit 0
-
-fi
 
 if [[ $1 == "wallet" ]]; then
 
@@ -408,49 +591,28 @@ fi
 
 if [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 
-    if [[ $2 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
-        exit 0
-    fi
 
-    if [[ "$2" == *"nano_"* ]]; then
-        _ADDRESS=$2
-    else
-        _NAME=$(echo $2 | sed -e "s/\@//g")
-        _ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$_NAME'"))' | jq '.[0]')
-        _ADDRESS=$(jq -r '.address' <<< "$_ACCOUNT")
-    fi
-
-    ACCOUNT=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "account_info",
-    "account": "$_ADDRESS"
-}
-EOF
-    ))
-
-    echo $ACCOUNT
+    print_balance $2 $3
 
     exit 0
 
 fi
 
-if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
+if [[ $1 == "clear-cache" ]]; then
+    rm "$DIR/.n2-wallet"
+    rm "$DIR/.n2-wallet"
+    rm "$DIR/.n2-price-url"
     rm "$DIR/.n2-$2"
-    echo "${RED}N2${NC}: $2 removed."
+    echo "${RED}N2${NC}: Cache cleared."
     exit 0
 fi
 
-if [[ $1 == "cache" ]] || [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
+if [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
     echo $3 >> "$DIR/.n2-$2"
     exit 0
 fi
 
-if [[ $1 == "metadata" ]] || [[ $1 == "store" ]] || [[ $1 == "memo" ]] || [[ $1 == "data" ]]; then
+if [[ $1 == "save" ]]; then
     if [[ $2 == "" ]]; then
         echo "${RED}Error${NC}: Missing Hash" 
         exit 0
@@ -473,33 +635,33 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; the
         echo ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-        sponsor
+        # sponsor
         exit 0
       # Mac OSX
     elif [[ "$OSTYPE" == "cygwin" ]]; then
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
       # POSIX compatibility layer and Linux environment emulation for Windows
     elif [[ "$OSTYPE" == "msys" ]]; then
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
       # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
     elif [[ "$OSTYPE" == "win32" ]]; then
       # I'm not sure this can happen.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     elif [[ "$OSTYPE" == "freebsd"* ]]; then
       # ...
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     else
        # Unknown.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        sponsor
+        # sponsor
         exit 0
     fi
 

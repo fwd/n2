@@ -2,11 +2,11 @@
 
 function get_accounts() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -16,11 +16,11 @@ function get_accounts() {
     exit 0
   fi
 
-  if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
       WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-      echo $WALLET_ID >> $DIR/.n2-wallet
+      echo $WALLET_ID >> $DIR/.n2/wallet
   else
-      WALLET_ID=$(cat $DIR/.n2-wallet)
+      WALLET_ID=$(cat $DIR/.n2/wallet)
   fi
 
   accounts=$(curl -s '[::1]:7076' \
@@ -48,11 +48,11 @@ EOF
 
 function get_balance() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -88,11 +88,11 @@ function get_balance() {
     exit 0
   fi
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   ACCOUNT=$(curl -s $NODE_URL \
@@ -118,11 +118,11 @@ EOF
 
 function print_balance() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -169,9 +169,9 @@ function print_balance() {
   fi
 
 
-  mkdir -p $DIR/.n2-data
+
   
-  medata_count=$(find $DIR/.n2-data -maxdepth 1 -type f | wc -l | xargs)
+  medata_count=$(find $DIR/.n2/data -maxdepth 1 -type f | wc -l | xargs)
 
   echo "============================="
   echo "            ${GREEN}N2 CLI${NC}"

@@ -7,13 +7,16 @@
 #################################
 
 VERSION=0.2.2-AUG-26-22
-DIR=$(eval echo "~$different_user")
 GREEN=$'\e[0;32m'
 BLUE=$'\e[0;34m'
 CYAN=$'\e[1;36m'
 RED=$'\e[0;31m'
 NC=$'\e[0m'
 GREEN2=$'\e[1;92m'
+DIR=$(eval echo "~$different_user")
+
+# Project Folder
+mkdir -p $DIR/.n2
 
 # Install '7z' if needed.
 # if ! command -v 7z &> /dev/null; then
@@ -49,11 +52,11 @@ fi
 
 function get_accounts() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -63,11 +66,11 @@ function get_accounts() {
     exit 0
   fi
 
-  if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
       WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-      echo $WALLET_ID >> $DIR/.n2-wallet
+      echo $WALLET_ID >> $DIR/.n2/wallet
   else
-      WALLET_ID=$(cat $DIR/.n2-wallet)
+      WALLET_ID=$(cat $DIR/.n2/wallet)
   fi
 
   accounts=$(curl -s '[::1]:7076' \
@@ -95,11 +98,11 @@ EOF
 
 function get_balance() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -135,11 +138,11 @@ function get_balance() {
     exit 0
   fi
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   ACCOUNT=$(curl -s $NODE_URL \
@@ -165,11 +168,11 @@ EOF
 
 function print_balance() {
 
-  if [[ $(cat $DIR/.n2-node 2>/dev/null) == "" ]]; then
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2-node
+      echo $NODE_URL >> $DIR/.n2/node
   else
-      NODE_URL=$(cat $DIR/.n2-node)
+      NODE_URL=$(cat $DIR/.n2/node)
   fi
 
   if curl -sL --fail $NODE_URL -o /dev/null; then
@@ -216,9 +219,9 @@ function print_balance() {
   fi
 
 
-  mkdir -p $DIR/.n2-data
+
   
-  medata_count=$(find $DIR/.n2-data -maxdepth 1 -type f | wc -l | xargs)
+  medata_count=$(find $DIR/.n2/data -maxdepth 1 -type f | wc -l | xargs)
 
   echo "============================="
   echo "            ${GREEN}N2 CLI${NC}"
@@ -308,11 +311,11 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
         FIAT=$2
     fi
 
-    if [[ $(cat $DIR/.n2-price-url 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/price-url 2>/dev/null) == "" ]]; then
         PRICE_URL="https://api.coingecko.com/api/v3/simple/price?ids=nano&vs_currencies="
-        echo $PRICE_URL > $DIR/.n2-price-url
+        echo $PRICE_URL > $DIR/.n2/price-url
     else
-        PRICE_URL=$(cat $DIR/.n2-price-url)
+        PRICE_URL=$(cat $DIR/.n2/price-url)
     fi
 
     PRICE=$(curl -s "$PRICE_URL"$FIAT \
@@ -378,11 +381,11 @@ function local_send() {
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+        echo $WALLET_ID >> $DIR/.n2/wallet
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
@@ -534,11 +537,11 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+        echo $WALLET_ID >> $DIR/.n2/wallet
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     REMOVE=$(curl -s '[::1]:7076' \
@@ -563,11 +566,11 @@ fi
 
 if [[ $1 == "wallet" ]]; then
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+        echo $WALLET_ID >> $DIR/.n2/wallet
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     WALLET=$(curl -s '[::1]:7076' \
@@ -599,16 +602,16 @@ if [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 fi
 
 if [[ $1 == "clear-cache" ]]; then
-    rm "$DIR/.n2-wallet"
-    rm "$DIR/.n2-wallet"
-    rm "$DIR/.n2-price-url"
-    rm "$DIR/.n2-$2"
+    rm "$DIR/.n2/wallet"
+    rm "$DIR/.n2/wallet"
+    rm "$DIR/.n2/price-url"
+    rm "$DIR/.n2/$2"
     echo "${RED}N2${NC}: Cache cleared."
     exit 0
 fi
 
 if [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
-    echo $3 >> "$DIR/.n2-$2"
+    echo $3 >> "$DIR/.n2/$2"
     exit 0
 fi
 
@@ -622,8 +625,8 @@ if [[ $1 == "save" ]]; then
         exit 0
     fi
     if jq -e . >/dev/null 2>&1 <<<"$3"; then
-        mkdir -p $DIR/.n2-data
-        echo $3 >> "$DIR/.n2-data/$2"
+        mkdir -p $DIR/.n2/data
+        echo $3 >> "$DIR/.n2/data/$2"
     else
         echo "Failed to parse JSON"
     fi
@@ -812,10 +815,10 @@ fi
 
 if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
     sudo rm /usr/local/bin/n2
-    rm $DIR/.n2-wallet
-    rm $DIR/.n2-accounts
-    rm $DIR/.n2-cache
-    rm -rf $DIR/.n2-data
+    rm $DIR/.n2/wallet
+    rm $DIR/.n2/accounts
+    rm $DIR/.n2/cache
+    rm -rf $DIR/.n2/data
     echo "CLI removed. Thanks for using N2. Hope to see you soon."
     exit 0
 fi

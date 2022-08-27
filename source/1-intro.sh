@@ -7,13 +7,16 @@
 #################################
 
 VERSION=0.2.2-AUG-26-22
-DIR=$(eval echo "~$different_user")
 GREEN=$'\e[0;32m'
 BLUE=$'\e[0;34m'
 CYAN=$'\e[1;36m'
 RED=$'\e[0;31m'
 NC=$'\e[0m'
 GREEN2=$'\e[1;92m'
+DIR=$(eval echo "~$different_user")
+
+# Project Folder
+mkdir -p $DIR/.n2
 
 # Install '7z' if needed.
 # if ! command -v 7z &> /dev/null; then

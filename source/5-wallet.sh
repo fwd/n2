@@ -1,6 +1,20 @@
 
 function local_send() {
 
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+      NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
     if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Username or Nano Address."
         exit 0
@@ -16,11 +30,11 @@ function local_send() {
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+        echo $WALLET_ID >> $DIR/.n2/wallet
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
@@ -121,25 +135,6 @@ EOF
 }
 
 
-if [[ "$1" = "rpc" ]] || [[ "$1" = "--rpc" ]] || [[ "$1" = "curl" ]] || [[ "$1" = "--curl" ]] ; then
-
-    curl -s "[::1]:7076" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{ "action": "$2", "json_block": "true" }
-EOF
-) | jq
-
-    exit 0
-fi
-
-if [[ "$2" = "exec" ]] || [[ "$2" = "--exec" ]]; then
-    docker exec -it nano-node /usr/bin/nano_node $1 $2 $3 $4
-    exit 0
-fi
-
 if [[ "$1" = "--seed" ]] || [[ "$1" = "--secret" ]]; then
   WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}')
   SEED=$(docker exec -it nano-node /usr/bin/nano_node --wallet_decrypt_unsafe --wallet=$WALLET_ID | grep 'Seed' | awk '{ print $NF}' | tr -d '\r')
@@ -154,29 +149,33 @@ EOF
     exit 0
 fi
 
-
-if [[ $1 == "address" ]]; then
-
-    SRC=$(nano-node /usr/bin/nano_node --wallet_list | grep 'nano_' | awk '{ print $NF}' | tr -d '\r')
-
-    echo "asd"
-
-    exit 
-
-fi
-
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
+
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+      NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
 
     if [[ $2 == "" ]]; then
         echo "${CYAN}Node${NC}: Missing Address to remove."
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+        echo $WALLET_ID >> $DIR/.n2/wallet
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     REMOVE=$(curl -s '[::1]:7076' \
@@ -201,11 +200,26 @@ fi
 
 if [[ $1 == "wallet" ]]; then
 
-    if [[ $(cat $DIR/.n2-wallet 2>/dev/null) == "" ]]; then
-        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2-wallet
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
     else
-        WALLET_ID=$(cat $DIR/.n2-wallet)
+      NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2/wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
     WALLET=$(curl -s '[::1]:7076' \
@@ -227,8 +241,7 @@ EOF
 
 fi
 
-if [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
-
+if [[ $1 == "balance" ]] || [[ $1 == "account" ]] || [[ $1 == "address" ]]; then
 
     print_balance $2 $3
 
@@ -237,16 +250,13 @@ if [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 fi
 
 if [[ $1 == "clear-cache" ]]; then
-    rm "$DIR/.n2-wallet"
-    rm "$DIR/.n2-wallet"
-    rm "$DIR/.n2-price-url"
-    rm "$DIR/.n2-$2"
+    rm -rf "$DIR/.n2"
     echo "${RED}N2${NC}: Cache cleared."
     exit 0
 fi
 
 if [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
-    echo $3 >> "$DIR/.n2-$2"
+    echo $3 >> "$DIR/.n2/$2"
     exit 0
 fi
 
@@ -260,8 +270,8 @@ if [[ $1 == "save" ]]; then
         exit 0
     fi
     if jq -e . >/dev/null 2>&1 <<<"$3"; then
-        mkdir -p $DIR/.n2-data
-        echo $3 >> "$DIR/.n2-data/$2"
+        # mkdir -p $DIR/.n2/$2
+        echo $3 > "$DIR/.n2/$2"
     else
         echo "Failed to parse JSON"
     fi

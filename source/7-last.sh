@@ -67,10 +67,10 @@ fi
 
 if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
     sudo rm /usr/local/bin/n2
-    rm $DIR/.n2-wallet
-    rm $DIR/.n2-accounts
-    rm $DIR/.n2-cache
-    rm -rf $DIR/.n2-data
+    rm $DIR/.n2/wallet
+    rm $DIR/.n2/accounts
+    rm $DIR/.n2/cache
+    rm -rf $DIR/.n2/data
     echo "CLI removed. Thanks for using N2. Hope to see you soon."
     exit 0
 fi

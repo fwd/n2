@@ -178,7 +178,7 @@ function local_send() {
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    # TODO: Replace... no bash BIG.JS
+    # TODO: Replace with something local...but what??
     AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -212,8 +212,6 @@ function local_send() {
 EOF
     ))
 
-    # echo "ACCOUNT", $ACCOUNT
-
     POW=$(curl -s '[::1]:7090' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -226,29 +224,7 @@ EOF
 EOF
     ))
 
-    # echo "POW" $POW
-
-    # exit 0
-
-    # if [[ $(jq -r '.work' <<< "$POW") == "" ]]; then
-    #     echo $POW
-    #     echo
-    #     echo "==============================="
-    #     echo "       USED ALL CREDITS        "
-    #     echo "==============================="
-    #     echo "  Use 'n2 buy pow' or wait.    "
-    #     echo "==============================="
-    #     echo
-    #     return
-    # fi
-
     WORK=$(jq -r '.work' <<< "$POW")
-
-    # echo "AMOUNT_IN_RAW" $AMOUNT_IN_RAW
-
-    # exit 0
-    
-    echo "WORK" $WORK
 
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -465,7 +441,6 @@ EOF
 fi
 
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
-    # rm $DIR/.n2-wallet
     rm "$DIR/.n2-$2"
     echo "${RED}N2${NC}: $2 removed."
     exit 0
@@ -476,19 +451,24 @@ if [[ $1 == "cache" ]] || [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
     exit 0
 fi
 
-if [[ $1 == "metadata" ]]; then
-    # mkdir -p $DIR/.n2-data
-    if [[ $3 == "" ]]; then
-        echo "${RED}Error${NC}: No data provided.." 
+if [[ $1 == "metadata" ]] || [[ $1 == "store" ]] || [[ $1 == "memo" ]] || [[ $1 == "data" ]]; then
+    if [[ $2 == "" ]]; then
+        echo "${RED}Error${NC}: Missing Hash" 
         exit 0
     fi
-    echo $3 >> "$DIR/.n2-data/$2"
+    if [[ $3 == "" ]]; then
+        echo "${RED}Error${NC}: Missing JSON Metadata" 
+        exit 0
+    fi
+    if jq -e . >/dev/null 2>&1 <<<"$3"; then
+        mkdir -p $DIR/.n2-data
+        echo $3 >> "$DIR/.n2-data/$2"
+    else
+        echo "Failed to parse JSON"
+    fi
     exit 0
 fi
-
-
-
-if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo ""
@@ -538,21 +518,60 @@ if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; the
     fi
 
     # Sorta working
-    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
-        read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
+    if [[ "$2" = "work-server" ]] || [[ "$2" = "work" ]]; then
+        
+        read -p 'Setup Nano Work Server. Enter 'y' to continue: ' YES
+
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-            sudo apt-get purge nvidia*
-            sudo ubuntu-drivers autoinstall
+            
+            sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+            curl https://sh.rustup.rs -sSf | sh
+            source $DIR/.cargo/env
+
+            git clone https://github.com/nanocurrency/nano-work-server.git $DIR/nano-work-server
+            cd $DIR/nano-work-server && cargo build --release
+
+            sudo crontab -l > cronjob
+            #echo new cron into cron file
+            echo "@reboot $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0 -l [::1]:7078" >> cronjob
+            #install new cron file
+            sudo crontab cronjob
+            rm cronjob
+
             exit 0
         fi
+
         echo "Canceled"
         exit 0
+
     fi
 
-    read -p 'Attempt to setup a Nano Node: Enter 'y': ' YES
+    # Sorta working
+    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+        
+        read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES
+
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+            
+            # GPU
+            apt install ubuntu-drivers-common
+            sudo apt-get purge nvidia*
+            sudo ubuntu-drivers autoinstall
+
+            exit 0
+        fi
+
+        echo "Canceled"
+        exit 0
+
+    fi
+
+
+    read -p 'Setup a Live Nano Node: Enter 'Y': ' YES
     if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+        echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
         # https://github.com/fwd/nano-docker
-        curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
+        # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
         # cd $DIR && git clone https://github.com/fwd/nano-docker.git
         # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
         # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
@@ -562,7 +581,6 @@ if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; the
     exit 0
 
 fi
-
 
 # ██╗  ██╗███████╗██╗     ██████╗ 
 # ██║  ██║██╔════╝██║     ██╔══██╗
@@ -595,7 +613,6 @@ if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" 
     exit 0
 fi
 
-
 # ██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗
 # ██║   ██║██╔══██╗██╔══██╗██╔══██╗╚══██╔══╝██╔════╝
 # ██║   ██║██████╔╝██║  ██║███████║   ██║   █████╗  
@@ -608,19 +625,19 @@ if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--inst
         sudo rm /usr/local/bin/n2
         curl -s -L "https://github.com/fwd/n2/raw/dev/n2.sh" -o /usr/local/bin/n2
         sudo chmod +x /usr/local/bin/n2
-        echo "Installed latest 'development' version."
+        echo "${GREEN}N2${NC}: Installed latest development version."
         exit 0
     fi
     if [ "$2" = "--prod" ] || [ "$2" = "prod" ]; then
         sudo rm /usr/local/bin/n2
         curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
         sudo chmod +x /usr/local/bin/n2
-        echo "Installed latest 'stable' version."
+        echo "${GREEN}N2${NC}: Installed N2 $VERSION."
         exit 0
     fi
     curl -s -L "https://github.com/fwd/n2/raw/master/n2.sh" -o /usr/local/bin/n2
     sudo chmod +x /usr/local/bin/n2
-    echo "Installed latest version."
+    echo "${GREEN}N2${NC}: Installed N2 $VERSION."
     exit 0
 fi
 
@@ -634,13 +651,13 @@ fi
 
 if [[ "$1" = "--uninstall" ]] || [[ "$1" = "-u" ]]; then
     sudo rm /usr/local/bin/n2
-    rm $DIR/.n2-favorites
-    rm $DIR/.n2-session
-    rm $DIR/.n2-rpc
+    rm $DIR/.n2-wallet
+    rm $DIR/.n2-accounts
+    rm $DIR/.n2-cache
+    rm -rf $DIR/.n2-data
     echo "CLI removed. Thanks for using N2. Hope to see you soon."
     exit 0
 fi
-
 
 # ██╗  ██╗██╗   ██╗██╗  ██╗
 # ██║  ██║██║   ██║██║  ██║

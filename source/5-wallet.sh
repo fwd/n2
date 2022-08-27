@@ -25,7 +25,7 @@ function local_send() {
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    # TODO: Replace... no bash BIG.JS
+    # TODO: Replace with something local...but what??
     AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -59,8 +59,6 @@ function local_send() {
 EOF
     ))
 
-    # echo "ACCOUNT", $ACCOUNT
-
     POW=$(curl -s '[::1]:7090' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -73,29 +71,7 @@ EOF
 EOF
     ))
 
-    # echo "POW" $POW
-
-    # exit 0
-
-    # if [[ $(jq -r '.work' <<< "$POW") == "" ]]; then
-    #     echo $POW
-    #     echo
-    #     echo "==============================="
-    #     echo "       USED ALL CREDITS        "
-    #     echo "==============================="
-    #     echo "  Use 'n2 buy pow' or wait.    "
-    #     echo "==============================="
-    #     echo
-    #     return
-    # fi
-
     WORK=$(jq -r '.work' <<< "$POW")
-
-    # echo "AMOUNT_IN_RAW" $AMOUNT_IN_RAW
-
-    # exit 0
-    
-    echo "WORK" $WORK
 
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -312,7 +288,6 @@ EOF
 fi
 
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
-    # rm $DIR/.n2-wallet
     rm "$DIR/.n2-$2"
     echo "${RED}N2${NC}: $2 removed."
     exit 0
@@ -323,13 +298,20 @@ if [[ $1 == "cache" ]] || [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
     exit 0
 fi
 
-if [[ $1 == "metadata" ]]; then
-    # mkdir -p $DIR/.n2-data
-    if [[ $3 == "" ]]; then
-        echo "${RED}Error${NC}: No data provided.." 
+if [[ $1 == "metadata" ]] || [[ $1 == "store" ]] || [[ $1 == "memo" ]] || [[ $1 == "data" ]]; then
+    if [[ $2 == "" ]]; then
+        echo "${RED}Error${NC}: Missing Hash" 
         exit 0
     fi
-    echo $3 >> "$DIR/.n2-data/$2"
+    if [[ $3 == "" ]]; then
+        echo "${RED}Error${NC}: Missing JSON Metadata" 
+        exit 0
+    fi
+    if jq -e . >/dev/null 2>&1 <<<"$3"; then
+        mkdir -p $DIR/.n2-data
+        echo $3 >> "$DIR/.n2-data/$2"
+    else
+        echo "Failed to parse JSON"
+    fi
     exit 0
 fi
-

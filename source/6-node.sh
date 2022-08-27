@@ -1,6 +1,5 @@
 
-
-if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo ""
@@ -50,21 +49,60 @@ if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; the
     fi
 
     # Sorta working
-    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
-        read -p 'Setup NVIDIA GPU. Enter 'y' to continue: ' YES
+    if [[ "$2" = "work-server" ]] || [[ "$2" = "work" ]]; then
+        
+        read -p 'Setup Nano Work Server. Enter 'y' to continue: ' YES
+
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-            sudo apt-get purge nvidia*
-            sudo ubuntu-drivers autoinstall
+            
+            sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+            curl https://sh.rustup.rs -sSf | sh
+            source $DIR/.cargo/env
+
+            git clone https://github.com/nanocurrency/nano-work-server.git $DIR/nano-work-server
+            cd $DIR/nano-work-server && cargo build --release
+
+            sudo crontab -l > cronjob
+            #echo new cron into cron file
+            echo "@reboot $DIR/nano-work-server/target/release/nano-work-server --gpu 0:0 -l [::1]:7078" >> cronjob
+            #install new cron file
+            sudo crontab cronjob
+            rm cronjob
+
             exit 0
         fi
+
         echo "Canceled"
         exit 0
+
     fi
 
-    read -p 'Attempt to setup a Nano Node: Enter 'y': ' YES
+    # Sorta working
+    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+        
+        read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES
+
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+            
+            # GPU
+            apt install ubuntu-drivers-common
+            sudo apt-get purge nvidia*
+            sudo ubuntu-drivers autoinstall
+
+            exit 0
+        fi
+
+        echo "Canceled"
+        exit 0
+
+    fi
+
+
+    read -p 'Setup a Live Nano Node: Enter 'Y': ' YES
     if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+        echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
         # https://github.com/fwd/nano-docker
-        curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
+        # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
         # cd $DIR && git clone https://github.com/fwd/nano-docker.git
         # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
         # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
@@ -74,5 +112,4 @@ if [[ "$2" = "setup" ]] || [[ "$2" = "--setup" ]] || [[ "$2" = "install" ]]; the
     exit 0
 
 fi
-
 

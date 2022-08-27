@@ -202,7 +202,7 @@ function print_balance() {
   echo "============================="
   # if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF
-${GREEN}$ n2 [ balance | send | install | upgrade ]${NC}
+${GREEN}$ n2 [ balance | send | upgrade ]${NC}
 EOF
 )
 cat <<EOF

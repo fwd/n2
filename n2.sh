@@ -548,11 +548,6 @@ EOF
     # fi
     # echo $4
 
-
-    # echo "sd" $SRC
-
-    # exit 0
-
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -619,9 +614,9 @@ EOF
     echo "AMOUNT: "$AMOUNT_FINAL
     echo "TO: "$DEST
     echo "FROM: "$SRC
-    echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
+    # echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
     echo "--------------------------------"
-    echo "BROWSER: https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
+    echo "https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
     echo "==============================="
 
     exit 0

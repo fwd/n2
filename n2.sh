@@ -413,10 +413,10 @@ function local_send() {
         exit 0
     fi
 
-    if [[ $4 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing source address."
-        exit 0
-    fi
+    # if [[ $4 == "" ]]; then
+    #     echo "${CYAN}Node${NC}: Missing source address."
+    #     exit 0
+    # fi
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
@@ -441,13 +441,63 @@ function local_send() {
         DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
     fi
 
-    if [[ "$4" == *"nano_"* ]]; then
-        SRC=$4
-    else
-        NAME_DEST=$(echo $4 | sed -e "s/\@//g")
-        DEST_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-        SRC=$(jq -r '.address' <<< "$DEST_ACCOUNT")
+    # if [[ "$4" == *"nano_"* ]]; then
+    #     SRC=$4
+    # else
+    #     NAME_DEST=$(echo $4 | sed -e "s/\@//g")
+    #     DEST_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
+    #     SRC=$(jq -r '.address' <<< "$DEST_ACCOUNT")
+    # fi
+    # echo $4
+    accounts_on_file=$(get_accounts)
+
+    if [[ -z "$4" ]] || [[ "$4" == "--json" ]]; then
+
+        if [[ $(cat $DIR/.n2/main 2>/dev/null) == "" ]]; then
+            SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+            echo $SRC >> $DIR/.n2/main
+        else
+            SRC=$(cat $DIR/.n2/main)
+        fi
+        
+        # SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+
+    # else
+
+        # SRC=$4
+
+        # accounts_on_file=$(get_accounts)
+
+        # total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
+
+        # SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+        
+        # TEST=$(echo "$accounts_on_file" | jq '.accounts | contains(["1bank"])')
+        # account_array=$(jq -c '.accounts' <<< "$accounts_on_file")
+        # echo $account_array
+        # echo '["a","b","c","d","e"]' | jq '.[] | select(. == ("a","c"))'
+        # SRC=$(echo "$account_array" | jq '.[] | select(. == ("1bank"))')
+        # TEST=$(echo "$accounts_on_file_array" | jq '.[] | select(. == ("1bank"))')
+
+        # echo $accounts_on_file
+        
+        # TEST2=$(cat "$accounts_on_file" | jq '.accounts[] | select(index("1bank"))')
+        # TEST=$(jq '.accounts[] | select( any(. == "1bank" ) ) ' <<< "$accounts_on_file")
+
+        # TEST=$(jq '.accounts | to_entries[] | select(.value == "1bank")' <<< "$accounts_on_file")
+        # TEST=$(jq '.accounts[] | select(. == "1bank") | .' <<< "$accounts_on_file")
+        # TEST=$(jq '.accounts[] | select(. match("1bank"))' <<< "$accounts_on_file")
+        # TEST=$(jq '.accounts[] | select(. match("1bank"))' <<< "$accounts_on_file")
+
+        # SRC=$4
+
+        # echo "asd"
+
     fi
+
+    # echo "sd" $SRC
+
+    # exit 0
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -492,20 +542,28 @@ EOF
 EOF
     ))
 
-    echo "SEND_ATTEMPT" $SEND_ATTEMPT
+    # echo $(jq -r '.block' <<< "$SEND_ATTEMPT")
 
-    exit 0
-
-    if [[ $(jq -r '.block' <<< "$SEND_ATTEMPT") == "" ]]; then
-        echo
+    if [[ "$(jq -r '.block' <<< "$SEND_ATTEMPT")" == "null" ]]; then
+        # echo
         echo "================================"
-        echo "             ERROR              "
+        echo "             ${RED}ERROR${NC}              "
         echo "================================"
         echo "$(jq -r '.error' <<< "$SEND_ATTEMPT") "
         echo "================================"
         echo
         exit 0
     fi
+
+   if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+    echo $SEND_ATTEMPT
+    exit 0
+  fi
+
+    # echo "SEND_ATTEMPT" $SEND_ATTEMPT
+
+    # exit 0
+
 
     echo "==============================="
     echo "         NANO RECEIPT          "
@@ -629,7 +687,7 @@ EOF
 
 fi
 
-if [[ $1 == "balance" ]] || [[ $1 == "account" ]] || [[ $1 == "address" ]]; then
+if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]] || [[ $1 == "address" ]]; then
 
     print_balance $2 $3
 
@@ -643,8 +701,8 @@ if [[ $1 == "clear-cache" ]]; then
     exit 0
 fi
 
-if [[ $1 == "set" ]] || [[ $1 == "--set" ]]; then
-    echo $3 >> "$DIR/.n2/$2"
+if [[ $1 == "set" ]] || [[ $1 == "--set" ]]  || [[ $1 == "config" ]]; then
+    echo $3 > "$DIR/.n2/$2"
     exit 0
 fi
 
@@ -665,10 +723,10 @@ if [[ $1 == "save" ]]; then
     fi
     exit 0
 fi
-if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || || [[ "$1" = "i" ]]; then
+if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "i" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo ""
+        echo -n ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
         # sponsor
@@ -701,7 +759,19 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || |
         exit 0
     fi
 
+    if [[ -z "$2" ]]; then
+        echo "${GREEN}Available Packages${NC}:"
+        echo "$ n2 $1 node"
+        echo "$ n2 $1 vanity"
+        echo "$ n2 $1 pow-server"
+        echo "$ n2 $1 gpu-driver"
+        # echo "================="
+        # echo "${CYAN}Usage:${NC}: n2 install [node | vanity | pow-server]"
+        exit 0
+    fi
+
     # Coming soon
+
     if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "pow-proxy" ]] || [[ "$2" = "pow-server" ]]; then
         read -p 'Setup Nano PoW Server: Enter 'y': ' YES
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
@@ -746,7 +816,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || |
     fi
 
     # Sorta working
-    if [[ "$2" = "vanity" ]] || [[ "$2" = "--vanity" ]]; then
+    if [[ "$2" = "vanity" ]]; then
         
         read -p 'Setup Nano Vanity (RUST). Enter 'Y' to continue: ' YES
 
@@ -770,7 +840,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || |
 
     fi
 
-    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+    if [[ "$2" = "gpu" ]] || [[ "$2" = "gpu-driver" ]] || [[ "$2" = "gpu-drivers" ]]; then
         
         read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES
 
@@ -790,18 +860,30 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || |
     fi
 
 
-    read -p 'Setup a Live Nano Node: Enter 'Y': ' YES
-    if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-        echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
-        # https://github.com/fwd/nano-docker
-        # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
-        # cd $DIR && git clone https://github.com/fwd/nano-docker.git
-        # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-        # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+    if [[ "$2" = "node" ]]; then
+        INSTALL_NOTE=$(cat <<EOF
+==================================
+         ${GREEN}Setup New Node${NC}
+==================================
+${GREEN}CPU${NC}:>=4${GREEN} RAM${NC}:>=4GB${GREEN} SSD${NC}:>=500GB
+==================================
+Press 'Y' to continue:
+EOF
+)
+        read -p "$INSTALL_NOTE " YES
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+            echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
+            # https://github.com/fwd/nano-docker
+            # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
+            # cd $DIR && git clone https://github.com/fwd/nano-docker.git
+            # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+            # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+            exit 0
+        fi
+        echo "Canceled"
         exit 0
     fi
-    echo "Canceled"
-    exit 0
+
 
 fi
 

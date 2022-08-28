@@ -2,7 +2,7 @@
 if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "i" ]]; then
 
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo ""
+        echo -n ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
         echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
         # sponsor
@@ -35,12 +35,14 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
         exit 0
     fi
 
-    if [[ -z "$3" ]]; then
-        echo "${RED}Available:${NC}:"
-        echo "- Nano Node"
-        echo "- GPU Drivers"
-        echo "- Nano Vanity"
-        echo "- PoW Server"
+    if [[ -z "$2" ]]; then
+        echo "${GREEN}Available Packages${NC}:"
+        echo "$ n2 $1 node"
+        echo "$ n2 $1 vanity"
+        echo "$ n2 $1 pow-server"
+        echo "$ n2 $1 gpu-driver"
+        # echo "================="
+        # echo "${CYAN}Usage:${NC}: n2 install [node | vanity | pow-server]"
         exit 0
     fi
 
@@ -90,7 +92,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
     fi
 
     # Sorta working
-    if [[ "$2" = "vanity" ]] || [[ "$2" = "--vanity" ]]; then
+    if [[ "$2" = "vanity" ]]; then
         
         read -p 'Setup Nano Vanity (RUST). Enter 'Y' to continue: ' YES
 
@@ -114,7 +116,7 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
 
     fi
 
-    if [[ "$2" = "gpu" ]] || [[ "$2" = "--gpu" ]]; then
+    if [[ "$2" = "gpu" ]] || [[ "$2" = "gpu-driver" ]] || [[ "$2" = "gpu-drivers" ]]; then
         
         read -p 'Setup NVIDIA Drivers. Enter 'Y' to continue: ' YES
 
@@ -134,18 +136,30 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
     fi
 
 
-    read -p 'Setup a Live Nano Node: Enter 'Y': ' YES
-    if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-        echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
-        # https://github.com/fwd/nano-docker
-        # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
-        # cd $DIR && git clone https://github.com/fwd/nano-docker.git
-        # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
-        # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+    if [[ "$2" = "node" ]]; then
+        INSTALL_NOTE=$(cat <<EOF
+==================================
+         ${GREEN}Setup New Node${NC}
+==================================
+${GREEN}CPU${NC}:>=4${GREEN} RAM${NC}:>=4GB${GREEN} SSD${NC}:>=500GB
+==================================
+Press 'Y' to continue:
+EOF
+)
+        read -p "$INSTALL_NOTE " YES
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+            echo "${RED}N2${NC}: 1-Click Nano Node Coming Soon."
+            # https://github.com/fwd/nano-docker
+            # curl -L "https://github.com/fwd/nano-docker/raw/master/install.sh" | sh
+            # cd $DIR && git clone https://github.com/fwd/nano-docker.git
+            # LATEST=$(curl -sL https://api.github.com/repos/nanocurrency/nano-node/releases/latest | jq -r ".tag_name")
+            # cd $DIR/nano-docker && sudo ./setup.sh -s -t $LATEST
+            exit 0
+        fi
+        echo "Canceled"
         exit 0
     fi
-    echo "Canceled"
-    exit 0
+
 
 fi
 

@@ -39,28 +39,11 @@ function local_send() {
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    # TODO: Replace with something local...but what??
-    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
+    # echo $3 == ''
 
-    if [[ "$2" == *"nano_"* ]]; then
-        DEST=$2
-    else
-        NAME_DEST=$(echo $2 | sed -e "s/\@//g")
-        SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-        DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
-    fi
+    # echo $2
+    # exit 0
 
-    # if [[ "$4" == *"nano_"* ]]; then
-    #     SRC=$4
-    # else
-    #     NAME_DEST=$(echo $4 | sed -e "s/\@//g")
-    #     DEST_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-    #     SRC=$(jq -r '.address' <<< "$DEST_ACCOUNT")
-    # fi
-    # echo $4
     accounts_on_file=$(get_accounts)
 
     if [[ -z "$4" ]] || [[ "$4" == "--json" ]]; then
@@ -74,9 +57,9 @@ function local_send() {
         
         # SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
 
-    # else
+    else
 
-        # SRC=$4
+        SRC=$4
 
         # accounts_on_file=$(get_accounts)
 
@@ -106,6 +89,56 @@ function local_send() {
         # echo "asd"
 
     fi
+
+    if [[ "$3" == "all" ]]; then
+
+  ACCOUNT=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_info",
+    "account": "$4",
+    "representative": "true",
+    "pending": "true",
+    "receivable": "true"
+}
+EOF
+  ))
+        AMOUNT_FINAL_RAW=$(jq -r '.balance' <<< "$ACCOUNT")
+        AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
+        AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
+    else
+        AMOUNT_FINAL=$3
+    fi
+
+    # TODO: Replace with something local...but what??
+    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_FINAL" \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
+
+    if [[ "$2" == *"nano_"* ]]; then
+        DEST=$2
+    else
+        NAME_DEST=$(echo $2 | sed -e "s/\@//g")
+        SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
+        DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+    fi
+
+    # if [[ "$4" == *"nano_"* ]]; then
+    #     SRC=$4
+    # else
+    #     NAME_DEST=$(echo $4 | sed -e "s/\@//g")
+    #     DEST_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
+    #     SRC=$(jq -r '.address' <<< "$DEST_ACCOUNT")
+    # fi
+    # echo $4
+
 
     # echo "sd" $SRC
 
@@ -165,16 +198,16 @@ EOF
         exit 0
     fi
 
-   if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
-    echo $SEND_ATTEMPT
-    exit 0
-  fi
+    if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+        echo $SEND_ATTEMPT
+        exit 0
+    fi
 
 
     echo "==============================="
     echo "         NANO RECEIPT          "
     echo "==============================="
-    echo "AMOUNT: "$3
+    echo "AMOUNT: "$AMOUNT_FINAL
     echo "TO: "$DEST
     echo "FROM: "$SRC
     echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")

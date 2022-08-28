@@ -147,6 +147,22 @@ function print_balance() {
 
   account_info=$(get_balance "$first_account")
 
+  if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+      echo $account_info
+      exit 0
+  fi
+
+  if [[ "$(jq -r '.balance' <<< "$account_info")" == "null" ]]; then
+      # echo
+      echo "================================"
+      echo "             ${RED}ERROR${NC}              "
+      echo "================================"
+      echo "$(jq -r '.error' <<< "$account_info") "
+      echo "================================"
+      echo
+      exit 0
+  fi
+
   account_balance=$(jq '.balance' <<< "$account_info" | tr -d '"') 
 
   account_pending=$(jq '.pending' <<< "$account_info" | tr -d '"') 
@@ -172,12 +188,17 @@ function print_balance() {
   fi
 
   mkdir -p $DIR/.n2/data
-  medata_count=$(find $DIR/.n2/data -maxdepth 1 -type f | wc -l | xargs)
+  metadata=$(find $DIR/.n2/data -maxdepth 1 -type f | wc -l | xargs)
 
   if [[ $(cat $DIR/.n2/title 2>/dev/null) == "" ]]; then
       CLI_TITLE="        NANO CLI (N2)"
   else
       CLI_TITLE=$(cat $DIR/.n2/title)
+  fi
+
+  if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+      echo "{ \"address\": \""first_account"\", \"balance\": \""balance_in_decimal_value"\", \"pending\": \""pending_in_decimal_value"\", \"accounts\": \""total_accounts"\", \"metadata\": \""metadata"\"   }"
+      exit 0
   fi
 
   echo "============================="
@@ -186,12 +207,12 @@ function print_balance() {
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
     echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
   else
-    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
+    # echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
     # echo "${PURP}Address:${NC} $first_account***"
     echo "${PURP}Balance:${NC} $balance_in_decimal_value"
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
     echo "${PURP}Accounts:${NC} ${total_accounts}"
-    echo "${PURP}HashData:${NC} $medata_count"
+    echo "${PURP}HashData:${NC} $metadata"
   fi
   echo "============================="
   echo "${PURP}Nano Node:${NC} ${GREEN}V23.3 @ 100%${NC}"

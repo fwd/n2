@@ -609,11 +609,11 @@ EOF
 
 
     echo "==============================="
-    echo "         NANO RECEIPT          "
+    echo "         ${GREEN}NANO RECEIPT${NC}          "
     echo "==============================="
-    echo "AMOUNT: "$AMOUNT_FINAL
-    echo "TO: "$DEST
-    echo "FROM: "$SRC
+    echo "${GREEN}AMOUNT${NC}: "$AMOUNT_FINAL
+    echo "${GREEN}TO${NC}: "$DEST
+    echo "${GREEN}FROM${NC}: "$SRC
     # echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
     echo "--------------------------------"
     echo "https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"

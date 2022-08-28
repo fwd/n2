@@ -154,8 +154,6 @@ EOF
 EOF
     ))
 
-    # echo $(jq -r '.block' <<< "$SEND_ATTEMPT")
-
     if [[ "$(jq -r '.block' <<< "$SEND_ATTEMPT")" == "null" ]]; then
         # echo
         echo "================================"
@@ -171,10 +169,6 @@ EOF
     echo $SEND_ATTEMPT
     exit 0
   fi
-
-    # echo "SEND_ATTEMPT" $SEND_ATTEMPT
-
-    # exit 0
 
 
     echo "==============================="

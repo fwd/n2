@@ -318,7 +318,8 @@ EOF
 
 if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
 
-    get_accounts
+    # get_accounts
+    ACCOUNT_LIST=$(jq '.accounts' <<< get_accounts) 
 
     # echo $(jq length <<< list_accounts)
 

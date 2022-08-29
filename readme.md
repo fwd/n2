@@ -6,7 +6,7 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
-## **In Beta**. RPC client written in BASH. For managing Nano nodes.
+### **In Beta**. RPC client written in BASH. For managing Nano nodes.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

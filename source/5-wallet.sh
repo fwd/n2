@@ -329,6 +329,14 @@ if [[ $1 == "address" ]]; then
 
 fi
 
+if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
+
+    print_balance $2 $3
+
+    exit 0
+
+fi
+
 if [[ $1 == "clear-cache" ]]; then
     rm -rf "$DIR/.n2"
     echo "${RED}N2${NC}: Cache cleared."

@@ -354,7 +354,7 @@ EOF
   echo "============================="
   # if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF
-${GREEN}$ n2 [ balance | send | upgrade ]${NC}
+${GREEN}$ n2 [ balance | send | address ]${NC}
 EOF
 )
 cat <<EOF
@@ -814,6 +814,14 @@ fi
 if [[ $1 == "address" ]]; then
 
     print_address $2 $3
+
+    exit 0
+
+fi
+
+if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
+
+    print_balance $2 $3
 
     exit 0
 

@@ -192,14 +192,31 @@ function print_balance() {
 
   total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
 
-  # echo $1
-  # exit 0 
-
   if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
     first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
   else
     first_account=$1
   fi
+
+  if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+           
+      if [[ -z "$1" ]]; then
+        ACCOUNT_INDEX="0"
+      else
+        ACCOUNT_INDEX=$(expr $1 - 1)
+      fi
+
+      first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
+  else
+      
+      first_account=$1
+
+  fi
+
+  # echo $first_account
+
+  # exit 0
 
   account_info=$(get_balance "$first_account")
 

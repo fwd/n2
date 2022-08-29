@@ -137,13 +137,30 @@ EOF
     -H "Content-Type:application/json" \
     --request GET)
 
-    if [[ "$2" == *"nano_"* ]]; then
-        DEST=$2
+    if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
+           
+      if [[ -z "$2" ]]; then
+        ACCOUNT_INDEX="0"
+      else
+        ACCOUNT_INDEX=$(expr $2 - 1)
+      fi
+
+      DEST=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
     else
-        NAME_DEST=$(echo $2 | sed -e "s/\@//g")
-        SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-        DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+      
+      # first_account=$2
+
+        if [[ "$2" == *"nano_"* ]]; then
+            DEST=$2
+        else
+            NAME_DEST=$(echo $2 | sed -e "s/\@//g")
+            SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
+            DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+        fi
+        
     fi
+
 
     # if [[ "$4" == *"nano_"* ]]; then
     #     SRC=$4

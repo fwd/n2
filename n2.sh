@@ -242,14 +242,31 @@ function print_balance() {
 
   total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
 
-  # echo $1
-  # exit 0 
-
   if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
     first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
   else
     first_account=$1
   fi
+
+  if [ -n "$1" ] && [ "$1" -eq "$1" ] 2>/dev/null; then
+           
+      if [[ -z "$1" ]]; then
+        ACCOUNT_INDEX="0"
+      else
+        ACCOUNT_INDEX=$(expr $1 - 1)
+      fi
+
+      first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
+  else
+      
+      first_account=$1
+
+  fi
+
+  # echo $first_account
+
+  # exit 0
 
   account_info=$(get_balance "$first_account")
 
@@ -652,13 +669,30 @@ EOF
     -H "Content-Type:application/json" \
     --request GET)
 
-    if [[ "$2" == *"nano_"* ]]; then
-        DEST=$2
+    if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
+           
+      if [[ -z "$2" ]]; then
+        ACCOUNT_INDEX="0"
+      else
+        ACCOUNT_INDEX=$(expr $2 - 1)
+      fi
+
+      DEST=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
     else
-        NAME_DEST=$(echo $2 | sed -e "s/\@//g")
-        SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-        DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+      
+      # first_account=$2
+
+        if [[ "$2" == *"nano_"* ]]; then
+            DEST=$2
+        else
+            NAME_DEST=$(echo $2 | sed -e "s/\@//g")
+            SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
+            DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+        fi
+        
     fi
+
 
     # if [[ "$4" == *"nano_"* ]]; then
     #     SRC=$4

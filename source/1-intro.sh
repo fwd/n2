@@ -6,7 +6,7 @@
 ## Released under MIT License  ##
 #################################
 
-VERSION=0.2.2-AUG-27-22
+VERSION=0.2.3
 GREEN=$'\e[0;32m'
 BLUE=$'\e[0;34m'
 CYAN=$'\e[1;36m'

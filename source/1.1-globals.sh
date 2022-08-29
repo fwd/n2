@@ -201,26 +201,74 @@ function print_balance() {
       exit 0
   fi
 
+  NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+  ))
+
+  NODE_SYNC=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "block_count"
+}
+EOF
+  ))
+
+  # echo $NODE_SYNC
+
+  NODE_BLOCK_COUNT=$(jq '.count' <<< "$NODE_SYNC" | tr -d '"') 
+  NODE_BLOCK_UNCHECKED=$(jq '.unchecked' <<< "$NODE_SYNC" | tr -d '"') 
+  NODE_BLOCK_CEMENTED=$(jq '.cemented' <<< "$NODE_SYNC" | tr -d '"') 
+
+  INT_NODE_BLOCK_COUNT=$(expr $NODE_BLOCK_COUNT + 0)
+  INT_NODE_BLOCK_UNCHECKED=$(expr $NODE_BLOCK_UNCHECKED + 0)
+  INT_NODE_BLOCK_CEMENTED=$(expr $NODE_BLOCK_CEMENTED + 0)
+
+  # echo $INT_NODE_BLOCK_COUNT
+  # echo $INT_NODE_BLOCK_UNCHECKED
+  # echo $INT_NODE_BLOCK_CEMENTED
+
+  # Let's say you have two numbers, $INT_NODE_BLOCK_COUNT and $INT_NODE_BLOCK_UNCHECKED.  
+
+  # $INT_NODE_BLOCK_UNCHECKED / $INT_NODE_BLOCK_COUNT * 100 = 75.
+  # So $INT_NODE_BLOCK_UNCHECKED is 75% of $INT_NODE_BLOCK_COUNT. 
+
+  SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
+
+  # string='My long string'
+  if [[ $SYNC_PERCENT == *"99."* ]]; then
+    FINAL_SYNC_PERCENT="100"
+  else
+    FINAL_SYNC_PERCENT=$SYNC_PERCENT
+  fi
+
   echo "============================="
   echo "${GREEN}$CLI_TITLE${NC}"
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
     echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
   else
-    # echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
+    echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
     # echo "${PURP}Address:${NC} $first_account***"
-    echo "${PURP}Balance:${NC} $(echo "$$balance_in_decimal_value" | cut -c1-6)e"
-    echo "${PURP}Pending:${NC} $(echo "$$pending_in_decimal_value" | cut -c1-6)e"
-    # echo "${PURP}Pending:${NC} $pending_in_decimal_value"
+    echo "${PURP}Balance:${NC} $balance_in_decimal_value"
+    echo "${PURP}Pending:${NC} $pending_in_decimal_value"
     echo "${PURP}Accounts:${NC} ${total_accounts}"
     # echo "${PURP}HashData:${NC} $metadata"
   fi
   echo "============================="
-  echo "${PURP}Nano Node:${NC} ${GREEN}V23.3 @ 100%${NC}"
+  echo "${PURP}Blockchain:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
   # echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
   # echo "${PURP}Node Uptime:${NC} 25 days"
   # echo "============================="
-  echo "${PURP}N2 Version:${NC} ${GREEN}$VERSION${NC}"
   echo "============================="
   # if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF

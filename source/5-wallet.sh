@@ -16,17 +16,17 @@ function local_send() {
     fi
 
     if [[ $2 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing Username or Nano Address."
+        echo "${CYAN}Node${NC}: Missing Params. Usage 'n2 send [to] [amount] [from]'"
         exit 0
     fi
     
     if [[ $3 == "" ]]; then
-        echo "${CYAN}Node${NC}: Missing amount. Use 'all' to send entire balance."
+        echo "${CYAN}Node${NC}: Missing Params. Use 'all' to send entire balance."
         exit 0
     fi
 
     # if [[ $4 == "" ]]; then
-    #     echo "${CYAN}Node${NC}: Missing source address."
+    #     echo "${CYAN}Node${NC}: Missing Source Address."
     #     exit 0
     # fi
 

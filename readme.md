@@ -20,16 +20,16 @@ curl -L "https://fwd.github.io/n2/setup.sh" | sh
 
 ```
 Usage
-$ n2 setup
-$ n2 whois @moon --json
+$ n2 list
 $ n2 balance
+$ n2 send @fosse 0.1
+$ n2 whois @moon --json
 
 Options
---help, -h  N2 Documentation.
---docs, -d  Nano.to Docs.
---update, -u  Update N2.
---version, -v  Print N2 Version.
---uninstall, -u  Remove N2.
+--help, -h  Prints N2 Docs.
+--update, -u  Update N2 CLI.
+--version, -v  Prints N2 Version.
+--uninstall, -u  Remove N2 CLI.
 ```
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

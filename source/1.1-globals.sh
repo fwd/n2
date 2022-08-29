@@ -116,6 +116,38 @@ EOF
 }
 
 
+
+function print_address() {
+
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2/node
+  else
+      NODE_URL=$(cat $DIR/.n2/node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  accounts_on_file=$(get_accounts)
+
+  # total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file")  
+
+  if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
+    first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+  else
+    first_account=$1
+  fi
+
+  echo $first_account
+
+}
+
+
 function print_balance() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then

@@ -321,9 +321,9 @@ EOF
 
 fi
 
-if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]] || [[ $1 == "address" ]]; then
+if [[ $1 == "address" ]]; then
 
-    print_balance $2 $3
+    print_address $2 $3
 
     exit 0
 

@@ -165,7 +165,25 @@ EOF
 
 }
 
-
+function list_accounts() {
+  accounts_on_file=$(get_accounts)
+  if [[ "$1" == "--json" ]] || [[ "$1" == "--json" ]]; then
+      echo $(jq '.accounts' <<< "$accounts_on_file")
+      exit 0
+  fi
+  readarray -t my_array < <(jq '.accounts' <<< "$accounts_on_file")
+  index=1
+  for item in "${my_array[@]}"; do
+    if [[ "$item" == *"nano_"* ]]; then
+      if [[ "$1" == "--show" ]] || [[ "$2" == "--show" ]]; then
+      echo "[$index]:" $item | tr -d '"'
+      else
+      echo "[$index]:" $item | tr -d '"' | cut -c1-20
+      fi
+      let "index++"
+    fi
+  done
+}
 
 function print_address() {
 
@@ -368,7 +386,8 @@ EOF
 
 if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
 
-    get_accounts
+    list_accounts $2 $3
+    # ACCOUNT_LIST=$(jq '.accounts' <<< get_accounts) 
 
     # echo $(jq length <<< list_accounts)
 

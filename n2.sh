@@ -203,13 +203,19 @@ function print_address() {
 
   accounts_on_file=$(get_accounts)
 
+  if [[ -z "$1" ]]; then
+    ACCOUNT_INDEX="0"
+  else
+    ACCOUNT_INDEX=$(expr $1 - 1)
+  fi
+
   # total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file")  
 
-  if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
-    first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
-  else
-    first_account=$1
-  fi
+  # if [[ "$2" == "--hide" ]] || [[ "$2" == "-hide" ]]; then
+  first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+  # else
+    # first_account=$1
+  # fi
 
   echo $first_account
 

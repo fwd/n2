@@ -574,7 +574,22 @@ function local_send() {
 
     else
 
-        SRC=$4
+        if [ -n "$4" ] && [ "$4" -eq "$4" ] 2>/dev/null; then
+           
+            if [[ -z "$4" ]]; then
+              ACCOUNT_INDEX="0"
+            else
+              ACCOUNT_INDEX=$(expr $4 - 1)
+            fi
+
+            SRC=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
+        else
+            
+            SRC=$4
+
+        fi
+
 
         # accounts_on_file=$(get_accounts)
 

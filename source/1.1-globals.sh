@@ -209,10 +209,11 @@ function print_balance() {
   else
     # echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
     # echo "${PURP}Address:${NC} $first_account***"
-    echo "${PURP}Balance:${NC} $balance_in_decimal_value"
-    echo "${PURP}Pending:${NC} $pending_in_decimal_value"
+    echo "${PURP}Balance:${NC} $(echo "$$balance_in_decimal_value" | cut -c1-6)e"
+    echo "${PURP}Pending:${NC} $(echo "$$pending_in_decimal_value" | cut -c1-6)e"
+    # echo "${PURP}Pending:${NC} $pending_in_decimal_value"
     echo "${PURP}Accounts:${NC} ${total_accounts}"
-    echo "${PURP}HashData:${NC} $metadata"
+    # echo "${PURP}HashData:${NC} $metadata"
   fi
   echo "============================="
   echo "${PURP}Nano Node:${NC} ${GREEN}V23.3 @ 100%${NC}"

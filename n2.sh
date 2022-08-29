@@ -1006,7 +1006,7 @@ fi
 #   ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝                                      
 
 if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" = "version" ]]; then
-    echo "${GREEN}N2${N2} $VERSION"
+    echo "${GREEN}Version:${NC} N2 $VERSION"
     exit 0
 fi
 

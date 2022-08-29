@@ -4,6 +4,8 @@
 
 <h2 align="center">Nano Command Line (N2)</h2>
 
+![line](https://github.com/fwd/n2/raw/master/.github/line.png)
+
 > **In Beta**. RPC client written in BASH. For managing Nano nodes.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)

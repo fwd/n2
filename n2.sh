@@ -571,11 +571,6 @@ function local_send() {
 
     UUID=$(cat /proc/sys/kernel/random/uuid)
 
-    # echo $3 == ''
-
-    # echo $2
-    # exit 0
-
     accounts_on_file=$(get_accounts)
 
     if [[ -z "$4" ]] || [[ "$4" == "--json" ]]; then
@@ -587,8 +582,6 @@ function local_send() {
             SRC=$(cat $DIR/.n2/main)
         fi
         
-        # SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
-
     else
 
         if [ -n "$4" ] && [ "$4" -eq "$4" ] 2>/dev/null; then
@@ -607,33 +600,7 @@ function local_send() {
 
         fi
 
-
-        # accounts_on_file=$(get_accounts)
-
-        # total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file") 
-
-        # SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
-        
-        # TEST=$(echo "$accounts_on_file" | jq '.accounts | contains(["1bank"])')
-        # account_array=$(jq -c '.accounts' <<< "$accounts_on_file")
-        # echo $account_array
-        # echo '["a","b","c","d","e"]' | jq '.[] | select(. == ("a","c"))'
-        # SRC=$(echo "$account_array" | jq '.[] | select(. == ("1bank"))')
-        # TEST=$(echo "$accounts_on_file_array" | jq '.[] | select(. == ("1bank"))')
-
-        # echo $accounts_on_file
-        
-        # TEST2=$(cat "$accounts_on_file" | jq '.accounts[] | select(index("1bank"))')
-        # TEST=$(jq '.accounts[] | select( any(. == "1bank" ) ) ' <<< "$accounts_on_file")
-
-        # TEST=$(jq '.accounts | to_entries[] | select(.value == "1bank")' <<< "$accounts_on_file")
-        # TEST=$(jq '.accounts[] | select(. == "1bank") | .' <<< "$accounts_on_file")
-        # TEST=$(jq '.accounts[] | select(. match("1bank"))' <<< "$accounts_on_file")
-        # TEST=$(jq '.accounts[] | select(. match("1bank"))' <<< "$accounts_on_file")
-
-        # SRC=$4
-
-        # echo "asd"
+        # TODO Code: Find item in JQ array via BASH. Why is it so hard?!
 
     fi
 
@@ -693,6 +660,16 @@ EOF
         
     fi
 
+    if [[ "$2" == "reps" ]] || [[ "$2" == "Reps" ]]; then
+        echo "yo"
+        exit 0
+        #statements
+    fi
+
+    # echo $2
+    # echo $DEST
+
+    # exit 0
 
     # if [[ "$4" == *"nano_"* ]]; then
     #     SRC=$4

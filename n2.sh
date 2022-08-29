@@ -212,9 +212,9 @@ function print_address() {
   # total_accounts=$(jq '.accounts | length' <<< "$accounts_on_file")  
 
   # if [[ "$2" == "--hide" ]] || [[ "$2" == "-hide" ]]; then
-  first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+    # first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
   # else
-    # first_account=$1
+  first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
   # fi
 
   echo $first_account

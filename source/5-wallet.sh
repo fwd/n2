@@ -25,11 +25,6 @@ function local_send() {
         exit 0
     fi
 
-    # if [[ $4 == "" ]]; then
-    #     echo "${CYAN}Node${NC}: Missing Source Address."
-    #     exit 0
-    # fi
-
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
         echo $WALLET_ID >> $DIR/.n2/wallet
@@ -37,7 +32,8 @@ function local_send() {
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
-    UUID=$(cat /proc/sys/kernel/random/uuid)
+    UUID=$(uuidgen)
+    # UUID=$(cat /proc/sys/kernel/random/uuid)
 
     accounts_on_file=$(get_accounts)
 
@@ -128,25 +124,89 @@ EOF
         
     fi
 
-    if [[ "$2" == "reps" ]] || [[ "$2" == "Reps" ]]; then
-        echo "yo"
+    if [[ "$2" == "reps" ]] || [[ "$2" == "names" ]]; then
+
+        REP_LIST=$(curl -s "https://api.nano.to/group/$2")
+
+        readarray -t my_array < <(jq '.[]' <<< "$REP_LIST")
+
+        COUNT=$(jq '.[] | length' <<< "$REP_LIST")
+        AMOUNT_PER=$(awk "BEGIN { print $3 / $COUNT }")
+        
+        index=1
+
+        for item in "${my_array[@]}"; do
+
+            if [[ "$item" == *"nano_"* ]]; then
+             
+                if (( $(awk "BEGIN { print $3 < 0.01 }") == "1" )); then
+                    # echo 
+                    echo "${RED}Error:${NC} Amount '$3' is too low."
+                    exit 0
+                fi
+
+    ACCOUNT=$(curl -s '[::1]:7076' \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_info",
+    "account": "$SRC"
+}
+EOF
+    ))
+
+    POW=$(curl -s '[::1]:7090' \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "work_generate",
+    "hash": "$(jq -r '.frontier' <<< "$ACCOUNT")"
+}
+EOF
+    ))
+
+    WORK=$(jq -r '.work' <<< "$POW")
+
+    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_PER" \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
+
+    SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "send",
+    "wallet": "$WALLET_ID",
+    "source": "$SRC",
+    "destination": "$(echo "$item" | tr -d '"')",
+    "amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+    "id": "$(uuidgen)",
+    "work": "$WORK"
+}
+EOF
+    ))          
+                # echo "Paid."
+
+                sleep .5
+
+                echo $SEND_ATTEMPT
+
+                let "index++"
+
+            fi
+
+        done
+
         exit 0
-        #statements
+
     fi
-
-    # echo $2
-    # echo $DEST
-
-    # exit 0
-
-    # if [[ "$4" == *"nano_"* ]]; then
-    #     SRC=$4
-    # else
-    #     NAME_DEST=$(echo $4 | sed -e "s/\@//g")
-    #     DEST_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
-    #     SRC=$(jq -r '.address' <<< "$DEST_ACCOUNT")
-    # fi
-    # echo $4
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -206,7 +266,6 @@ EOF
         echo $SEND_ATTEMPT
         exit 0
     fi
-
 
     echo "==============================="
     echo "         ${GREEN}NANO RECEIPT${NC}          "

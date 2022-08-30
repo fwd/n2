@@ -164,10 +164,10 @@ function print_address() {
   # if [[ "$2" == "--hide" ]] || [[ "$2" == "-hide" ]]; then
     # first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
   # else
-  first_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+  the_account=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
   # fi
 
-  echo $first_account
+  echo $the_account
 
 }
 

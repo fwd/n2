@@ -31,9 +31,9 @@ EOF
 )
 
 
-if [[ $1 == "" ]] || [[ $1 == "--hide" ]]  || [[ $1 == "help" ]] || [[ $1 == "list" ]] || [[ $1 == "--help" ]] || [[ $1 == "--help" ]]; then
+if [[ $1 == "" ]]; then
  
-  print_balance $2 $1
+  print_balance 1
  
 	exit 0
 
@@ -43,3 +43,4 @@ if [[ "$1" = "--json" ]]; then
 	echo "Tip: Use the '--json' flag to get command responses in JSON."
 	exit 0
 fi
+

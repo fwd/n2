@@ -965,7 +965,8 @@ if [[ $1 == "save" ]]; then
         echo "Failed to parse JSON"
     fi
     exit 0
-fiif [[ "$1" = "pow" ]]; then
+fi
+if [[ "$1" = "pow" ]]; then
 
     if [[ -z "$2" ]]; then
         echo "${RED}Error:${NC} Missing second paramerter. Fronteir Hash."

@@ -1,3 +1,65 @@
+if [[ "$1" = "pow" ]]; then
+
+    if [[ -z "$2" ]]; then
+        echo "${RED}Error:${NC} Missing second paramerter. Fronteir Hash."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/pow 2>/dev/null) == "" ]]; then
+      POW_URL='[::1]:7090'
+      echo $POW_URL >> $DIR/.n2/pow
+    else
+      POW_URL=$(cat $DIR/.n2/pow)
+    fi
+
+    POW_ATTEMPT=$(curl -s $POW_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "work_generate",
+    "hash": "$2"
+}
+EOF
+  ))
+
+    echo $POW_ATTEMPT
+    
+    exit 0
+
+fi
+
+if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] ||  [[ "$1" = "start" ]]; then
+    
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    cd $NODE_PATH && docker-compose start nano-node > /dev/null
+
+    exit 0
+
+fi
+
+if [[ "$1" = "node" ]] && [[ "$2" = "stop" ]] ||  [[ "$1" = "stop" ]]; then
+    
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    cd $NODE_PATH && docker-compose stop nano-node > /dev/null
+
+    exit 0
+
+fi
+
 
 if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [[ "$1" = "i" ]]; then
 
@@ -41,8 +103,6 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
         echo "$ n2 $1 vanity"
         echo "$ n2 $1 pow-server"
         echo "$ n2 $1 gpu-driver"
-        # echo "================="
-        # echo "${CYAN}Usage:${NC}: n2 install [node | vanity | pow-server]"
         exit 0
     fi
 

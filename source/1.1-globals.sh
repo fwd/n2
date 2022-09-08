@@ -210,17 +210,13 @@ function print_balance() {
 
   else
       
-      first_account=$1
+    first_account=$1
 
   fi
 
-  # echo $first_account
-
-  # exit 0
-
   account_info=$(get_balance "$first_account")
 
-  if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+  if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
       echo $account_info
       exit 0
   fi
@@ -314,7 +310,7 @@ EOF
   fi
 
   echo "============================="
-  echo "${GREEN}$CLI_TITLE${NC}"
+  echo "           ${GREEN}BALANCE${NC}"
   echo "============================="
   if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
     echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
@@ -323,7 +319,7 @@ EOF
     # echo "${PURP}Address:${NC} $first_account***"
     echo "${PURP}Balance:${NC} $balance_in_decimal_value"
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
-    echo "${PURP}Accounts:${NC} ${total_accounts}"
+    # echo "${PURP}Accounts:${NC} ${total_accounts}"
     # echo "${PURP}HashData:${NC} $metadata"
   fi
   echo "============================="

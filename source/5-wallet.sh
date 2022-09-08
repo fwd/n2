@@ -397,6 +397,22 @@ if [[ $1 == "address" ]]; then
 
 fi
 
+if [[ $1 == "history" ]]; then
+
+    print_history $2 $3 $4
+
+    exit 0
+
+fi
+
+if [[ $1 == "pending" ]]; then
+
+    print_pending $2 $3 $4
+
+    exit 0
+
+fi
+
 if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 
     print_balance $2 $3 $4

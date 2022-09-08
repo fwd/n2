@@ -392,6 +392,98 @@ EOF
 
 }
 
+
+
+function print_history() {
+
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2/node
+  else
+      NODE_URL=$(cat $DIR/.n2/node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  accounts_on_file=$(get_accounts)
+
+  if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
+    first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+  else
+    first_account=$1
+  fi
+
+  ADDRESS_HISTORY=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+  "action": "account_history", 
+  "account": "$first_account",
+  "count": "100"
+}
+EOF
+  ))
+
+  echo $ADDRESS_HISTORY
+
+}
+
+
+function print_pending() {
+
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL >> $DIR/.n2/node
+  else
+      NODE_URL=$(cat $DIR/.n2/node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+    echo -n ""
+  else
+    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    exit 0
+  fi
+
+  accounts_on_file=$(get_accounts)
+
+  if [[ -z "$1" ]] || [[ "$1" == "--hide" ]] || [[ "$1" == "-hide" ]]; then
+    first_account=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
+  else
+    first_account=$1
+  fi
+
+  ADDRESS_HISTORY=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+  "action": "pending", 
+  "account": "$first_account",
+  "count": "100",
+  "source": "true"
+}
+EOF
+  ))
+
+  echo $ADDRESS_HISTORY
+
+}
+
+
+
+
+
+
+
 if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
 
     list_accounts $2 $3
@@ -914,6 +1006,22 @@ fi
 if [[ $1 == "address" ]]; then
 
     print_address $2 $3
+
+    exit 0
+
+fi
+
+if [[ $1 == "history" ]]; then
+
+    print_history $2 $3 $4
+
+    exit 0
+
+fi
+
+if [[ $1 == "pending" ]]; then
+
+    print_pending $2 $3 $4
 
     exit 0
 

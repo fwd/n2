@@ -418,6 +418,12 @@ function print_history() {
     first_account=$1
   fi
 
+  if [[ -z "$2" ]]; then
+    count='100'
+  else
+    count=$2
+  fi
+
   ADDRESS_HISTORY=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -426,7 +432,7 @@ function print_history() {
 {
   "action": "account_history", 
   "account": "$first_account",
-  "count": "100"
+  "count": "$count"
 }
 EOF
   ))
@@ -460,6 +466,12 @@ function print_pending() {
     first_account=$1
   fi
 
+    if [[ -z "$2" ]]; then
+    count='100'
+  else
+    count=$2
+  fi
+
   ADDRESS_HISTORY=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -468,7 +480,7 @@ function print_pending() {
 {
   "action": "pending", 
   "account": "$first_account",
-  "count": "100",
+  "count": "$count",
   "source": "true"
 }
 EOF

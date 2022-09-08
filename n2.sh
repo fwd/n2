@@ -1164,7 +1164,7 @@ if [[ "$1" = "unlock" ]]; then
       NODE_PATH=$(cat $DIR/.n2/path)
     fi
 
-    sed -i 's/enable_control = false/enable_control = true/g' $NODE_PATH/nano-node/Nano/config-rpc.toml
+    sed -i 's/enable_control = false/enable_control = true/g' "$NODE_PATH/nano-node/Nano/config-rpc.toml"
 
     exit 0
 
@@ -1179,7 +1179,7 @@ if [[ "$1" = "lock" ]]; then
       NODE_PATH=$(cat $DIR/.n2/path)
     fi
 
-    sed -i 's/enable_control = true/enable_control = false/g' $NODE_PATH/nano-node/Nano/config-rpc.toml
+    sed -i 's/enable_control = true/enable_control = false/g' "$NODE_PATH/nano-node/Nano/config-rpc.toml"
 
     exit 0
 

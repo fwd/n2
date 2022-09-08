@@ -1,3 +1,4 @@
+
 # ██╗  ██╗███████╗██╗     ██████╗ 
 # ██║  ██║██╔════╝██║     ██╔══██╗
 # ███████║█████╗  ██║     ██████╔╝
@@ -25,7 +26,34 @@ fi
 #   ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝                                      
 
 if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" = "version" ]]; then
-    echo "${GREEN}Version:${NC} N2 $VERSION"
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+         NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        
+NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+
+
+    echo "${GREEN}NANO NODE:${NC} N2 $(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"')"
+    echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
+
+    else
+        echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
+    fi
+  ))
     exit 0
 fi
 

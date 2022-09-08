@@ -346,8 +346,6 @@ EOF
 EOF
   ))
 
-  # echo $NODE_SYNC
-
   NODE_BLOCK_COUNT=$(jq '.count' <<< "$NODE_SYNC" | tr -d '"') 
   NODE_BLOCK_UNCHECKED=$(jq '.unchecked' <<< "$NODE_SYNC" | tr -d '"') 
   NODE_BLOCK_CEMENTED=$(jq '.cemented' <<< "$NODE_SYNC" | tr -d '"') 
@@ -355,15 +353,6 @@ EOF
   INT_NODE_BLOCK_COUNT=$(expr $NODE_BLOCK_COUNT + 0)
   INT_NODE_BLOCK_UNCHECKED=$(expr $NODE_BLOCK_UNCHECKED + 0)
   INT_NODE_BLOCK_CEMENTED=$(expr $NODE_BLOCK_CEMENTED + 0)
-
-  # echo $INT_NODE_BLOCK_COUNT
-  # echo $INT_NODE_BLOCK_UNCHECKED
-  # echo $INT_NODE_BLOCK_CEMENTED
-
-  # Let's say you have two numbers, $INT_NODE_BLOCK_COUNT and $INT_NODE_BLOCK_UNCHECKED.  
-
-  # $INT_NODE_BLOCK_UNCHECKED / $INT_NODE_BLOCK_COUNT * 100 = 75.
-  # So $INT_NODE_BLOCK_UNCHECKED is 75% of $INT_NODE_BLOCK_COUNT. 
 
   SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
 
@@ -998,6 +987,159 @@ EOF
 
 fi
 
+if [[ "$1" = "status" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+         NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+  ))
+
+   echo $NODE_VERSION
+
+  exit 0
+
+fi
+
+
+if [[ "$1" = "block_count" ]] || [[ "$1" = "count" ]] || [[ "$1" = "blocks" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+         NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+  ))
+
+  NODE_SYNC=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "block_count"
+}
+EOF
+  ))
+
+  echo $NODE_SYNC
+
+  exit 0
+
+fi
+
+if [[ "$1" = "sync" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+         NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+  ))
+
+  NODE_SYNC=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "block_count"
+}
+EOF
+  ))
+
+  NODE_BLOCK_COUNT=$(jq '.count' <<< "$NODE_SYNC" | tr -d '"') 
+  NODE_BLOCK_UNCHECKED=$(jq '.unchecked' <<< "$NODE_SYNC" | tr -d '"') 
+  NODE_BLOCK_CEMENTED=$(jq '.cemented' <<< "$NODE_SYNC" | tr -d '"') 
+
+  INT_NODE_BLOCK_COUNT=$(expr $NODE_BLOCK_COUNT + 0)
+  INT_NODE_BLOCK_UNCHECKED=$(expr $NODE_BLOCK_UNCHECKED + 0)
+  INT_NODE_BLOCK_CEMENTED=$(expr $NODE_BLOCK_CEMENTED + 0)
+
+  SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
+
+  echo "{ \"sync\": \"$SYNC_PERCENT%\", \"block_count\": \"$count\", \"unchecked\": \"$NODE_BLOCK_UNCHECKED\", \"cemented\": \"$NODE_BLOCK_CEMENTED\" }"
+
+  exit 0
+
+fi
+
 if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] ||  [[ "$1" = "start" ]]; then
     
     if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
@@ -1008,6 +1150,36 @@ if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] ||  [[ "$1" = "start" ]]; then
     fi
 
     cd $NODE_PATH && docker-compose start nano-node > /dev/null
+
+    exit 0
+
+fi
+
+if [[ "$1" = "unlock" ]]; then
+    
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    sed -i 's/enable_control = false/enable_control = true/g' $NODE_PATH/nano-node/Nano/config-rpc.toml
+
+    exit 0
+
+fi
+
+if [[ "$1" = "lock" ]]; then
+    
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
+
+    sed -i 's/enable_control = true/enable_control = false/g' $NODE_PATH/nano-node/Nano/config-rpc.toml
 
     exit 0
 
@@ -1074,8 +1246,14 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
         exit 0
     fi
 
-    # Coming soon
+    if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+      echo "${RED}Error:${NC} ${CYAN}Node Path not provided.${NC} Use 'n2 config path PATH'. You will need ~200GB of space."
+      exit 0
+    else
+      NODE_PATH=$(cat $DIR/.n2/path)
+    fi
 
+    # Coming soon
     if [[ "$2" = "pow" ]] || [[ "$2" = "--pow" ]] || [[ "$2" = "pow-proxy" ]] || [[ "$2" = "pow-server" ]]; then
         read -p 'Setup Nano PoW Server: Enter 'y': ' YES
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
@@ -1191,6 +1369,7 @@ EOF
 
 fi
 
+
 # ██╗  ██╗███████╗██╗     ██████╗ 
 # ██║  ██║██╔════╝██║     ██╔══██╗
 # ███████║█████╗  ██║     ██████╔╝
@@ -1218,7 +1397,34 @@ fi
 #   ╚═══╝  ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝                                      
 
 if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" = "version" ]]; then
-    echo "${GREEN}Version:${NC} N2 $VERSION"
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+         NODE_URL='[::1]:7076'
+        echo $NODE_URL >> $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        
+NODE_VERSION=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "version"
+}
+EOF
+
+
+    echo "${GREEN}NANO NODE:${NC} N2 $(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"')"
+    echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
+
+    else
+        echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
+    fi
+  ))
     exit 0
 fi
 

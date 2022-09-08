@@ -399,7 +399,7 @@ fi
 
 if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 
-    print_balance $2 $3
+    print_balance $2 $3 $4
 
     exit 0
 

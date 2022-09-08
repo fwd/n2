@@ -1,3 +1,4 @@
+
 if [ "$1" = "whois" ]; then
 
     if [[ "$2" == *"nano_"* ]]; then
@@ -31,3 +32,4 @@ if [ "$1" = "whois" ]; then
     exit 
 
 fi
+

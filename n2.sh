@@ -1003,8 +1003,8 @@ function send_with_pow() {
 {
     "action": "send",
     "wallet": "$WALLET_ID",
-    "source": "$1",
-    "destination": "$3",
+    "source": "$3",
+    "destination": "$1",
     "amount": "$2",
     "id": "$(uuidgen)",
     "work": "$4"

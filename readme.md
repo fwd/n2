@@ -10,7 +10,7 @@
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
-### RPC client written in BASH. Manage Nano Nodes easily.
+### RPC client written in BASH for managing local Nano Nodes.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

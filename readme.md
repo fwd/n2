@@ -6,7 +6,7 @@
 
 <h3 align="center">Beta v0.4</h3>
 
-> In serious development. Not ready for general use. 
+> In development. Not ready for general use. 
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

@@ -1348,7 +1348,7 @@ EOF
 
 fi
 
-if [[ "$1" = "sync" ]]; then
+if [[ "$1" = "sync" ]] || [[ "$1" = "status" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
          NODE_URL='[::1]:7076'
@@ -1403,7 +1403,7 @@ EOF
 
   SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
 
-  echo "{ \"sync\": \"$SYNC_PERCENT%\", \"block_count\": \"$count\", \"unchecked\": \"$NODE_BLOCK_UNCHECKED\", \"cemented\": \"$NODE_BLOCK_CEMENTED\" }"
+  echo "{ \"sync\": \"$SYNC_PERCENT%\", \"block_count\": \"$NODE_BLOCK_COUNT\", \"unchecked\": \"$NODE_BLOCK_UNCHECKED\", \"cemented\": \"$NODE_BLOCK_CEMENTED\" }"
 
   exit 0
 

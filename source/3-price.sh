@@ -1,4 +1,5 @@
 
+
 # ██████╗ ██████╗ ██╗ ██████╗███████╗
 # ██╔══██╗██╔══██╗██║██╔════╝██╔════╝
 # ██████╔╝██████╔╝██║██║     █████╗  
@@ -25,8 +26,6 @@ if [ "$1" = "price" ] || [ "$1" = "--price" ] || [ "$1" = "-price" ] || [ "$1" =
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
-
-    # echo $PRICE
 
     echo $(jq -r '.nano' <<< "$PRICE")
 

@@ -1,11 +1,11 @@
 
 LOCAL_DOCS=$(cat <<EOF
 ${GREEN}USAGE:${NC}
- $ n2 setup
- $ n2 balance
- $ n2 whois @moon
- $ n2 send @esteban 0.1
- $ n2 install (Coming Soon)
+$ n2 setup
+$ n2 balance
+$ n2 whois @moon
+$ n2 send @esteban 0.1
+$ n2 install (Coming Soon)
 EOF
 )
 

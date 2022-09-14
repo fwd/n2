@@ -31,11 +31,11 @@ EOF
 
 fi
 
-if [[ "$1" = "status" ]]; then
+if [[ "$1" = "version" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
          NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
         NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -76,7 +76,7 @@ if [[ "$1" = "block_count" ]] || [[ "$1" = "count" ]] || [[ "$1" = "blocks" ]]; 
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
          NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
         NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -127,7 +127,7 @@ if [[ "$1" = "sync" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
          NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
         NODE_URL=$(cat $DIR/.n2/node)
     fi

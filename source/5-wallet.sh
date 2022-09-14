@@ -3,7 +3,7 @@ function local_send() {
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
         NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
       NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -84,8 +84,9 @@ function local_send() {
 }
 EOF
   ))
-        AMOUNT_FINAL_RAW=$(jq -r '.balance' <<< "$ACCOUNT")
-        AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
+
+    AMOUNT_FINAL_RAW=$(jq -r '.balance' <<< "$ACCOUNT")
+    AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
@@ -111,8 +112,6 @@ EOF
       DEST=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
 
     else
-      
-      # first_account=$2
 
         if [[ "$2" == *"nano_"* ]]; then
             DEST=$2
@@ -297,12 +296,71 @@ EOF
     exit 0
 fi
 
-if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
-
+if [[ $1 == "add" ]] || [[ $1 == "create" ]] || [[ $1 == "account_create" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
         NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2/wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2/wallet)
+    fi
+
+    if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]]; then
+        echo -n ""
+    else    
+        read -p "${GREEN}Cloud${NC}: Add a new address? Enter 'y' to continue: " SANITY_CHECK
+        if [[ $SANITY_CHECK != 'y' ]] && [[ $SANITY_CHECK != 'Y' ]]; then
+          echo "Canceled."
+          exit 0
+        fi
+    fi
+
+  NEW_ACCOUNT=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+    "action": "account_create",
+    "wallet": "$WALLET_ID"
+}
+EOF
+  ))
+
+    if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]]; then
+        echo $NEW_ACCOUNT
+        exit 0
+    fi
+
+    echo "============================="
+    echo "      ${GREEN}ACCOUNT CREATED${NC}"
+    echo "============================="
+    echo $(jq '.account' <<< "$NEW_ACCOUNT" | tr -d '"')
+
+    exit 0
+
+fi
+
+
+if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
     else
       NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -326,6 +384,29 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
+    accounts_on_file=$(get_accounts)
+
+    if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
+        if [[ -z "$2" ]]; then
+          ACCOUNT_INDEX="0"
+        else
+          ACCOUNT_INDEX=$(expr $2 - 1)
+        fi
+        SRC=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+    else  
+        SRC=$2
+    fi
+
+    if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
+        echo -n ""
+    else    
+        read -p "${GREEN}Cloud${NC}: Remove '$SRC' from wallet? Enter 'y' to continue: " SANITY_CHECK
+        if [[ $SANITY_CHECK != 'y' ]] && [[ $SANITY_CHECK != 'Y' ]]; then
+          echo "Canceled."
+          exit 0
+        fi
+    fi
+
     REMOVE=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -334,7 +415,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
 {
     "action": "account_remove",
     "wallet": "$WALLET_ID",
-    "account": "$2"
+    "account": "$SRC"
 }
 EOF
     ))
@@ -351,7 +432,7 @@ if [[ $1 == "wallet" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
         NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
       NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -442,11 +523,11 @@ if [[ $1 == "save" ]]; then
         exit 0
     fi
     if jq -e . >/dev/null 2>&1 <<<"$3"; then
-        # mkdir -p $DIR/.n2/$2
         echo $3 > "$DIR/.n2/$2"
     else
         echo "Failed to parse JSON"
     fi
     exit 0
 fi
+
 

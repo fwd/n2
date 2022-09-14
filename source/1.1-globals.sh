@@ -4,7 +4,7 @@ function get_accounts() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -50,7 +50,7 @@ function get_balance() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -90,7 +90,7 @@ function get_balance() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -139,7 +139,7 @@ function print_address() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -176,7 +176,7 @@ function print_balance() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -348,7 +348,7 @@ function print_history() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -396,7 +396,7 @@ function print_pending() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
       NODE_URL='[::1]:7076'
-      echo $NODE_URL >> $DIR/.n2/node
+      echo $NODE_URL > $DIR/.n2/node
   else
       NODE_URL=$(cat $DIR/.n2/node)
   fi
@@ -439,12 +439,6 @@ EOF
   echo $ADDRESS_HISTORY
 
 }
-
-
-
-
-
-
 
 if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
 

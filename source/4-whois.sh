@@ -1,4 +1,5 @@
 
+
 if [ "$1" = "whois" ]; then
 
     if [[ "$2" == *"nano_"* ]]; then
@@ -24,10 +25,11 @@ if [ "$1" = "whois" ]; then
     echo "==============================="
     if [[ "$2" != *"nano_"* ]]; then
     echo "NAME: @"$(jq -r '.name' <<< "$ACCOUNT")
-    echo "CREATED: "$(jq -r '.created' <<< "$ACCOUNT")
+    # echo "CREATED: "$(jq -r '.created' <<< "$ACCOUNT")
     fi
     echo "ADDRESS: "$(jq -r '.address' <<< "$ACCOUNT")
-    echo "NANOLOOKER: https://nanolooker.com/account/"$(jq -r '.address' <<< "$ACCOUNT")
+    echo "==============================="
+    echo "https://nanolooker.com/account/"$(jq -r '.address' <<< "$ACCOUNT")
 
     exit 
 

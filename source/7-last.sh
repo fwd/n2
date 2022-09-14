@@ -1,4 +1,5 @@
 
+
 # ██╗  ██╗███████╗██╗     ██████╗ 
 # ██║  ██║██╔════╝██║     ██╔══██╗
 # ███████║█████╗  ██║     ██████╔╝
@@ -8,13 +9,6 @@
 
 if [ "$1" = "help" ] || [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ]; then
     echo "$DOCS"
-    exit 0
-fi
-
-if [ "$1" = "list" ] || [ "$1" = "ls" ] || [ "$1" = "--ls" ] || [ "$1" = "-ls" ] || [ "$1" = "-l" ]; then
-cat <<EOF
-$DOCS
-EOF
     exit 0
 fi
 
@@ -29,7 +23,7 @@ if [[ "$1" = "v" ]] || [[ "$1" = "-v" ]] || [[ "$1" = "--version" ]] || [[ "$1" 
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
          NODE_URL='[::1]:7076'
-        echo $NODE_URL >> $DIR/.n2/node
+        echo $NODE_URL > $DIR/.n2/node
     else
         NODE_URL=$(cat $DIR/.n2/node)
     fi
@@ -45,7 +39,7 @@ NODE_VERSION=$(curl -s $NODE_URL \
     "action": "version"
 }
 EOF
-
+  ))
 
     echo "${GREEN}NANO NODE:${NC} N2 $(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"')"
     echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
@@ -53,8 +47,9 @@ EOF
     else
         echo "${GREEN}N2 CLI:${NC} N2 $VERSION"
     fi
-  ))
+
     exit 0
+
 fi
 
 # ██╗   ██╗██████╗ ██████╗  █████╗ ████████╗███████╗
@@ -85,7 +80,6 @@ if [ "$1" = "u" ] || [ "$2" = "-u" ] || [ "$1" = "install" ] || [ "$1" = "--inst
     exit 0
 fi
 
-
 # ██╗   ██╗███╗   ██╗██╗███╗   ██╗███████╗████████╗ █████╗ ██╗     ██╗     
 # ██║   ██║████╗  ██║██║████╗  ██║██╔════╝╚══██╔══╝██╔══██╗██║     ██║     
 # ██║   ██║██╔██╗ ██║██║██╔██╗ ██║███████╗   ██║   ███████║██║     ██║     
@@ -111,6 +105,7 @@ fi
 # ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝
                          
 cat <<EOF
-Commant not found. Use 'n2 help' to see all commands.
+Commant not found. Use 'n2 help' to list commands.
 EOF
 
+exit 0

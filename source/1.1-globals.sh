@@ -440,12 +440,9 @@ EOF
 
 }
 
-if [[ $1 == "list" ]] || [[ $1 == "ls" ]]; then
+if [[ $1 == "list" ]] || [[ $1 == "ls" ]] || [[ $1 == "l" ]]; then
 
     list_accounts $2 $3
-    # ACCOUNT_LIST=$(jq '.accounts' <<< get_accounts) 
-
-    # echo $(jq length <<< list_accounts)
 
     exit 0
 

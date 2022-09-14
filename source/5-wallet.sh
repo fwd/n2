@@ -33,8 +33,6 @@ function local_send() {
     fi
 
     UUID=$(uuidgen)
-    # UUID=$(cat /proc/sys/kernel/random/uuid)
-
     accounts_on_file=$(get_accounts)
 
     if [[ -z "$4" ]] || [[ "$4" == "--json" ]]; then
@@ -77,7 +75,7 @@ function local_send() {
     --data @<(cat <<EOF
 {
     "action": "account_info",
-    "account": "$4",
+    "account": "$SRC",
     "representative": "true",
     "pending": "true",
     "receivable": "true"
@@ -193,7 +191,7 @@ EOF
     ))          
                 # echo "Paid."
 
-                sleep .5
+                # sleep .5
 
                 echo $SEND_ATTEMPT
 
@@ -206,6 +204,11 @@ EOF
         exit 0
 
     fi
+
+    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request GET)
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -233,6 +236,27 @@ EOF
 
     WORK=$(jq -r '.work' <<< "$POW")
 
+    if [[ "$5" == "--json" ]]; then
+        echo -n ""
+    else    
+        SEND_CONFIRM=$(cat <<EOF
+==================================
+         ${GREEN}CONFIRM SEND${NC}
+==================================
+AMOUNT: $3
+TO: $DEST
+FROM: $SRC
+==================================
+Press 'Y' to continue:
+EOF
+)
+        read -p "$SEND_CONFIRM " SEND_CONFIRM_YES
+        if [[ $SEND_CONFIRM_YES != 'y' ]] && [[ $SEND_CONFIRM_YES != 'Y' ]]; then
+          echo "Canceled."
+          exit 0
+        fi
+    fi
+
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -250,6 +274,11 @@ EOF
 EOF
     ))
 
+    if [[ "$5" == "--json" ]]; then
+        echo $SEND_ATTEMPT
+        exit 0
+    fi
+
     if [[ "$(jq -r '.block' <<< "$SEND_ATTEMPT")" == "null" ]]; then
         # echo
         echo "================================"
@@ -261,10 +290,6 @@ EOF
         exit 0
     fi
 
-    if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
-        echo $SEND_ATTEMPT
-        exit 0
-    fi
 
     echo "==============================="
     echo "         ${GREEN}NANO RECEIPT${NC}          "
@@ -291,7 +316,7 @@ fi
 
 if [[ $1 == "send" ]] || [[ $1 == "--send" ]] || [[ $1 == "-s" ]]; then
     cat <<EOF
-$(local_send $1 $2 $3 $4)
+$(local_send $1 $2 $3 $4 $5)
 EOF
     exit 0
 fi
@@ -496,7 +521,20 @@ fi
 
 if [[ $1 == "b" ]] || [[ $1 == "balance" ]] || [[ $1 == "account" ]]; then
 
-    print_balance $2 $3 $4
+    accounts_on_file=$(get_accounts)
+
+    if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
+        if [[ -z "$2" ]]; then
+          ACCOUNT_INDEX="0"
+        else
+          ACCOUNT_INDEX=$(expr $2 - 1)
+        fi
+        SRC=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+    else
+        SRC=$2
+    fi
+
+    print_balance $SRC $3 $4
 
     exit 0
 

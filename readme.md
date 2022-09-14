@@ -4,11 +4,13 @@
 
 <h2 align="center">Nano Command Line (N2)</h2>
 
-<h3 align="center">Beta v0.3</h3>
+<h3 align="center">Beta v0.4</h3>
+
+> In serious development. Not ready for general use. 
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 
-### RPC client written in BASH. For managing Nano Nodes easily.
+### RPC client written in BASH. Manage Nano Nodes easily.
 
 ![line](https://github.com/fwd/n2/raw/master/.github/line.png)
 

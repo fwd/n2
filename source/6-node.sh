@@ -47,16 +47,10 @@ if [[ "$1" = "vanity" ]]; then
 
     else 
 
-        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0)
-        VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
-     
-        if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
-            echo "=================================="
-            echo "PUBLIC:"${GREEN} ${VANITY_ADDRESS_ARRAY[1]} ${NC}
-            echo "PRIVATE:"${RED} ${VANITY_ADDRESS_ARRAY[0]} ${NC}
-            echo "=================================="
-        fi
+        VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
 
+        echo $VANITY_ADDRESS
+     
     fi
 
     exit 0

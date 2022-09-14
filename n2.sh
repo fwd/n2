@@ -1305,13 +1305,6 @@ if [[ "$1" = "vanity" ]]; then
         exit 0
     fi
 
-    # echo $2
-    # echo $3
-    # echo $4
-    # echo $5
-
-    # exit 0
-
     if ! command -v nano-vanity &> /dev/null; then
     
         read -p '@PlasmaPower/Nano-Vanity not installed. Installing. Enter 'Y' to install: ' YES
@@ -1334,11 +1327,12 @@ if [[ "$1" = "vanity" ]]; then
 
     fi
 
-    # VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
-    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
-    VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
 
     if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
+
+        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+        VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
+
         if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
             VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
             echo $VANITY_JSON
@@ -1347,13 +1341,13 @@ if [[ "$1" = "vanity" ]]; then
             VANITY_JSON="{ \"error\": \"true\"  }"
             echo $VANITY_JSON
         fi
-    else 
-     
-        if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
-            echo "PUBLIC:"${GREEN} ${VANITY_ADDRESS_ARRAY[1]} ${NC}
-            echo "PRIVATE:"${RED} ${VANITY_ADDRESS_ARRAY[0]} ${NC}
-        fi
 
+    else 
+
+        VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
+
+        echo $VANITY_ADDRESS
+     
     fi
 
     exit 0

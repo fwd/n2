@@ -408,7 +408,7 @@ if [[ "$1" = "add_vanity" ]]; then
         VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
         # VANITY_PRIVATE=$(jq ".private" <<< "$VANITY_JSON") 
         # echo $VANITY_JSON
-        echo $VANITY_PRIVATE
+        echo $VANITY_JSON
     else
         exit 0
     fi

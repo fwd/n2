@@ -39,18 +39,14 @@ if [[ "$1" = "vanity" ]]; then
         if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
             VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
             echo $VANITY_JSON
-            exit 0
         else
             VANITY_JSON="{ \"error\": \"true\"  }"
             echo $VANITY_JSON
         fi
 
     else 
-
         VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
-
         echo $VANITY_ADDRESS
-     
     fi
 
     exit 0

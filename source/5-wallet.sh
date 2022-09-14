@@ -380,6 +380,43 @@ EOF
 
 fi
 
+if [[ "$1" = "add_vanity" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if ! command -v nano-vanity &> /dev/null; then
+        echo "@PlasmaPower/Nano-Vanity not installed. Use 'n2 vanity' to setup."
+        exit 0
+    fi
+
+    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
+    
+    if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
+        VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
+        # VANITY_PRIVATE=$(jq ".private" <<< "$VANITY_JSON") 
+        # echo $VANITY_JSON
+        echo $VANITY_PRIVATE
+    else
+        exit 0
+    fi
+
+    exit 0
+
+fi
+
 
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
 

@@ -998,6 +998,43 @@ EOF
 
 fi
 
+if [[ "$1" = "add_vanity" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if ! command -v nano-vanity &> /dev/null; then
+        echo "@PlasmaPower/Nano-Vanity not installed. Use 'n2 vanity' to setup."
+        exit 0
+    fi
+
+    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
+    
+    if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
+        VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
+        # VANITY_PRIVATE=$(jq ".private" <<< "$VANITY_JSON") 
+        # echo $VANITY_JSON
+        echo $VANITY_PRIVATE
+    else
+        exit 0
+    fi
+
+    exit 0
+
+fi
+
 
 if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
 
@@ -1258,6 +1295,70 @@ EOF
 fi
 
 
+
+
+# Sorta working
+if [[ "$1" = "vanity" ]]; then
+
+    if [[ -z "$2" ]]; then
+        echo "${RED}Error:${NC} Missing Vanity Phrase."
+        exit 0
+    fi
+
+    # echo $2
+    # echo $3
+    # echo $4
+    # echo $5
+
+    # exit 0
+
+    if ! command -v nano-vanity &> /dev/null; then
+    
+        read -p '@PlasmaPower/Nano-Vanity not installed. Installing. Enter 'Y' to install: ' YES
+
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
+            
+            # GPU
+            cargo install nano-vanity
+
+        else 
+            echo "Canceled"
+            exit 0
+        fi
+
+    fi
+
+    # VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
+    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
+
+    if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
+        if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
+            VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
+            echo $VANITY_JSON
+            exit 0
+        else
+            VANITY_JSON="{ \"error\": \"true\"  }"
+            echo $VANITY_JSON
+        fi
+    else 
+     
+        if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
+            echo "PUBLIC:"${GREEN} ${VANITY_ADDRESS_ARRAY[1]} ${NC}
+            echo "PRIVATE:"${RED} ${VANITY_ADDRESS_ARRAY[0]} ${NC}
+        fi
+
+    fi
+
+    exit 0
+
+fi
 
 if [[ "$1" = "pow" ]]; then
 
@@ -1597,31 +1698,6 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
         fi
 
         echo "Canceled"
-        exit 0
-
-    fi
-
-    # Sorta working
-    if [[ "$2" = "vanity" ]]; then
-        
-        read -p 'Setup Nano Vanity (RUST). Enter 'Y' to continue: ' YES
-
-        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
-
-            if ! [ -x "$(command -v cargo)" ]; then
-                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
-                curl https://sh.rustup.rs -sSf | sh
-                source $DIR/.cargo/env
-            fi
-            
-            # GPU
-            cargo install nano-vanity
-
-            exit 0
-        fi
-
-        echo "Canceled"
-        
         exit 0
 
     fi

@@ -68,11 +68,11 @@ function local_send() {
 
     if [[ "$3" == "all" ]]; then
 
-  ACCOUNT=$(curl -s $NODE_URL \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
+        ACCOUNT=$(curl -s $NODE_URL \
+        -H "Accept: application/json" \
+        -H "Content-Type:application/json" \
+        --request POST \
+        --data @<(cat <<EOF
 {
     "action": "account_info",
     "account": "$SRC",
@@ -83,21 +83,33 @@ function local_send() {
 EOF
   ))
 
-    AMOUNT_FINAL_RAW=$(jq -r '.balance' <<< "$ACCOUNT")
-    AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
-        AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
-    else
-        AMOUNT_FINAL=$3
+    AMOUNT_FINAL=$(jq -r '.balance' <<< "$ACCOUNT")
+
+    if [[ $AMOUNT_FINAL == "0" ]]; then
+        echo "${RED}Error:${NC} Balance is 0."
+        exit 0
     fi
 
-    # TODO: Replace with something local...but what??
-    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_FINAL" \
+    AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
+
+    AMOUNT_FINAL_INT=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
+    # AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
+    # -H "Accept: application/json" \
+    # -H "Content-Type:application/json" \
+    # --request GET)
+    #     AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
+    else
+        # AMOUNT_FINAL=$3
+        # TODO: Replace with something local...but what??
+        AMOUNT_FINAL_INT=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
+        -H "Accept: application/json" \
+        -H "Content-Type:application/json" \
+        --request GET)
+        AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_INT")
+    fi
 
     if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
            
@@ -168,7 +180,7 @@ EOF
 
     WORK=$(jq -r '.work' <<< "$POW")
 
-    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_PER" \
+    AMOUNT_PER_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_PER" \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request GET)
@@ -183,7 +195,7 @@ EOF
     "wallet": "$WALLET_ID",
     "source": "$SRC",
     "destination": "$(echo "$item" | tr -d '"')",
-    "amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+    "amount": "$AMOUNT_PER_IN_RAW",
     "id": "$(uuidgen)",
     "work": "$WORK"
 }
@@ -204,11 +216,6 @@ EOF
         exit 0
 
     fi
-
-    AMOUNT_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -246,6 +253,7 @@ EOF
 AMOUNT: $3
 TO: $DEST
 FROM: $SRC
+BALANCE: $AMOUNT_FINAL_INT
 ==================================
 Press 'Y' to continue:
 EOF
@@ -257,6 +265,7 @@ EOF
         fi
     fi
 
+    # "amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -267,7 +276,7 @@ EOF
     "wallet": "$WALLET_ID",
     "source": "$SRC",
     "destination": "$DEST",
-    "amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+    "amount": "$AMOUNT_FINAL",
     "id": "$UUID",
     "work": "$WORK"
 }
@@ -401,16 +410,33 @@ if [[ "$1" = "add_vanity" ]]; then
         exit 0
     fi
 
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2/wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2/wallet)
+    fi
+
     VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
     VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
     
     if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
-        VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
-        # VANITY_PRIVATE=$(jq ".private" <<< "$VANITY_JSON") 
-        # echo $VANITY_JSON
-        echo $VANITY_JSON
-    else
-        exit 0
+        
+        NEW_ACCOUNT=$(curl -s $NODE_URL \
+        -H "Accept: application/json" \
+        -H "Content-Type:application/json" \
+        --request POST \
+        --data @<(cat <<EOF
+{
+  "action": "wallet_add",
+  "wallet": "$WALLET_ID",
+  "key": "${VANITY_ADDRESS_ARRAY[0]}"
+}
+EOF
+  ))
+
+    echo $NEW_ACCOUNT
+
     fi
 
     exit 0

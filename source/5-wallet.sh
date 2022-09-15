@@ -390,7 +390,7 @@ EOF
 fi
 
 
-if [[ "$1" = "add_vanity" ]]; then
+if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
         NODE_URL='[::1]:7076'
@@ -418,7 +418,15 @@ if [[ "$1" = "add_vanity" ]]; then
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
-    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    GPU_INSTALLED=$(lspci -vnnn | perl -lne 'print if /^\d+\:.+(\[\S+\:\S+\])/' | grep VGA)
+
+    if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
+        THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --threads $THREAD_COUNT --simple-output)
+    else 
+        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    fi
+
     VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
     
     if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then

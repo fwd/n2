@@ -1008,7 +1008,7 @@ EOF
 fi
 
 
-if [[ "$1" = "add_vanity" ]]; then
+if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
         NODE_URL='[::1]:7076'
@@ -1036,7 +1036,15 @@ if [[ "$1" = "add_vanity" ]]; then
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
-    VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    GPU_INSTALLED=$(lspci -vnnn | perl -lne 'print if /^\d+\:.+(\[\S+\:\S+\])/' | grep VGA)
+
+    if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
+        THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --threads $THREAD_COUNT --simple-output)
+    else 
+        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    fi
+
     VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
     
     if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
@@ -1378,25 +1386,35 @@ fi
 # Sorta working
 if [[ "$1" = "vanity" ]]; then
 
-    if [[ -z "$2" ]]; then
-        echo "${RED}Error:${NC} Missing Vanity Phrase."
-        exit 0
-    fi
-
     if ! command -v nano-vanity &> /dev/null; then
+
+        INSTALL_NOTE=$(cat <<EOF
+==================================
+    ${GREEN}@PlasmaPower/Nano-Vanity${NC}
+==================================
+Press 'Y' to install:
+EOF
+)
+        read -p "$INSTALL_NOTE " YES
     
-        read -p '@PlasmaPower/Nano-Vanity not installed. Installing. Enter 'Y' to install: ' YES
+        # read -p ' not installed. Enter 'Y' to install: ' YES
 
         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
 
             if ! [ -x "$(command -v cargo)" ]; then
-                sudo apt install ocl-icd-opencl-dev gcc build-essential -y
+                sudo apt install ocl-icd-opencl-dev gcc make build-essential -y
                 curl https://sh.rustup.rs -sSf | sh
                 source $DIR/.cargo/env
             fi
             
-            # GPU
-            cargo install nano-vanity
+            # cargo install nano-vanity
+            git clone https://github.com/PlasmaPower/nano-vanity.git
+            cargo install --path .
+            rm -rf nano-vanity
+
+            echo "=============================="
+            echo "Done. You may need to restart SSH session."
+            echo "=============================="
 
         else 
             echo "Canceled"
@@ -1405,10 +1423,22 @@ if [[ "$1" = "vanity" ]]; then
 
     fi
 
+    if [[ -z "$2" ]]; then
+        echo "${RED}Error:${NC} Missing Vanity Phrase."
+        exit 0
+    fi
 
     if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
 
-        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+        GPU_INSTALLED=$(lspci -vnnn | perl -lne 'print if /^\d+\:.+(\[\S+\:\S+\])/' | grep VGA)
+
+        if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
+            THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+            VANITY_ADDRESS=$(nano-vanity $2 --no-progress --threads $THREAD_COUNT --simple-output)
+        else 
+            VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+        fi
+
         VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
 
         if [[ ${VANITY_ADDRESS_ARRAY[1]} == *"nano_"* ]]; then
@@ -1420,8 +1450,16 @@ if [[ "$1" = "vanity" ]]; then
         fi
 
     else 
-        VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
+
+        if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
+            THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+            VANITY_ADDRESS=$(nano-vanity $2 --threads $THREAD_COUNT)
+        else 
+            VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
+        fi
+
         echo $VANITY_ADDRESS
+
     fi
 
     exit 0

@@ -1386,47 +1386,49 @@ fi
 # Sorta working
 if [[ "$1" = "vanity" ]]; then
 
-    if ! command -v nano-vanity &> /dev/null; then
+#     if ! command -v nano-vanity &> /dev/null; then
 
-        INSTALL_NOTE=$(cat <<EOF
-==================================
-    ${GREEN}@PlasmaPower/Nano-Vanity${NC}
-==================================
-Press 'Y' to install:
-EOF
-)
-        read -p "$INSTALL_NOTE " YES
+#         INSTALL_NOTE=$(cat <<EOF
+# ==================================
+#     ${GREEN}@PlasmaPower/Nano-Vanity${NC}
+# ==================================
+# Press 'Y' to install:
+# EOF
+# )
+#         read -p "$INSTALL_NOTE " YES
     
-        # read -p ' not installed. Enter 'Y' to install: ' YES
+#         # read -p ' not installed. Enter 'Y' to install: ' YES
 
-        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+#         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
 
-            if ! [ -x "$(command -v cargo)" ]; then
-                sudo apt install ocl-icd-opencl-dev gcc make build-essential -y
-                curl https://sh.rustup.rs -sSf | sh
-                source $DIR/.cargo/env
-            fi
+#             if ! [ -x "$(command -v cargo)" ]; then
+#                 sudo apt install ocl-icd-opencl-dev gcc make build-essential -y
+#                 curl https://sh.rustup.rs -sSf | sh
+#                 source $DIR/.cargo/env
+#             fi
             
-            # cargo install nano-vanity
-            git clone https://github.com/PlasmaPower/nano-vanity.git
-            cargo install --path .
-            rm -rf nano-vanity
+#             # cargo install nano-vanity
+#             git clone https://github.com/PlasmaPower/nano-vanity.git
+#             cargo install --path .
+#             rm -rf nano-vanity
 
-            echo "=============================="
-            echo "Done. You may need to restart SSH session."
-            echo "=============================="
+#             echo "=============================="
+#             echo "Done. You may need to restart SSH session."
+#             echo "=============================="
 
-        else 
-            echo "Canceled"
-            exit 0
-        fi
+#         else 
+#             echo "Canceled"
+#             exit 0
+#         fi
 
-    fi
+#     fi
 
     if [[ -z "$2" ]]; then
         echo "${RED}Error:${NC} Missing Vanity Phrase."
         exit 0
     fi
+
+    VANITY_PATH="$DIR/.cargo/bin/nano-vanity"
 
     if [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]]; then
 
@@ -1434,9 +1436,10 @@ EOF
 
         if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
             THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
-            VANITY_ADDRESS=$(nano-vanity $2 --no-progress --threads $THREAD_COUNT --simple-output)
+            USE_THREAD_COUNT=$(awk "BEGIN {print ($THREAD_COUNT - 1) }")
+            VANITY_ADDRESS=$($VANITY_PATH $2 --no-progress --threads $USE_THREAD_COUNT --simple-output)
         else 
-            VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+            VANITY_ADDRESS=$($VANITY_PATH $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
         fi
 
         VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
@@ -1445,17 +1448,17 @@ EOF
             VANITY_JSON="{ \"public\": \"${VANITY_ADDRESS_ARRAY[1]}\", \"private\": \"${VANITY_ADDRESS_ARRAY[0]}\"  }"
             echo $VANITY_JSON
         else
-            VANITY_JSON="{ \"error\": \"true\"  }"
-            echo $VANITY_JSON
+            echo "{ \"error\": \"$VANITY_PATH $2 --no-progress --threads $USE_THREAD_COUNT --simple-output\"  }"
         fi
 
     else 
 
         if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
             THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
-            VANITY_ADDRESS=$(nano-vanity $2 --threads $THREAD_COUNT)
+            USE_THREAD_COUNT=$(awk "BEGIN {print ($THREAD_COUNT - 1) }")
+            VANITY_ADDRESS=$($VANITY_PATH $2 --threads $USE_THREAD_COUNT)
         else 
-            VANITY_ADDRESS=$(nano-vanity $2 --gpu-device 0 --gpu-platform 0)
+            VANITY_ADDRESS=$($VANITY_PATH $2 --gpu-device 0 --gpu-platform 0)
         fi
 
         echo $VANITY_ADDRESS

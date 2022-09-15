@@ -416,7 +416,7 @@ function print_pending() {
     first_account=$1
   fi
 
-    if [[ -z "$2" ]]; then
+  if [[ -z "$2" ]]; then
     count='100'
   else
     count=$2

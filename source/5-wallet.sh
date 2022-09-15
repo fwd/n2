@@ -406,9 +406,11 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
         exit 0
     fi
 
-    if ! command -v nano-vanity &> /dev/null; then
-        echo "@PlasmaPower/Nano-Vanity not installed. Use 'n2 vanity' to setup."
+    if [[ $(cat $DIR/.cargo/bin/nano-vanity 2>/dev/null) == "" ]]; then
+        echo "Nano-Vanity not installed. Use 'n2 vanity' to setup."
         exit 0
+    else 
+        VANITY_PATH="$DIR/.cargo/bin/nano-vanity"
     fi
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then

@@ -3,42 +3,42 @@
 # Sorta working
 if [[ "$1" = "vanity" ]]; then
 
-#     if ! command -v nano-vanity &> /dev/null; then
+    if [[ $(cat $DIR/.cargo/bin/nano-vanity 2>/dev/null) == "" ]]; then
 
-#         INSTALL_NOTE=$(cat <<EOF
-# ==================================
-#     ${GREEN}@PlasmaPower/Nano-Vanity${NC}
-# ==================================
-# Press 'Y' to install:
-# EOF
-# )
-#         read -p "$INSTALL_NOTE " YES
+        INSTALL_NOTE=$(cat <<EOF
+==================================
+    ${GREEN}@PlasmaPower/Nano-Vanity${NC}
+==================================
+Press 'Y' to install:
+EOF
+)
+        read -p "$INSTALL_NOTE " YES
     
-#         # read -p ' not installed. Enter 'Y' to install: ' YES
+        # read -p ' not installed. Enter 'Y' to install: ' YES
 
-#         if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
+        if [[ "$YES" = "y" ]] || [[ "$YES" = "Y" ]]; then
 
-#             if ! [ -x "$(command -v cargo)" ]; then
-#                 sudo apt install ocl-icd-opencl-dev gcc make build-essential -y
-#                 curl https://sh.rustup.rs -sSf | sh
-#                 source $DIR/.cargo/env
-#             fi
+            if ! [ -x "$(command -v cargo)" ]; then
+                sudo apt install ocl-icd-opencl-dev gcc make build-essential -y
+                curl https://sh.rustup.rs -sSf | sh
+                source $DIR/.cargo/env
+            fi
             
-#             # cargo install nano-vanity
-#             git clone https://github.com/PlasmaPower/nano-vanity.git
-#             cargo install --path .
-#             rm -rf nano-vanity
+            # cargo install nano-vanity
+            git clone https://github.com/PlasmaPower/nano-vanity.git
+            cargo install --path .
+            rm -rf nano-vanity
 
-#             echo "=============================="
-#             echo "Done. You may need to restart SSH session."
-#             echo "=============================="
+            echo "=============================="
+            echo "Done. You may need to restart SSH session."
+            echo "=============================="
 
-#         else 
-#             echo "Canceled"
-#             exit 0
-#         fi
+        else 
+            echo "Canceled"
+            exit 0
+        fi
 
-#     fi
+    fi
 
     if [[ -z "$2" ]]; then
         echo "${RED}Error:${NC} Missing Vanity Phrase."

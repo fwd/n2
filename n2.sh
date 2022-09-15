@@ -1040,9 +1040,10 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
 
     if [[ $GPU_INSTALLED == *"paravirtual"* ]]; then
         THREAD_COUNT=$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
-        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --threads $THREAD_COUNT --simple-output)
+        USE_THREAD_COUNT=$(awk "BEGIN {print ($THREAD_COUNT - 1) }")
+        VANITY_ADDRESS=$($VANITY_PATH $2 --no-progress --threads $USE_THREAD_COUNT --simple-output)
     else 
-        VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+        VANITY_ADDRESS=$($VANITY_PATH $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
     fi
 
     VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)

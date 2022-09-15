@@ -1007,6 +1007,7 @@ EOF
 
 fi
 
+
 if [[ "$1" = "add_vanity" ]]; then
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
@@ -1056,6 +1057,57 @@ EOF
     echo $NEW_ACCOUNT
 
     fi
+
+    exit 0
+
+fi
+
+
+if [[ "$1" = "adhoc_account" ]] || [[ "$1" = "adhoc_add" ]]; then
+
+    if [[ $2 == "" ]]; then
+        echo "${CYAN}Node${NC}: Missing Private Seed."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID >> $DIR/.n2/wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2/wallet)
+    fi
+
+    # VANITY_ADDRESS=$(nano-vanity $2 --no-progress --gpu-device 0 --gpu-platform 0 --simple-output)
+    # VANITY_ADDRESS_ARRAY=($VANITY_ADDRESS)
+    
+    NEW_ACCOUNT=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+  "action": "wallet_add",
+  "wallet": "$WALLET_ID",
+  "key": "$2"
+}
+EOF
+  ))
+
+    echo $NEW_ACCOUNT
 
     exit 0
 
@@ -1561,7 +1613,7 @@ EOF
 
 fi
 
-if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] ||  [[ "$1" = "start" ]]; then
+if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] || [[ "$1" = "start" ]] || [[ "$1" = "up" ]]; then
     
     if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
       echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
@@ -1606,7 +1658,8 @@ if [[ "$1" = "lock" ]]; then
 
 fi
 
-if [[ "$1" = "node" ]] && [[ "$2" = "stop" ]] ||  [[ "$1" = "stop" ]]; then
+
+if [[ "$1" = "node" ]] && [[ "$2" = "stop" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "down" ]]; then
     
     if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
       echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
@@ -1627,34 +1680,11 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo -n ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-        # sponsor
+        echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Use an Ubuntu server instead."
         exit 0
       # Mac OSX
-    elif [[ "$OSTYPE" == "cygwin" ]]; then
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-      # POSIX compatibility layer and Linux environment emulation for Windows
-    elif [[ "$OSTYPE" == "msys" ]]; then
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-      # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-    elif [[ "$OSTYPE" == "win32" ]]; then
-      # I'm not sure this can happen.
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-    elif [[ "$OSTYPE" == "freebsd"* ]]; then
-      # ...
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
     else
-       # Unknown.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
         exit 0
     fi
 

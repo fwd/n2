@@ -238,7 +238,7 @@ EOF
 
 fi
 
-if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] ||  [[ "$1" = "start" ]]; then
+if [[ "$1" = "node" ]] && [[ "$2" = "start" ]] || [[ "$1" = "start" ]] || [[ "$1" = "up" ]]; then
     
     if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
       echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
@@ -283,7 +283,8 @@ if [[ "$1" = "lock" ]]; then
 
 fi
 
-if [[ "$1" = "node" ]] && [[ "$2" = "stop" ]] ||  [[ "$1" = "stop" ]]; then
+
+if [[ "$1" = "node" ]] && [[ "$2" = "stop" ]] || [[ "$1" = "stop" ]] || [[ "$1" = "down" ]]; then
     
     if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
       echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
@@ -304,34 +305,11 @@ if [[ "$1" = "setup" ]] || [[ "$1" = "--setup" ]] || [[ "$1" = "install" ]] || [
     if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         echo -n ""
     elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Try a Cloud server running Ubuntu."
-        # sponsor
+        echo "${CYAN}Node${NC}: You're on a Mac. OS not supported. Use an Ubuntu server instead."
         exit 0
       # Mac OSX
-    elif [[ "$OSTYPE" == "cygwin" ]]; then
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-      # POSIX compatibility layer and Linux environment emulation for Windows
-    elif [[ "$OSTYPE" == "msys" ]]; then
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-      # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-    elif [[ "$OSTYPE" == "win32" ]]; then
-      # I'm not sure this can happen.
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
-    elif [[ "$OSTYPE" == "freebsd"* ]]; then
-      # ...
-        echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
-        exit 0
     else
-       # Unknown.
         echo "${CYAN}Node${NC}: Operating system not supported."
-        # sponsor
         exit 0
     fi
 

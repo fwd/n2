@@ -695,3 +695,10 @@ if [[ $1 == "save" ]]; then
 fi
 
 
+if [[ $1 == "list" ]] || [[ $1 == "ls" ]] || [[ $1 == "l" ]]; then
+
+    list_accounts $2 $3
+
+    exit 0
+
+fi

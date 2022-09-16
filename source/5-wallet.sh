@@ -83,32 +83,15 @@ function local_send() {
 EOF
   ))
 
-    AMOUNT_FINAL=$(jq -r '.balance' <<< "$ACCOUNT")
+        AMOUNT_FINAL=$(jq -r '.balance' <<< "$ACCOUNT")
 
-    if [[ $AMOUNT_FINAL == "0" ]]; then
-        echo "${RED}Error:${NC} Balance is 0."
-        exit 0
-    fi
-
-    AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
-
-    AMOUNT_FINAL_INT=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
-    # AMOUNT_FINAL_API=$(curl -s "https://api.nano.to/convert/fromRaw/$AMOUNT_FINAL_RAW" \
-    # -H "Accept: application/json" \
-    # -H "Content-Type:application/json" \
-    # --request GET)
-    #     AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_API")
+        if [[ $AMOUNT_FINAL == "0" ]]; then
+            echo "${RED}Error:${NC} Balance is 0."
+            exit 0
+        fi
+        
     else
-        # AMOUNT_FINAL=$3
-        # TODO: Replace with something local...but what??
-        AMOUNT_FINAL_INT=$(curl -s "https://api.nano.to/convert/toRaw/$3" \
-        -H "Accept: application/json" \
-        -H "Content-Type:application/json" \
-        --request GET)
-        AMOUNT_FINAL=$(jq -r '.value' <<< "$AMOUNT_FINAL_INT")
+        AMOUNT_FINAL=$(nano_to_raw $3)
     fi
 
     if [ -n "$2" ] && [ "$2" -eq "$2" ] 2>/dev/null; then
@@ -154,11 +137,11 @@ EOF
                     exit 0
                 fi
 
-    ACCOUNT=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
+                ACCOUNT=$(curl -s '[::1]:7076' \
+                -H "Accept: application/json" \
+                -H "Content-Type:application/json" \
+                --request POST \
+                --data @<(cat <<EOF
 {
     "action": "account_info",
     "account": "$SRC"
@@ -166,11 +149,11 @@ EOF
 EOF
     ))
 
-    POW=$(curl -s '[::1]:7090' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
+                POW=$(curl -s '[::1]:7090' \
+                -H "Accept: application/json" \
+                -H "Content-Type:application/json" \
+                --request POST \
+                --data @<(cat <<EOF
 {
     "action": "work_generate",
     "hash": "$(jq -r '.frontier' <<< "$ACCOUNT")"
@@ -178,32 +161,24 @@ EOF
 EOF
     ))
 
-    WORK=$(jq -r '.work' <<< "$POW")
+                WORK=$(jq -r '.work' <<< "$POW")
 
-    AMOUNT_PER_IN_RAW=$(curl -s "https://api.nano.to/convert/toRaw/$AMOUNT_PER" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
-
-    SEND_ATTEMPT=$(curl -s '[::1]:7076' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
+                SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+                -H "Accept: application/json" \
+                -H "Content-Type:application/json" \
+                --request POST \
+                --data @<(cat <<EOF
 {
     "action": "send",
     "wallet": "$WALLET_ID",
     "source": "$SRC",
     "destination": "$(echo "$item" | tr -d '"')",
-    "amount": "$AMOUNT_PER_IN_RAW",
+    "amount": "$(nano_to_raw $AMOUNT_PER)",
     "id": "$(uuidgen)",
     "work": "$WORK"
 }
 EOF
     ))          
-                # echo "Paid."
-
-                # sleep .5
 
                 echo $SEND_ATTEMPT
 
@@ -242,18 +217,21 @@ EOF
     ))
 
     WORK=$(jq -r '.work' <<< "$POW")
+    CURRENT_BALANCE=$(jq -r '.balance' <<< "$ACCOUNT")
 
     if [[ "$5" == "--json" ]]; then
         echo -n ""
     else    
         SEND_CONFIRM=$(cat <<EOF
 ==================================
-         ${GREEN}CONFIRM SEND${NC}
+          ${GREEN}CONFIRM SEND${NC}
 ==================================
-AMOUNT: $3
-TO: $DEST
-FROM: $SRC
-BALANCE: $AMOUNT_FINAL_INT
+${GREEN}AMOUNT:${NC} $(raw_to_nano $AMOUNT_FINAL)
+${GREEN}TO:${NC} $DEST
+${GREEN}FROM:${NC} $SRC
+${GREEN}WORK:${NC} $WORK
+==================================
+AVAILABLE: $(raw_to_nano $CURRENT_BALANCE)
 ==================================
 Press 'Y' to continue:
 EOF
@@ -265,7 +243,7 @@ EOF
         fi
     fi
 
-    # "amount": "$(jq -r '.value' <<< "$AMOUNT_IN_RAW")",
+
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
@@ -283,6 +261,8 @@ EOF
 EOF
     ))
 
+    echo $SEND_ATTEMPT
+
     if [[ "$5" == "--json" ]]; then
         echo $SEND_ATTEMPT
         exit 0
@@ -299,14 +279,13 @@ EOF
         exit 0
     fi
 
-
     echo "==============================="
     echo "         ${GREEN}NANO RECEIPT${NC}          "
     echo "==============================="
-    echo "${GREEN}AMOUNT${NC}: "$AMOUNT_FINAL
+    echo "${GREEN}AMOUNT${NC}: "$(raw_to_nano $AMOUNT_FINAL)
     echo "${GREEN}TO${NC}: "$DEST
     echo "${GREEN}FROM${NC}: "$SRC
-    # echo "BLOCK: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
+    echo "${GREEN}FROM${NC}: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
     echo "--------------------------------"
     echo "https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
     echo "==============================="

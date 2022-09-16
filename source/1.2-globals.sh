@@ -1,17 +1,5 @@
 
 
-function nano_to_raw() {
-
-  xno=3.65; before=$(echo $xno | sed 's/\..*//'); [[ $xno == *.* ]] && after=$(echo ${xno}000000000000000000000000000000 | cut -d "." -f2) || after=000000000000000000000000000000; after=${after:0:30}; full=$before$after; trimmed=$(echo $full | sed 's/^0*//'); echo $trimmed
-
-}
-
-function raw_to_nano() {
-
-  raw=365000000000000000000000000000000; raw="000000000000000000000000000000$raw"; before=$(echo $raw | sed 's/..............................$//'); after=${raw: -30}; trimmed=$(echo $before.$after | sed 's/^0*//'); if [[ ${trimmed:0:1} == '.' ]]; then echo "0$trimmed"; else echo $trimmed; fi
-  
-}
-
 function findAddress() {
   echo $1 | jq '.[] | select(contains("'$2'")) | .' | head -1
 }
@@ -253,24 +241,13 @@ function print_balance() {
 
   account_pending=$(jq '.pending' <<< "$account_info" | tr -d '"') 
 
-  balance_in_decimal=$(curl -s "https://api.nano.to/convert/fromRaw/$account_balance" \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request GET)
-  
-  # echo $account_pending
-  balance_in_decimal_value=$(jq '.value' <<< "$balance_in_decimal" | tr -d '"') 
-  # exit 1
+  balance_in_decimal_value=$(raw_to_nano $account_balance)
 
   if [[ $account_pending == "0" ]]; then
     echo -n ""
     pending_in_decimal_value="0"
   else 
-    pending_in_decimal=$(curl -s "https://api.nano.to/convert/fromRaw/$account_pending" \
-      -H "Accept: application/json" \
-      -H "Content-Type:application/json" \
-      --request GET)
-    pending_in_decimal_value=$(jq '.value' <<< "$pending_in_decimal" | tr -d '"') 
+    pending_in_decimal_value=$(raw_to_nano $account_pending)
   fi
 
   mkdir -p $DIR/.n2/data
@@ -319,8 +296,7 @@ EOF
 
   SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
 
-  # string='My long string'
-  if [[ $SYNC_PERCENT == *"99."* ]]; then
+  if [[ $SYNC_PERCENT == *"99.999"* ]]; then
     FINAL_SYNC_PERCENT="100"
   else
     FINAL_SYNC_PERCENT=$SYNC_PERCENT
@@ -333,19 +309,12 @@ EOF
     echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
   else
     echo "${PURP}Address:${NC} $(echo "$first_account" | cut -c1-17)***"
-    # echo "${PURP}Address:${NC} $first_account***"
     echo "${PURP}Balance:${NC} $balance_in_decimal_value"
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
-    # echo "${PURP}Accounts:${NC} ${total_accounts}"
-    # echo "${PURP}HashData:${NC} $metadata"
   fi
   echo "============================="
   echo "${PURP}Blockchain:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
-  # echo "${PURP}Node Sync:${NC} ${GREEN}100%${NC}"
-  # echo "${PURP}Node Uptime:${NC} 25 days"
-  # echo "============================="
   echo "============================="
-  # if [[ "$1" == "--hide" ]] || [[ "$1" == "-h" ]] || [[ "$1" == "hide" ]]; then
 DOCS=$(cat <<EOF
 ${GREEN}$ n2 [ balance | send | address ]${NC}
 EOF

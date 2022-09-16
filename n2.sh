@@ -50,6 +50,23 @@ fi
 
 
 
+function nano_to_raw() {
+
+  xno=3.65; before=$(echo $xno | sed 's/\..*//'); [[ $xno == *.* ]] && after=$(echo ${xno}000000000000000000000000000000 | cut -d "." -f2) || after=000000000000000000000000000000; after=${after:0:30}; full=$before$after; trimmed=$(echo $full | sed 's/^0*//'); echo $trimmed
+
+}
+
+function raw_to_nano() {
+
+  raw=365000000000000000000000000000000; raw="000000000000000000000000000000$raw"; before=$(echo $raw | sed 's/..............................$//'); after=${raw: -30}; trimmed=$(echo $before.$after | sed 's/^0*//'); if [[ ${trimmed:0:1} == '.' ]]; then echo "0$trimmed"; else echo $trimmed; fi
+  
+}
+
+function findAddress() {
+  echo $1 | jq '.[] | select(contains("'$2'")) | .' | head -1
+}
+
+
 function get_accounts() {
 
   if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
@@ -466,7 +483,7 @@ function print_pending() {
     first_account=$1
   fi
 
-    if [[ -z "$2" ]]; then
+  if [[ -z "$2" ]]; then
     count='100'
   else
     count=$2

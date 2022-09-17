@@ -69,6 +69,7 @@ if [ "$1" = "raw_to_nano" ]; then
 fi
 
 
+
 function findAddress() {
   echo $1 | jq '.[] | select(contains("'$2'")) | .' | head -1
 }

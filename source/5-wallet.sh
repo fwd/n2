@@ -1,4 +1,5 @@
 
+
 function local_send() {
 
     if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
@@ -27,7 +28,7 @@ function local_send() {
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -39,7 +40,7 @@ function local_send() {
 
         if [[ $(cat $DIR/.n2/main 2>/dev/null) == "" ]]; then
             SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
-            echo $SRC >> $DIR/.n2/main
+            echo $SRC > $DIR/.n2/main
         else
             SRC=$(cat $DIR/.n2/main)
         fi
@@ -184,13 +185,13 @@ EOF
 
                 let "index++"
 
-            fi
+                fi
 
-        done
+            done
 
-        exit 0
+            exit 0
 
-    fi
+        fi
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -229,7 +230,6 @@ EOF
 ${GREEN}AMOUNT:${NC} $(raw_to_nano $AMOUNT_FINAL)
 ${GREEN}TO:${NC} $DEST
 ${GREEN}FROM:${NC} $SRC
-${GREEN}WORK:${NC} $WORK
 ==================================
 AVAILABLE: $(raw_to_nano $CURRENT_BALANCE)
 ==================================
@@ -242,7 +242,6 @@ EOF
           exit 0
         fi
     fi
-
 
     SEND_ATTEMPT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -327,7 +326,7 @@ if [[ $1 == "add" ]] || [[ $1 == "create" ]] || [[ $1 == "account_create" ]]; th
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -394,7 +393,7 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -458,7 +457,7 @@ if [[ "$1" = "adhoc_account" ]] || [[ "$1" = "adhoc_add" ]]; then
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -509,7 +508,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -576,7 +575,7 @@ if [[ $1 == "wallet" ]]; then
 
     if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
         WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-        echo $WALLET_ID >> $DIR/.n2/wallet
+        echo $WALLET_ID > $DIR/.n2/wallet
     else
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
@@ -681,3 +680,4 @@ if [[ $1 == "list" ]] || [[ $1 == "ls" ]] || [[ $1 == "l" ]]; then
     exit 0
 
 fi
+

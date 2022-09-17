@@ -23,7 +23,7 @@ function get_accounts() {
 
   if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
       WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
-      echo $WALLET_ID >> $DIR/.n2/wallet
+      echo $WALLET_ID > $DIR/.n2/wallet
   else
       WALLET_ID=$(cat $DIR/.n2/wallet)
   fi

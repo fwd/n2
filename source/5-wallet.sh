@@ -117,15 +117,21 @@ EOF
         
     fi
 
+
+
+
+
+
+
     if [[ "$2" == "reps" ]] || [[ "$2" == "names" ]]; then
 
-        REP_LIST=$(curl -s "https://api.nano.to/group/$2")
+        REP_LIST=$(curl -s "https://api.nano.to/list/$2")
 
         readarray -t my_array < <(jq '.[]' <<< "$REP_LIST")
 
         COUNT=$(jq '.[] | length' <<< "$REP_LIST")
-        AMOUNT_PER=$(awk "BEGIN { print $3 / $COUNT }")
-        
+        AMOUNT_PER=$(awk "BEGIN{ print $3 / $COUNT }")
+
         index=1
 
         for item in "${my_array[@]}"; do
@@ -134,7 +140,7 @@ EOF
              
                 if (( $(awk "BEGIN { print $3 < 0.01 }") == "1" )); then
                     # echo 
-                    echo "${RED}Error:${NC} Amount '$3' is too low."
+                    echo "${RED}Error:${NC} Balance '$3' is too low."
                     exit 0
                 fi
 
@@ -181,7 +187,7 @@ EOF
 EOF
     ))          
 
-                echo $SEND_ATTEMPT
+                # echo $SEND_ATTEMPT
 
                 let "index++"
 
@@ -191,7 +197,12 @@ EOF
 
             exit 0
 
-        fi
+    fi
+
+
+
+
+
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -230,8 +241,7 @@ EOF
 ${GREEN}AMOUNT:${NC} $(raw_to_nano $AMOUNT_FINAL)
 ${GREEN}TO:${NC} $DEST
 ${GREEN}FROM:${NC} $SRC
-==================================
-AVAILABLE: $(raw_to_nano $CURRENT_BALANCE)
+${GREEN}BALANCE:${NC} $(raw_to_nano $CURRENT_BALANCE)
 ==================================
 Press 'Y' to continue:
 EOF
@@ -259,8 +269,6 @@ EOF
 }
 EOF
     ))
-
-    echo $SEND_ATTEMPT
 
     if [[ "$5" == "--json" ]]; then
         echo $SEND_ATTEMPT
@@ -384,7 +392,7 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
         exit 0
     fi
 
-    if [[ $(cat $DIR/.cargo/bin/nano-vanity 2>/dev/null) == "" ]]; then
+    if [[ ! -f "$DIR/.cargo/bin/nano-vanity" ]]; then
         echo "Nano-Vanity not installed. Use 'n2 vanity' to setup."
         exit 0
     else 

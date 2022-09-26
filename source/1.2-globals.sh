@@ -241,7 +241,11 @@ function print_balance() {
 
   account_pending=$(jq '.pending' <<< "$account_info" | tr -d '"') 
 
-  balance_in_decimal_value=$(raw_to_nano $account_balance)
+  if [[ $account_balance == "0" ]]; then
+    balance_in_decimal_value=$account_balance
+  else
+    balance_in_decimal_value=$(raw_to_nano $account_balance)
+  fi
 
   if [[ $account_pending == "0" ]]; then
     echo -n ""
@@ -296,7 +300,7 @@ EOF
 
   SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
 
-  if [[ $SYNC_PERCENT == *"99.999"* ]]; then
+  if [[ $SYNC_PERCENT == *"99.9999"* ]]; then
     FINAL_SYNC_PERCENT="100"
   else
     FINAL_SYNC_PERCENT=$SYNC_PERCENT
@@ -313,7 +317,7 @@ EOF
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
   fi
   echo "============================="
-  echo "${PURP}Blockchain:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
+  echo "${PURP}Node:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
   echo "============================="
 DOCS=$(cat <<EOF
 ${GREEN}$ n2 [ balance | send | address ]${NC}

@@ -311,7 +311,11 @@ function print_balance() {
 
   account_pending=$(jq '.pending' <<< "$account_info" | tr -d '"') 
 
-  balance_in_decimal_value=$(raw_to_nano $account_balance)
+  if [[ $account_balance == "0" ]]; then
+    balance_in_decimal_value=$account_balance
+  else
+    balance_in_decimal_value=$(raw_to_nano $account_balance)
+  fi
 
   if [[ $account_pending == "0" ]]; then
     echo -n ""
@@ -366,7 +370,7 @@ EOF
 
   SYNC_PERCENT=$(awk "BEGIN {print  (($INT_NODE_BLOCK_COUNT - $INT_NODE_BLOCK_UNCHECKED) / $INT_NODE_BLOCK_COUNT) * 100 }")
 
-  if [[ $SYNC_PERCENT == *"99.999"* ]]; then
+  if [[ $SYNC_PERCENT == *"99.9999"* ]]; then
     FINAL_SYNC_PERCENT="100"
   else
     FINAL_SYNC_PERCENT=$SYNC_PERCENT
@@ -383,7 +387,7 @@ EOF
     echo "${PURP}Pending:${NC} $pending_in_decimal_value"
   fi
   echo "============================="
-  echo "${PURP}Blockchain:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
+  echo "${PURP}Node:${NC} ${GREEN}$(jq '.node_vendor' <<< "$NODE_VERSION" | tr -d '"') @ $FINAL_SYNC_PERCENT%${NC}"
   echo "============================="
 DOCS=$(cat <<EOF
 ${GREEN}$ n2 [ balance | send | address ]${NC}
@@ -734,15 +738,21 @@ EOF
         
     fi
 
+
+
+
+
+
+
     if [[ "$2" == "reps" ]] || [[ "$2" == "names" ]]; then
 
-        REP_LIST=$(curl -s "https://api.nano.to/group/$2")
+        REP_LIST=$(curl -s "https://api.nano.to/list/$2")
 
         readarray -t my_array < <(jq '.[]' <<< "$REP_LIST")
 
         COUNT=$(jq '.[] | length' <<< "$REP_LIST")
-        AMOUNT_PER=$(awk "BEGIN { print $3 / $COUNT }")
-        
+        AMOUNT_PER=$(awk "BEGIN{ print $3 / $COUNT }")
+
         index=1
 
         for item in "${my_array[@]}"; do
@@ -751,7 +761,7 @@ EOF
              
                 if (( $(awk "BEGIN { print $3 < 0.01 }") == "1" )); then
                     # echo 
-                    echo "${RED}Error:${NC} Amount '$3' is too low."
+                    echo "${RED}Error:${NC} Balance '$3' is too low."
                     exit 0
                 fi
 
@@ -798,7 +808,7 @@ EOF
 EOF
     ))          
 
-                echo $SEND_ATTEMPT
+                # echo $SEND_ATTEMPT
 
                 let "index++"
 
@@ -808,7 +818,12 @@ EOF
 
             exit 0
 
-        fi
+    fi
+
+
+
+
+
 
     ACCOUNT=$(curl -s '[::1]:7076' \
     -H "Accept: application/json" \
@@ -847,8 +862,7 @@ EOF
 ${GREEN}AMOUNT:${NC} $(raw_to_nano $AMOUNT_FINAL)
 ${GREEN}TO:${NC} $DEST
 ${GREEN}FROM:${NC} $SRC
-==================================
-AVAILABLE: $(raw_to_nano $CURRENT_BALANCE)
+${GREEN}BALANCE:${NC} $(raw_to_nano $CURRENT_BALANCE)
 ==================================
 Press 'Y' to continue:
 EOF
@@ -876,8 +890,6 @@ EOF
 }
 EOF
     ))
-
-    echo $SEND_ATTEMPT
 
     if [[ "$5" == "--json" ]]; then
         echo $SEND_ATTEMPT
@@ -1001,7 +1013,7 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
         exit 0
     fi
 
-    if [[ $(cat $DIR/.cargo/bin/nano-vanity 2>/dev/null) == "" ]]; then
+    if [[ ! -f "$DIR/.cargo/bin/nano-vanity" ]]; then
         echo "Nano-Vanity not installed. Use 'n2 vanity' to setup."
         exit 0
     else 
@@ -1370,11 +1382,10 @@ fi
 
 
 
-
 # Sorta working
 if [[ "$1" = "vanity" ]]; then
 
-    if [[ $(cat $DIR/.cargo/bin/nano-vanity 2>/dev/null) == "" ]]; then
+    if [[ ! -f "$DIR/.cargo/bin/nano-vanity" ]]; then
 
         INSTALL_NOTE=$(cat <<EOF
 ==================================
@@ -1488,6 +1499,81 @@ EOF
     exit 0
 
 fi
+
+
+if [[ "$1" = "receive" ]]; then
+
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
+    else
+        NODE_URL=$(cat $DIR/.n2/node)
+    fi
+
+    if curl -sL --fail $NODE_URL -o /dev/null; then
+        echo -n ""
+    else
+        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        exit 0
+    fi
+
+    # if [[ $(cat $DIR/.n2/path 2>/dev/null) == "" ]]; then
+    #   echo "${RED}Error:${NC} ${CYAN}Node Path not setup.${NC} Use 'n2 config path PATH'."
+    #   exit 0
+    # else
+    #   NODE_PATH=$(cat $DIR/.n2/path)
+    # fi
+
+    if [[ $(cat $DIR/.n2/wallet 2>/dev/null) == "" ]]; then
+        WALLET_ID=$(docker exec -it nano-node /usr/bin/nano_node --wallet_list | grep 'Wallet ID' | awk '{ print $NF}' | tr -d '[:space:]' )
+        echo $WALLET_ID > $DIR/.n2/wallet
+    else
+        WALLET_ID=$(cat $DIR/.n2/wallet)
+    fi
+
+    accounts_on_file=$(get_accounts)
+
+    if [[ -z "$2" ]]; then
+        ACCOUNT_INDEX="0"
+    else
+        ACCOUNT_INDEX=$(expr $2 - 1)
+    fi
+
+    ACCOUNT=$(jq ".accounts[$ACCOUNT_INDEX]" <<< "$accounts_on_file" | tr -d '"') 
+
+    RECEIVE_RPC=$(curl -s $NODE_URL \
+    -H "Accept: application/json" \
+    -H "Content-Type:application/json" \
+    --request POST \
+    --data @<(cat <<EOF
+{
+  "action": "receivable",
+  "account": "$ACCOUNT",
+  "count": "100"
+}
+EOF
+  ))
+
+#     RECEIVE_RPC=$(curl -s $NODE_URL \
+#     -H "Accept: application/json" \
+#     -H "Content-Type:application/json" \
+#     --request POST \
+#     --data @<(cat <<EOF
+# {
+#   "action": "receive",
+#   "wallet": "$WALLET_ID",
+#   "account": "$ACCOUNT",
+#   "block": "1A6E00F7F68EA08236A00EC30E1B4C2DFDB5DD74FF6C6E59FE46D8DFF2DA6A11"
+# }
+# EOF
+#   ))
+
+   echo $RECEIVE_RPC
+
+    exit 0
+
+fi
+
 
 if [[ "$1" = "version" ]]; then
 

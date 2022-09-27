@@ -913,7 +913,7 @@ EOF
     echo "${GREEN}AMOUNT${NC}: "$(raw_to_nano $AMOUNT_FINAL)
     echo "${GREEN}TO${NC}: "$DEST
     echo "${GREEN}FROM${NC}: "$SRC
-    echo "${GREEN}FROM${NC}: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
+    # echo "${GREEN}HASH${NC}: "$(jq -r '.block' <<< "$SEND_ATTEMPT")
     echo "--------------------------------"
     echo "https://nanolooker.com/block/$(jq -r '.block' <<< "$SEND_ATTEMPT")"
     echo "==============================="

@@ -17,7 +17,7 @@ function get_accounts() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -63,7 +63,7 @@ function get_balance() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -89,7 +89,7 @@ function get_balance() {
   if curl -sL --fail '[::1]:7076' -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -121,13 +121,32 @@ EOF
 }
 
 function list_accounts() {
+
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL > $DIR/.n2/node
+  else
+    NODE_URL=$(cat $DIR/.n2/node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+      echo -n ""
+  else
+      echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
+      exit 0
+  fi
+  
   accounts_on_file=$(get_accounts)
+
   if [[ "$1" == "--json" ]] || [[ "$1" == "--json" ]]; then
       echo $(jq '.accounts' <<< "$accounts_on_file")
       exit 0
   fi
+
   readarray -t my_array < <(jq '.accounts' <<< "$accounts_on_file")
+  
   index=1
+
   for item in "${my_array[@]}"; do
     if [[ "$item" == *"nano_"* ]]; then
       if [[ "$1" == "--show" ]] || [[ "$2" == "--show" ]]; then
@@ -138,6 +157,7 @@ function list_accounts() {
       let "index++"
     fi
   done
+
 }
 
 function print_address() {
@@ -152,7 +172,7 @@ function print_address() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -189,7 +209,7 @@ function print_balance() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -346,7 +366,7 @@ function print_history() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -394,7 +414,7 @@ function print_pending() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 

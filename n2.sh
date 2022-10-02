@@ -51,10 +51,18 @@ fi
 
 
 function nano_to_raw() {
+  if [ "$1" == "0" ]; then
+    echo "0"
+    exit 0
+  fi
   amount=$1; before=$(echo $amount | sed 's/\..*//'); [[ $amount == *.* ]] && after=$(echo ${amount}000000000000000000000000000000 | cut -d "." -f2) || after=000000000000000000000000000000; after=${after:0:30}; full=$before$after; trimmed=$(echo $full | sed 's/^0*//'); echo $trimmed
 }
 
 function raw_to_nano() {
+  if [ "$1" == "0" ]; then
+    echo "0"
+    exit 0
+  fi
   raw=$1; raw="000000000000000000000000000000$raw"; before=$(echo $raw | sed 's/..............................$//'); after=${raw: -30}; trimmed=$(echo $before.$after | sed 's/^0*//' | sed 's/0*$//' | sed 's/\.$//'); if [[ ${trimmed:0:1} == '.' ]]; then echo "0$trimmed"; else echo $trimmed; fi
 }
 
@@ -87,7 +95,7 @@ function get_accounts() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -133,7 +141,7 @@ function get_balance() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -159,7 +167,7 @@ function get_balance() {
   if curl -sL --fail '[::1]:7076' -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -191,13 +199,32 @@ EOF
 }
 
 function list_accounts() {
+
+  if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+      NODE_URL='[::1]:7076'
+      echo $NODE_URL > $DIR/.n2/node
+  else
+    NODE_URL=$(cat $DIR/.n2/node)
+  fi
+
+  if curl -sL --fail $NODE_URL -o /dev/null; then
+      echo -n ""
+  else
+      echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
+      exit 0
+  fi
+  
   accounts_on_file=$(get_accounts)
+
   if [[ "$1" == "--json" ]] || [[ "$1" == "--json" ]]; then
       echo $(jq '.accounts' <<< "$accounts_on_file")
       exit 0
   fi
+
   readarray -t my_array < <(jq '.accounts' <<< "$accounts_on_file")
+  
   index=1
+
   for item in "${my_array[@]}"; do
     if [[ "$item" == *"nano_"* ]]; then
       if [[ "$1" == "--show" ]] || [[ "$2" == "--show" ]]; then
@@ -208,6 +235,7 @@ function list_accounts() {
       let "index++"
     fi
   done
+
 }
 
 function print_address() {
@@ -222,7 +250,7 @@ function print_address() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -259,7 +287,7 @@ function print_balance() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -416,7 +444,7 @@ function print_history() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -464,7 +492,7 @@ function print_pending() {
   if curl -sL --fail $NODE_URL -o /dev/null; then
     echo -n ""
   else
-    echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+    echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
     exit 0
   fi
 
@@ -633,7 +661,7 @@ function local_send() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -734,12 +762,16 @@ EOF
             NAME_DEST=$(echo $2 | sed -e "s/\@//g")
             SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
             DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+            if [[ "$DEST" == "null" ]]; then
+                echo "${RED}Error:${NC} Invalid or Expired Username."
+                exit 0
+            fi
         fi
         
     fi
 
 
-    ACCOUNT=$(curl -s '[::1]:7076' \
+    ACCOUNT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -751,19 +783,6 @@ EOF
 EOF
     ))
 
-    POW=$(curl -s '[::1]:7090' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "work_generate",
-    "hash": "$(jq -r '.frontier' <<< "$ACCOUNT")"
-}
-EOF
-    ))
-
-    WORK=$(jq -r '.work' <<< "$POW")
     CURRENT_BALANCE=$(jq -r '.balance' <<< "$ACCOUNT")
 
     if [[ "$5" == "--json" ]]; then
@@ -788,7 +807,7 @@ EOF
         fi
     fi
 
-    SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+    SEND_ATTEMPT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -799,8 +818,7 @@ EOF
     "source": "$SRC",
     "destination": "$DEST",
     "amount": "$AMOUNT_FINAL",
-    "id": "$UUID",
-    "work": "$WORK"
+    "id": "$UUID"
 }
 EOF
     ))
@@ -863,7 +881,7 @@ if [[ $1 == "add" ]] || [[ $1 == "create" ]] || [[ $1 == "account_create" ]]; th
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -923,7 +941,7 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -994,7 +1012,7 @@ if [[ "$1" = "adhoc_account" ]] || [[ "$1" = "adhoc_add" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1040,7 +1058,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1079,7 +1097,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
         fi
     fi
 
-    REMOVE=$(curl -s '[::1]:7076' \
+    REMOVE=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -1112,7 +1130,7 @@ if [[ $1 == "wallet" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1123,7 +1141,7 @@ if [[ $1 == "wallet" ]]; then
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
-    WALLET=$(curl -s '[::1]:7076' \
+    WALLET=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -1238,7 +1256,7 @@ function disburse() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1262,7 +1280,7 @@ function disburse() {
     UUID=$(uuidgen)
     accounts_on_file=$(get_accounts)
 
-    if [[ -z "$4" ]] || [[ "$5" == "--json" ]]; then
+    if [[ -z "$4" ]]; then
 
         if [[ $(cat $DIR/.n2/main 2>/dev/null) == "" ]]; then
             SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 
@@ -1494,7 +1512,7 @@ function send_with_pow() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1646,21 +1664,22 @@ if [[ "$1" = "pow" ]]; then
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2/pow 2>/dev/null) == "" ]]; then
-      POW_URL='[::1]:7090'
-      echo $POW_URL >> $DIR/.n2/pow
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
     else
-      POW_URL=$(cat $DIR/.n2/pow)
+        NODE_URL=$(cat $DIR/.n2/node)
     fi
 
-    POW_ATTEMPT=$(curl -s $POW_URL \
+    POW_ATTEMPT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
     --data @<(cat <<EOF
 {
     "action": "work_generate",
-    "hash": "$2"
+    "hash": "$2",
+    "use_peers": "true"
 }
 EOF
   ))
@@ -1684,7 +1703,7 @@ if [[ "$1" = "receive" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1758,7 +1777,7 @@ if [[ "$1" = "version" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1799,7 +1818,7 @@ if [[ "$1" = "block_count" ]] || [[ "$1" = "count" ]] || [[ "$1" = "blocks" ]]; 
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -1850,7 +1869,7 @@ if [[ "$1" = "sync" ]] || [[ "$1" = "status" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 

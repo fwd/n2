@@ -11,7 +11,7 @@ function send_with_pow() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 

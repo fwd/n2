@@ -12,7 +12,7 @@ function local_send() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -113,12 +113,16 @@ EOF
             NAME_DEST=$(echo $2 | sed -e "s/\@//g")
             SRC_ACCOUNT=$(curl -s https://raw.githubusercontent.com/fwd/nano-to/master/known.json | jq '. | map(select(.name == "'$NAME_DEST'"))' | jq '.[0]')
             DEST=$(jq -r '.address' <<< "$SRC_ACCOUNT")
+            if [[ "$DEST" == "null" ]]; then
+                echo "${RED}Error:${NC} Invalid or Expired Username."
+                exit 0
+            fi
         fi
         
     fi
 
 
-    ACCOUNT=$(curl -s '[::1]:7076' \
+    ACCOUNT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -130,19 +134,6 @@ EOF
 EOF
     ))
 
-    POW=$(curl -s '[::1]:7090' \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
-{
-    "action": "work_generate",
-    "hash": "$(jq -r '.frontier' <<< "$ACCOUNT")"
-}
-EOF
-    ))
-
-    WORK=$(jq -r '.work' <<< "$POW")
     CURRENT_BALANCE=$(jq -r '.balance' <<< "$ACCOUNT")
 
     if [[ "$5" == "--json" ]]; then
@@ -167,7 +158,7 @@ EOF
         fi
     fi
 
-    SEND_ATTEMPT=$(curl -s '[::1]:7076' \
+    SEND_ATTEMPT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -178,8 +169,7 @@ EOF
     "source": "$SRC",
     "destination": "$DEST",
     "amount": "$AMOUNT_FINAL",
-    "id": "$UUID",
-    "work": "$WORK"
+    "id": "$UUID"
 }
 EOF
     ))
@@ -242,7 +232,7 @@ if [[ $1 == "add" ]] || [[ $1 == "create" ]] || [[ $1 == "account_create" ]]; th
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -302,7 +292,7 @@ if [[ "$1" = "add_vanity" ]] || [[ "$1" = "vanity_add" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -373,7 +363,7 @@ if [[ "$1" = "adhoc_account" ]] || [[ "$1" = "adhoc_add" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -419,7 +409,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -458,7 +448,7 @@ if [[ $1 == "remove" ]] || [[ $1 == "rm" ]]; then
         fi
     fi
 
-    REMOVE=$(curl -s '[::1]:7076' \
+    REMOVE=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
@@ -491,7 +481,7 @@ if [[ $1 == "wallet" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -502,7 +492,7 @@ if [[ $1 == "wallet" ]]; then
         WALLET_ID=$(cat $DIR/.n2/wallet)
     fi
 
-    WALLET=$(curl -s '[::1]:7076' \
+    WALLET=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \

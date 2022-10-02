@@ -92,21 +92,22 @@ if [[ "$1" = "pow" ]]; then
         exit 0
     fi
 
-    if [[ $(cat $DIR/.n2/pow 2>/dev/null) == "" ]]; then
-      POW_URL='[::1]:7090'
-      echo $POW_URL >> $DIR/.n2/pow
+    if [[ $(cat $DIR/.n2/node 2>/dev/null) == "" ]]; then
+        NODE_URL='[::1]:7076'
+        echo $NODE_URL > $DIR/.n2/node
     else
-      POW_URL=$(cat $DIR/.n2/pow)
+        NODE_URL=$(cat $DIR/.n2/node)
     fi
 
-    POW_ATTEMPT=$(curl -s $POW_URL \
+    POW_ATTEMPT=$(curl -s $NODE_URL \
     -H "Accept: application/json" \
     -H "Content-Type:application/json" \
     --request POST \
     --data @<(cat <<EOF
 {
     "action": "work_generate",
-    "hash": "$2"
+    "hash": "$2",
+    "use_peers": "true"
 }
 EOF
   ))
@@ -130,7 +131,7 @@ if [[ "$1" = "receive" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -204,7 +205,7 @@ if [[ "$1" = "version" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -245,7 +246,7 @@ if [[ "$1" = "block_count" ]] || [[ "$1" = "count" ]] || [[ "$1" = "blocks" ]]; 
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -296,7 +297,7 @@ if [[ "$1" = "sync" ]] || [[ "$1" = "status" ]]; then
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 

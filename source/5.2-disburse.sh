@@ -12,7 +12,7 @@ function disburse() {
     if curl -sL --fail $NODE_URL -o /dev/null; then
         echo -n ""
     else
-        echo "${RED}Error:${NC} ${CYAN}Node not found.${NC} Use 'n2 setup' for more information."
+        echo "${RED}Error:${NC} ${CYAN}Node offline.${NC} Use 'n2 setup' for more information."
         exit 0
     fi
 
@@ -36,7 +36,7 @@ function disburse() {
     UUID=$(uuidgen)
     accounts_on_file=$(get_accounts)
 
-    if [[ -z "$4" ]] || [[ "$5" == "--json" ]]; then
+    if [[ -z "$4" ]]; then
 
         if [[ $(cat $DIR/.n2/main 2>/dev/null) == "" ]]; then
             SRC=$(jq '.accounts[0]' <<< "$accounts_on_file" | tr -d '"') 

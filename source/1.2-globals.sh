@@ -1,5 +1,14 @@
 
 
+## Compare two decimals
+# FAUCET_BALANCE=$(n2 balance nano_1faucet7b6xjyha7m13objpn5ubkquzd6ska8kwopzf1ecbfmn35d1zey3ys --nano)
+# if [ 1 -eq "$(echo "${FAUCET_BALANCE} >= 5" | bc)" ]; then
+#         echo $FAUCET_BALANCE
+# else
+#         echo "Not enough."
+# fi
+
+
 function findAddress() {
   echo $1 | jq '.[] | select(contains("'$2'")) | .' | head -1
 }
@@ -241,7 +250,17 @@ function print_balance() {
 
   account_info=$(get_balance "$first_account")
 
-  if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+  if [[ "$2" == "--raw" ]]; then
+      echo $(jq -r '.balance' <<< "$account_info")
+      exit 0
+  fi
+
+  if [[ "$2" == "--nano" ]]; then
+      raw_to_nano $(jq -r '.balance' <<< "$account_info")
+      exit 0
+  fi
+
+  if [[ "$2" == "--json" ]]; then
       echo $account_info
       exit 0
   fi

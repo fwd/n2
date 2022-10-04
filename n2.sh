@@ -319,7 +319,17 @@ function print_balance() {
 
   account_info=$(get_balance "$first_account")
 
-  if [[ "$2" == "--json" ]] || [[ "$3" == "--json" ]] || [[ "$4" == "--json" ]] || [[ "$5" == "--json" ]]; then
+  if [[ "$2" == "--raw" ]]; then
+      echo $(jq -r '.balance' <<< "$account_info")
+      exit 0
+  fi
+
+  if [[ "$2" == "--nano" ]]; then
+      raw_to_nano $(jq -r '.balance' <<< "$account_info")
+      exit 0
+  fi
+
+  if [[ "$2" == "--json" ]]; then
       echo $account_info
       exit 0
   fi

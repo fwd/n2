@@ -109,11 +109,11 @@ function get_balance() {
       NODE_URL=$(cat $DIR/.n2/node)
   fi
 
-  ACCOUNT=$(curl -s $NODE_URL \
-    -H "Accept: application/json" \
-    -H "Content-Type:application/json" \
-    --request POST \
-    --data @<(cat <<EOF
+ACCOUNT=$(curl -s $NODE_URL \
+  -H "Accept: application/json" \
+  -H "Content-Type:application/json" \
+  --request POST \
+  --data @<(cat <<EOF
 {
     "action": "account_info",
     "account": "$THE_ADDRESS",
@@ -122,7 +122,7 @@ function get_balance() {
     "receivable": "true"
 }
 EOF
-  ))
+))
 
   echo $ACCOUNT
 
@@ -147,7 +147,7 @@ function list_accounts() {
   
   accounts_on_file=$(get_accounts)
 
-  if [[ "$1" == "--json" ]] || [[ "$1" == "--json" ]]; then
+  if [[ "$1" == "--json" ]]; then
       echo $(jq '.accounts' <<< "$accounts_on_file")
       exit 0
   fi
@@ -158,11 +158,39 @@ function list_accounts() {
 
   for item in "${my_array[@]}"; do
     if [[ "$item" == *"nano_"* ]]; then
+      
       if [[ "$1" == "--show" ]] || [[ "$2" == "--show" ]]; then
-      echo "[$index]:" $item | tr -d '"'
+        
+        echo "[$index]:" $item | tr -d '"'
+
+      elif [[ "$1" == "--balance" ]] || [[ "$1" == "-b" ]]; then
+
+        CLEAN_ADDRESS=$(echo $item | tr -d '"' | tr -d ',')
+
+        # CLEAN_ADDRESS2=$()
+        
+        ITEM_ACCOUNT=$(curl -s $NODE_URL \
+  -H "Accept: application/json" \
+  -H "Content-Type:application/json" \
+  --request POST \
+  --data @<(cat <<EOF
+{
+    "action": "account_info",
+    "account": "$CLEAN_ADDRESS",
+    "representative": "true",
+    "pending": "true",
+    "receivable": "true"
+}
+EOF
+))
+      ADDRESSS_BALANCE=$(jq '.balance' <<< "$ITEM_ACCOUNT" | tr -d '"')
+
+      echo "[$index]:" $(echo $CLEAN_ADDRESS | cut -c1-20 ) "[$(raw_to_nano $ADDRESSS_BALANCE | cut -c1-6)]"
+
       else
-      echo "[$index]:" $item | tr -d '"' | cut -c1-20
+        echo "[$index]:" $item | tr -d '"' | cut -c1-20
       fi
+
       let "index++"
     fi
   done
@@ -255,7 +283,7 @@ function print_balance() {
       exit 0
   fi
 
-  if [[ "$2" == "--nano" ]]; then
+  if [[ "$2" == "--nano" ]] || [[ "$2" == "--text" ]]; then
       raw_to_nano $(jq -r '.balance' <<< "$account_info")
       exit 0
   fi
@@ -266,14 +294,14 @@ function print_balance() {
   fi
 
   if [[ "$(jq -r '.balance' <<< "$account_info")" == "null" ]]; then
-      # echo
-      echo "================================"
-      echo "             ${RED}ERROR${NC}              "
-      echo "================================"
-      echo "$(jq -r '.error' <<< "$account_info") "
-      echo "================================"
-      echo
-      exit 0
+    # echo
+    echo "================================"
+    echo "             ${RED}ERROR${NC}              "
+    echo "================================"
+    echo "$(jq -r '.error' <<< "$account_info") "
+    echo "================================"
+    echo
+    exit 0
   fi
 
   account_balance=$(jq '.balance' <<< "$account_info" | tr -d '"') 
